@@ -1,0 +1,13 @@
+{
+  "name": "tattoo-saas",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "vercel build",
+    "start": "vercel start"
+  },
+  "dependencies": {
+    "dotenv": "^18.0.7",
+    "mongodb": "^6.0.0"
+  }
+}
