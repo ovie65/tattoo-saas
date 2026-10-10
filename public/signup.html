@@ -63,7 +63,7 @@
   input {
     width: 100%;
     padding: 14px 16px;
-    border: 1px solid var(--line);
+    border: 1px solid var(--ink);
     border-radius: 10px;
     font-size: 14px;
     font-family: inherit;
@@ -72,8 +72,8 @@
   }
   input:focus {
     outline: none;
-    border-color: var(--ink);
-    box-shadow: 0 0 0 3px rgba(10,10,10,.06);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(220,38,38,.1);
   }
   .divider {
     display: flex;
@@ -115,9 +115,9 @@
   .btn-google {
     background: #fff;
     color: var(--ink);
-    border: 1px solid var(--line);
+    border: 1px solid var(--ink);
   }
-  .btn-google:hover { background: #fafafa; border-color: var(--ink); }
+  .btn-google:hover { background: #fafafa; }
   .btn-google svg { flex-shrink: 0; }
   .error {
     background: rgba(220,38,38,.08);
