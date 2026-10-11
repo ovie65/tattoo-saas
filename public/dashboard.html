@@ -84,7 +84,7 @@
   .booking-info { flex: 1; }
   .booking-client { font-weight: 700; font-size: 16px; margin-bottom: 4px; }
   .booking-desc { font-size: 14px; color: var(--muted); line-height: 1.5; margin-bottom: 8px; }
-  .booking-meta { display: flex; gap: 16px; font-size: 12px; color: var(--muted); }
+  .booking-meta { display: flex; gap: 16px; font-size: 12px; color: var(--muted); flex-wrap: wrap; }
   .booking-meta span { display: flex; align-items: center; gap: 6px; }
 
   .booking-actions { display: flex; gap: 8px; flex-shrink: 0; }
@@ -109,8 +109,8 @@
 <nav class="top-nav">
   <div class="nav-logo">INK<span>.</span></div>
   <div class="nav-user">
-    <span class="nav-user-name">My Studio</span>
-    <button class="btn-logout" onclick="window.location.href='index.html'">Log Out</button>
+    <span class="nav-user-name">Loading...</span>
+    <button class="btn-logout" id="logoutBtn">Log Out</button>
   </div>
 </nav>
 
@@ -123,87 +123,143 @@
   <div class="stats-grid">
     <div class="stat-card">
       <div class="stat-label">Pending</div>
-      <div class="stat-value accent">3</div>
+      <div class="stat-value accent" id="statPending">0</div>
     </div>
     <div class="stat-card">
       <div class="stat-label">Accepted</div>
-      <div class="stat-value">12</div>
+      <div class="stat-value" id="statAccepted">0</div>
     </div>
     <div class="stat-card">
-      <div class="stat-label">This Month</div>
-      <div class="stat-value">4</div>
+      <div class="stat-label">Declined</div>
+      <div class="stat-value" id="statDeclined">0</div>
     </div>
     <div class="stat-card">
-      <div class="stat-label">Plan Limit</div>
-      <div class="stat-value" style="font-size: 20px; margin-top: 8px;">4 / 10</div>
+      <div class="stat-label">Total Requests</div>
+      <div class="stat-value" id="statTotal">0</div>
     </div>
   </div>
 
   <div class="section-header">
-    <h2>Recent Requests</h2>
-    <span class="badge">3 New</span>
+    <h2>Booking Requests</h2>
+    <span class="badge" id="badgePending">0 New</span>
   </div>
 
-  <div class="booking-list">
-    <div class="booking-card">
-      <div class="booking-info">
-        <div class="booking-client">Sarah M.</div>
-        <div class="booking-desc">Black & grey realism sleeve. Full forearm. Reference images attached. Budget: $800</div>
-        <div class="booking-meta">
-          <span>📅 Oct 15, 2026</span>
-          <span>💰 $200 Deposit</span>
-        </div>
-      </div>
-      <div class="booking-actions">
-        <button class="btn btn-decline">Decline</button>
-        <button class="btn btn-accept">Accept</button>
-      </div>
-    </div>
-
-    <div class="booking-card">
-      <div class="booking-info">
-        <div class="booking-client">James K.</div>
-        <div class="booking-desc">Color traditional cover-up. Upper arm. Needs consultation first.</div>
-        <div class="booking-meta">
-          <span>📅 Oct 18, 2026</span>
-          <span>💰 $200 Deposit</span>
-        </div>
-      </div>
-      <div class="booking-actions">
-        <button class="btn btn-decline">Decline</button>
-        <button class="btn btn-accept">Accept</button>
-      </div>
-    </div>
-
-    <div class="booking-card">
-      <div class="booking-info">
-        <div class="booking-client">Alex R.</div>
-        <div class="booking-desc">Small minimalist line work. Inner wrist. 1 hour session.</div>
-        <div class="booking-meta">
-          <span>📅 Oct 20, 2026</span>
-          <span> $200 Deposit</span>
-        </div>
-      </div>
-      <div class="booking-actions">
-        <button class="btn btn-decline">Decline</button>
-        <button class="btn btn-accept">Accept</button>
-      </div>
-    </div>
+  <div class="booking-list" id="bookingList">
+    <div class="empty-state" id="emptyState">Loading bookings...</div>
   </div>
 </main>
 
 <script>
-  // Check if user is logged in
+  // 1. Check if user is logged in
   const userEmail = localStorage.getItem('ink_user_email');
   const userName = localStorage.getItem('ink_user_name');
 
   if (!userEmail) {
-    // Not logged in, kick them back to login page
     window.location.href = 'login.html';
   } else {
-    // Logged in, update the top right with their actual name
     document.querySelector('.nav-user-name').textContent = userName;
   }
+
+  // 2. Logout functionality
+  document.getElementById('logoutBtn').addEventListener('click', () => {
+    localStorage.removeItem('ink_user_email');
+    localStorage.removeItem('ink_user_name');
+    window.location.href = 'login.html';
+  });
+
+  // 3. Fetch real bookings from the database
+  async function loadBookings() {
+    const listContainer = document.getElementById('bookingList');
+    const emptyState = document.getElementById('emptyState');
+    
+    try {
+      const res = await fetch(`/api/get-bookings?email=${encodeURIComponent(userEmail)}`);
+      const data = await res.json();
+
+      if (!data.success || !data.bookings || data.bookings.length === 0) {
+        emptyState.style.display = 'block';
+        emptyState.textContent = 'No booking requests yet. Share your INK link to get started!';
+        return;
+      }
+
+      // Hide empty state and clear container
+      emptyState.style.display = 'none';
+      listContainer.innerHTML = '';
+
+      let pendingCount = 0;
+      let acceptedCount = 0;
+      let declinedCount = 0;
+
+      // Loop through bookings and build the HTML
+      data.bookings.forEach(booking => {
+        if (booking.status === 'pending') pendingCount++;
+        if (booking.status === 'accepted') acceptedCount++;
+        if (booking.status === 'declined') declinedCount++;
+
+        const card = document.createElement('div');
+        card.className = 'booking-card';
+        
+        // Format the date nicely
+        const dateObj = new Date(booking.date);
+        const dateStr = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+        card.innerHTML = `
+          <div class="booking-info">
+            <div class="booking-client">${booking.clientName} <span style="font-weight:400; font-size:13px; color:var(--muted)">(${booking.clientEmail})</span></div>
+            <div class="booking-desc">${booking.description}</div>
+            <div class="booking-meta">
+              <span>📅 ${dateStr}</span>
+              <span> ${booking.placement}</span>
+              <span style="text-transform: capitalize; font-weight: 600; color: ${booking.status === 'pending' ? 'var(--accent)' : 'var(--ink)'}">● ${booking.status}</span>
+            </div>
+          </div>
+          <div class="booking-actions">
+            ${booking.status === 'pending' ? `
+              <button class="btn btn-decline" onclick="updateBooking('${booking._id}', 'declined')">Decline</button>
+              <button class="btn btn-accept" onclick="updateBooking('${booking._id}', 'accepted')">Accept</button>
+            ` : ''}
+          </div>
+        `;
+        listContainer.appendChild(card);
+      });
+
+      // Update stats
+      document.getElementById('statPending').textContent = pendingCount;
+      document.getElementById('statAccepted').textContent = acceptedCount;
+      document.getElementById('statDeclined').textContent = declinedCount;
+      document.getElementById('statTotal').textContent = data.bookings.length;
+      document.getElementById('badgePending').textContent = `${pendingCount} New`;
+
+    } catch (error) {
+      console.error('Error loading bookings:', error);
+      emptyState.style.display = 'block';
+      emptyState.textContent = 'Failed to load bookings. Please refresh.';
+    }
+  }
+
+  // 4. Function to Accept or Decline (We will build the API for this next)
+  window.updateBooking = async function(bookingId, newStatus) {
+    if (!confirm(`Are you sure you want to ${newStatus} this booking?`)) return;
+
+    try {
+      const res = await fetch('/api/update-booking', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: bookingId, status: newStatus })
+      });
+      
+      if (res.ok) {
+        loadBookings(); // Reload the list
+      } else {
+        alert('Failed to update booking.');
+      }
+    } catch (error) {
+      alert('Error updating booking.');
+    }
+  };
+
+  // Load bookings when page opens
+  loadBookings();
 </script>
 
 </body>
