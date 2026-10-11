@@ -145,6 +145,47 @@
 
   .empty-state { text-align: center; padding: 60px 20px; color: var(--muted); background: #fff; border-radius: var(--radius); border: 1px solid var(--line); }
 
+  .settings-card {
+    background: #fff;
+    border-radius: var(--radius);
+    padding: 32px;
+    border: 1px solid var(--line);
+    max-width: 600px;
+  }
+  .setting-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .setting-item:last-child { border-bottom: none; }
+  .setting-info h3 { font-size: 16px; margin-bottom: 4px; }
+  .setting-info p { font-size: 13px; color: var(--muted); }
+  
+  .toggle-switch {
+    position: relative;
+    width: 50px;
+    height: 28px;
+    background: #ccc;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: background .3s;
+  }
+  .toggle-switch.on { background: var(--ink); }
+  .toggle-switch::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 22px;
+    height: 22px;
+    background: #fff;
+    border-radius: 50%;
+    transition: transform .3s;
+  }
+  .toggle-switch.on::after { transform: translateX(22px); }
+
   @media (max-width: 768px) {
     .sidebar { width: 100%; height: auto; position: relative; border-right: none; border-bottom: 1px solid var(--line); }
     .sidebar-nav { flex-direction: row; overflow-x: auto; padding: 12px 16px; }
@@ -169,7 +210,7 @@
       <div class="nav-item" id="nav-drafts" onclick="switchView('drafts')">
         <span class="nav-item-icon"></span> Drafts
       </div>
-      <div class="nav-item">
+      <div class="nav-item" id="nav-notifications" onclick="switchView('notifications')">
         <span class="nav-item-icon">🔔</span> Notifications
       </div>
       <a href="#" class="nav-item" id="viewSiteLink" target="_blank" style="text-decoration:none;">
@@ -185,7 +226,7 @@
   </aside>
 
   <main class="main-content">
-    <div class="page-header">
+    <div class="page-header" id="mainHeader">
       <h1 id="pageTitle">Dashboard</h1>
       <p id="pageDesc">Manage your bookings and studio.</p>
     </div>
@@ -209,13 +250,33 @@
       </div>
     </div>
 
-    <div class="section-header">
-      <h2 id="listTitle">Booking Requests</h2>
-      <span class="badge" id="badgePending">0 New</span>
+    <div id="bookingsSection">
+      <div class="section-header">
+        <h2 id="listTitle">Booking Requests</h2>
+        <span class="badge" id="badgePending">0 New</span>
+      </div>
+      <div class="booking-list" id="bookingList">
+        <div class="empty-state" id="emptyState">Loading bookings...</div>
+      </div>
     </div>
 
-    <div class="booking-list" id="bookingList">
-      <div class="empty-state" id="emptyState">Loading bookings...</div>
+    <div id="notificationsSection" style="display: none;">
+      <div class="settings-card">
+        <div class="setting-item">
+          <div class="setting-info">
+            <h3>Push Notifications</h3>
+            <p>Get notified on your phone when a new booking is requested.</p>
+          </div>
+          <div class="toggle-switch on" id="pushToggle" onclick="toggleNotification('push')"></div>
+        </div>
+        <div class="setting-item">
+          <div class="setting-info">
+            <h3>Email Notifications</h3>
+            <p>Receive an email summary of your daily bookings.</p>
+          </div>
+          <div class="toggle-switch on" id="emailToggle" onclick="toggleNotification('email')"></div>
+        </div>
+      </div>
     </div>
   </main>
 </div>
@@ -242,24 +303,50 @@
 
   window.switchView = function(view) {
     currentView = view;
+    
     document.getElementById('nav-dashboard').classList.toggle('active', view === 'dashboard');
     document.getElementById('nav-drafts').classList.toggle('active', view === 'drafts');
+    document.getElementById('nav-notifications').classList.toggle('active', view === 'notifications');
     
-    if (view === 'drafts') {
-      document.getElementById('pageTitle').textContent = 'Drafts';
-      document.getElementById('pageDesc').textContent = 'Declined appointments saved for 2 weeks before permanent deletion.';
-      document.getElementById('listTitle').textContent = 'Drafted Bookings';
-      document.getElementById('statsGrid').style.display = 'none';
-      document.getElementById('badgePending').style.display = 'none';
+    const bookingsSection = document.getElementById('bookingsSection');
+    const notificationsSection = document.getElementById('notificationsSection');
+    const statsGrid = document.getElementById('statsGrid');
+    const mainHeader = document.getElementById('mainHeader');
+
+    if (view === 'notifications') {
+      mainHeader.style.display = 'block';
+      document.getElementById('pageTitle').textContent = 'Notifications';
+      document.getElementById('pageDesc').textContent = 'Manage how you receive alerts.';
+      statsGrid.style.display = 'none';
+      bookingsSection.style.display = 'none';
+      notificationsSection.style.display = 'block';
     } else {
-      document.getElementById('pageTitle').textContent = 'Dashboard';
-      document.getElementById('pageDesc').textContent = 'Manage your bookings and studio.';
-      document.getElementById('listTitle').textContent = 'Booking Requests';
-      document.getElementById('statsGrid').style.display = 'grid';
-      document.getElementById('badgePending').style.display = 'inline-block';
+      notificationsSection.style.display = 'none';
+      bookingsSection.style.display = 'block';
+      mainHeader.style.display = 'block';
+      
+      if (view === 'drafts') {
+        document.getElementById('pageTitle').textContent = 'Drafts';
+        document.getElementById('pageDesc').textContent = 'Declined appointments saved for 2 weeks before permanent deletion.';
+        document.getElementById('listTitle').textContent = 'Drafted Bookings';
+        statsGrid.style.display = 'none';
+        document.getElementById('badgePending').style.display = 'none';
+      } else {
+        document.getElementById('pageTitle').textContent = 'Dashboard';
+        document.getElementById('pageDesc').textContent = 'Manage your bookings and studio.';
+        document.getElementById('listTitle').textContent = 'Booking Requests';
+        statsGrid.style.display = 'grid';
+        document.getElementById('badgePending').style.display = 'inline-block';
+      }
+      renderBookings();
     }
-    
-    renderBookings();
+  };
+
+  window.toggleNotification = function(type) {
+    const toggle = document.getElementById(type + 'Toggle');
+    toggle.classList.toggle('on');
+    const isOn = toggle.classList.contains('on');
+    alert(`${type} notifications turned ${isOn ? 'ON' : 'OFF'}`);
   };
 
   async function loadBookings() {
@@ -267,12 +354,19 @@
     try {
       const res = await fetch('/api/get-bookings');
       const data = await res.json();
-      if (!data.success) throw new Error('Failed');
+      
+      console.log('Bookings data:', data);
+      
+      if (!data.success) {
+        throw new Error('Failed to load bookings');
+      }
+      
       cachedBookings = data.bookings || [];
       renderBookings();
     } catch (error) {
+      console.error('Load bookings error:', error);
       emptyState.style.display = 'block';
-      emptyState.textContent = 'Failed to load bookings.';
+      emptyState.textContent = 'Failed to load bookings. Please refresh.';
     }
   }
 
@@ -280,17 +374,27 @@
     const listContainer = document.getElementById('bookingList');
     const emptyState = document.getElementById('emptyState');
     
-    let filtered = cachedBookings;
+    let filtered = [];
+    
     if (currentView === 'drafts') {
       filtered = cachedBookings.filter(b => b.status === 'declined');
+    } else if (currentView === 'dashboard') {
+      filtered = cachedBookings.filter(b => b.status === 'pending' || b.status === 'accepted');
     } else {
-      filtered = cachedBookings.filter(b => b.status !== 'declined');
+      filtered = cachedBookings;
     }
+
+    console.log('Current view:', currentView);
+    console.log('Filtered bookings:', filtered);
 
     if (filtered.length === 0) {
       listContainer.innerHTML = '';
       emptyState.style.display = 'block';
-      emptyState.textContent = currentView === 'drafts' ? 'No drafts yet. Declined bookings will appear here.' : 'No booking requests yet.';
+      if (currentView === 'drafts') {
+        emptyState.textContent = 'No drafts yet. Declined bookings will appear here.';
+      } else {
+        emptyState.textContent = 'No booking requests yet.';
+      }
       return;
     }
 
@@ -327,7 +431,7 @@
           <div class="booking-desc">${booking.description}</div>
           <div class="booking-meta">
             <span>📅 ${dateStr}</span>
-            <span> ${booking.placement}</span>
+            <span>📍 ${booking.placement}</span>
             <span style="text-transform: capitalize; font-weight: 600; color: ${booking.status === 'pending' ? 'var(--accent)' : 'var(--ink)'}">● ${booking.status}</span>
           </div>
           ${draftNotice}
@@ -350,19 +454,26 @@
     const msg = newStatus === 'declined' ? 'move this to Drafts?' : newStatus === 'accepted' ? 'accept this booking?' : 'restore this booking?';
     if (!confirm(`Are you sure you want to ${msg}`)) return;
 
+    console.log('Updating booking:', bookingId, 'to status:', newStatus);
+
     try {
       const res = await fetch('/api/update-booking', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: bookingId, status: newStatus })
       });
-      if (res.ok) {
-        await loadBookings();
-      } else {
-        alert('Failed to update booking.');
+      
+      const result = await res.json();
+      console.log('Update result:', result);
+      
+      if (!res.ok) {
+        throw new Error(result.error || 'Failed to update');
       }
+      
+      await loadBookings();
     } catch (error) {
-      alert('Error updating booking.');
+      console.error('Update error:', error);
+      alert('Error: ' + error.message);
     }
   };
 
