@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Book a Session — INK</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/space-grotesk@5/index.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5/index.css" />
+<style>
+  :root {
+    --bg: #ffffff;
+    --ink: #0a0a0a;
+    --muted: #6b6b6b;
+    --line: #e5e5e5;
+    --accent: #dc2626;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 40px 20px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .container { max-width: 560px; width: 100%; }
+  .logo {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: .25em;
+    margin-bottom: 40px;
+    text-align: center;
+  }
+  .logo span { color: var(--accent); }
+  h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    text-align: center;
+    letter-spacing: -.02em;
+  }
+  .artist-name {
+    text-align: center;
+    color: var(--muted);
+    font-size: 14px;
+    margin-bottom: 36px;
+  }
+  .artist-name strong { color: var(--ink); }
+  .field { margin-bottom: 20px; }
+  label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: var(--ink);
+  }
+  input, textarea, select {
+    width: 100%;
+    padding: 14px 16px;
+    border: 1px solid var(--ink);
+    border-radius: 10px;
+    font-size: 14px;
+    font-family: inherit;
+    background: var(--bg);
+    transition: border-color .2s, box-shadow .2s;
+  }
+  textarea { resize: vertical; min-height: 120px; }
+  input:focus, textarea:focus, select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(220,38,38,.1);
+  }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .file-upload {
+    border: 1px dashed var(--line);
+    border-radius: 10px;
+    padding: 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: all .2s;
+    background: #fafafa;
+  }
+  .file-upload:hover { border-color: var(--ink); background: #fff; }
+  .file-upload input { display: none; }
+  .file-upload-text { font-size: 13px; color: var(--muted); }
+  .file-upload-text strong { color: var(--ink); }
+  .btn {
+    width: 100%;
+    padding: 16px;
+    background: var(--ink);
+    color: #fff;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all .2s;
+    margin-top: 8px;
+  }
+  .btn:hover { background: #000; transform: translateY(-1px); }
+  .btn:disabled { background: #ccc; cursor: not-allowed; transform: none; }
+  .error, .success {
+    padding: 14px;
+    border-radius: 10px;
+    font-size: 13px;
+    margin-bottom: 20px;
+    text-align: center;
+    display: none;
+  }
+  .error { background: rgba(220,38,38,.08); color: var(--accent); border: 1px solid rgba(220,38,38,.2); }
+  .success { background: rgba(16,185,129,.08); color: #059669; border: 1px solid rgba(16,185,129,.2); }
+  .back {
+    display: block;
+    text-align: center;
+    margin-top: 24px;
+    font-size: 13px;
+    color: var(--muted);
+    text-decoration: none;
+  }
+  .back:hover { color: var(--ink); }
+  @media (max-width: 500px) { .row { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="logo">INK<span>.</span></div>
+  <h1>Book a Session</h1>
+  <p class="artist-name">Booking with <strong id="artistDisplay">Artist</strong></p>
+
+  <div class="error" id="errorMsg"></div>
+  <div class="success" id="successMsg">Request sent! The artist will review it shortly.</div>
+
+  <form id="bookingForm">
+    <div class="row">
+      <div class="field">
+        <label for="clientName">Your Name</label>
+        <input type="text" id="clientName" required placeholder="John Doe" />
+      </div>
+      <div class="field">
+        <label for="clientEmail">Email Address</label>
+        <input type="email" id="clientEmail" required placeholder="you@example.com" />
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="field">
+        <label for="placement">Placement</label>
+        <select id="placement" required>
+          <option value="">Select area...</option>
+          <option value="Arm">Arm</option>
+          <option value="Leg">Leg</option>
+          <option value="Back">Back</option>
+          <option value="Chest">Chest</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="date">Preferred Date</label>
+        <input type="date" id="date" required />
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="description">Tattoo Idea & Details</label>
+      <textarea id="description" required placeholder="Describe your tattoo idea, size, style, and any other details..."></textarea>
+    </div>
+
+    <div class="field">
+      <label>Reference Images (Optional)</label>
+      <label class="file-upload" for="images">
+        <div class="file-upload-text">Click to upload images<br><strong>PNG, JPG up to 5MB</strong></div>
+        <input type="file" id="images" multiple accept="image/*" />
+      </label>
+    </div>
+
+    <button type="submit" class="btn" id="submitBtn">Send Booking Request</button>
+  </form>
+
+  <a href="index.html" class="back">← Back to Home</a>
+</div>
+
+<script>
+  const form = document.getElementById('bookingForm');
+  const btn = document.getElementById('submitBtn');
+  const errorMsg = document.getElementById('errorMsg');
+  const successMsg = document.getElementById('successMsg');
+  const artistDisplay = document.getElementById('artistDisplay');
+
+  // Get artist name from URL if passed (e.g., book.html?artist=InkStudio)
+  const params = new URLSearchParams(window.location.search);
+  const artistName = params.get('artist') || 'INK Artist';
+  artistDisplay.textContent = artistName;
+
+  function sanitize(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    errorMsg.style.display = 'none';
+    successMsg.style.display = 'none';
+    btn.disabled = true;
+    btn.textContent = 'Sending...';
+
+    const data = {
+      artistName: artistName,
+      clientName: sanitize(document.getElementById('clientName').value.trim()),
+      clientEmail: sanitize(document.getElementById('clientEmail').value.trim()),
+      placement: sanitize(document.getElementById('placement').value),
+      date: document.getElementById('date').value,
+      description: sanitize(document.getElementById('description').value.trim())
+    };
+
+    try {
+      const res = await fetch('/api/save-booking', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      
+      const result = await res.json();
+      
+      if (!res.ok) {
+        throw new Error(result.error || 'Something went wrong');
+      }
+
+      successMsg.style.display = 'block';
+      form.reset();
+      btn.textContent = 'Request Sent!';
+    } catch (err) {
+      errorMsg.textContent = err.message;
+      errorMsg.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'Send Booking Request';
+    }
+  });
+</script>
+
+</body>
+</html>
