@@ -15,6 +15,7 @@
     --line: #e5e5e5;
     --accent: #dc2626;
     --radius: 12px;
+    --sidebar-width: 260px;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { background: var(--bg-alt); color: var(--ink); font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
@@ -22,25 +23,66 @@
   a { color: inherit; text-decoration: none; }
   button { font-family: inherit; cursor: pointer; border: none; background: none; }
 
-  .top-nav {
+  /* App Layout */
+  .app-layout { display: flex; min-height: 100vh; }
+
+  /* Sidebar */
+  .sidebar {
+    width: var(--sidebar-width);
     background: #fff;
-    border-bottom: 1px solid var(--line);
-    padding: 16px 24px;
+    border-right: 1px solid var(--line);
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    position: sticky;
+    flex-direction: column;
+    position: fixed;
     top: 0;
+    left: 0;
+    bottom: 0;
     z-index: 100;
   }
-  .nav-logo { font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 800; letter-spacing: .2em; }
-  .nav-logo span { color: var(--accent); }
-  .nav-user { display: flex; align-items: center; gap: 16px; }
-  .nav-user-name { font-size: 14px; font-weight: 600; }
-  .btn-logout { font-size: 13px; color: var(--muted); font-weight: 600; transition: color .2s; }
+  .sidebar-logo {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: .2em;
+    padding: 24px;
+    border-bottom: 1px solid var(--line);
+  }
+  .sidebar-logo span { color: var(--accent); }
+  
+  .sidebar-nav { flex: 1; padding: 24px 16px; display: flex; flex-direction: column; gap: 4px; }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--muted);
+    transition: all .2s;
+  }
+  .nav-item:hover { background: var(--bg-alt); color: var(--ink); }
+  .nav-item.active { background: var(--ink); color: #fff; }
+  .nav-item-icon { font-size: 18px; width: 24px; text-align: center; }
+
+  .sidebar-footer {
+    padding: 24px 16px;
+    border-top: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .nav-user-name { font-size: 14px; font-weight: 600; display: block; margin-bottom: 4px; }
+  .btn-logout { font-size: 13px; color: var(--muted); font-weight: 600; transition: color .2s; text-align: left; padding: 4px 0; }
   .btn-logout:hover { color: var(--accent); }
 
-  .container { max-width: 1100px; margin: 0 auto; padding: 40px 24px; }
+  /* Main Content */
+  .main-content {
+    margin-left: var(--sidebar-width);
+    flex: 1;
+    padding: 40px;
+    max-width: 1200px;
+  }
   
   .page-header { margin-bottom: 32px; }
   .page-header h1 { font-size: 28px; margin-bottom: 4px; }
@@ -96,58 +138,89 @@
 
   .empty-state { text-align: center; padding: 60px 20px; color: var(--muted); background: #fff; border-radius: var(--radius); border: 1px solid var(--line); }
 
+  /* Mobile Responsive */
   @media (max-width: 768px) {
+    .sidebar {
+      width: 100%;
+      height: auto;
+      position: relative;
+      border-right: none;
+      border-bottom: 1px solid var(--line);
+    }
+    .sidebar-nav { flex-direction: row; overflow-x: auto; padding: 12px 16px; }
+    .nav-item { white-space: nowrap; padding: 8px 12px; font-size: 13px; }
+    .sidebar-footer { flex-direction: row; align-items: center; justify-content: space-between; padding: 12px 16px; }
+    .main-content { margin-left: 0; padding: 24px 16px; }
     .booking-card { flex-direction: column; align-items: flex-start; }
     .booking-actions { width: 100%; }
     .booking-actions .btn { flex: 1; text-align: center; }
-    .nav-user-name { display: none; }
   }
 </style>
 </head>
 <body>
 
-<nav class="top-nav">
-  <div class="nav-logo">INK<span>.</span></div>
-  <div class="nav-user">
-    <span class="nav-user-name">Loading...</span>
-    <button class="btn-logout" id="logoutBtn">Log Out</button>
-  </div>
-</nav>
-
-<main class="container">
-  <div class="page-header">
-    <h1>Dashboard</h1>
-    <p>Manage your bookings and studio.</p>
-  </div>
-
-  <div class="stats-grid">
-    <div class="stat-card">
-      <div class="stat-label">Pending</div>
-      <div class="stat-value accent" id="statPending">0</div>
+<div class="app-layout">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">INK<span>.</span></div>
+    <nav class="sidebar-nav">
+      <a href="#" class="nav-item active">
+        <span class="nav-item-icon">📊</span> Dashboard
+      </a>
+      <a href="#" class="nav-item">
+        <span class="nav-item-icon">📝</span> Drafts
+      </a>
+      <a href="#" class="nav-item">
+        <span class="nav-item-icon">🔔</span> Notifications
+      </a>
+      <a href="#" class="nav-item" id="viewSiteLink" target="_blank">
+        <span class="nav-item-icon">👁️</span> View My Site
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div>
+        <span class="nav-user-name">Loading...</span>
+      </div>
+      <button class="btn-logout" id="logoutBtn">Log Out</button>
     </div>
-    <div class="stat-card">
-      <div class="stat-label">Accepted</div>
-      <div class="stat-value" id="statAccepted">0</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">Declined</div>
-      <div class="stat-value" id="statDeclined">0</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">Total Requests</div>
-      <div class="stat-value" id="statTotal">0</div>
-    </div>
-  </div>
+  </aside>
 
-  <div class="section-header">
-    <h2>Booking Requests</h2>
-    <span class="badge" id="badgePending">0 New</span>
-  </div>
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="page-header">
+      <h1>Dashboard</h1>
+      <p>Manage your bookings and studio.</p>
+    </div>
 
-  <div class="booking-list" id="bookingList">
-    <div class="empty-state" id="emptyState">Loading bookings...</div>
-  </div>
-</main>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Pending</div>
+        <div class="stat-value accent" id="statPending">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Accepted</div>
+        <div class="stat-value" id="statAccepted">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Declined</div>
+        <div class="stat-value" id="statDeclined">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Total Requests</div>
+        <div class="stat-value" id="statTotal">0</div>
+      </div>
+    </div>
+
+    <div class="section-header">
+      <h2>Booking Requests</h2>
+      <span class="badge" id="badgePending">0 New</span>
+    </div>
+
+    <div class="booking-list" id="bookingList">
+      <div class="empty-state" id="emptyState">Loading bookings...</div>
+    </div>
+  </main>
+</div>
 
 <script>
   // 1. Check if user is logged in
@@ -158,6 +231,10 @@
     window.location.href = 'login.html';
   } else {
     document.querySelector('.nav-user-name').textContent = userName;
+    
+    // Set the "View My Site" link
+    const viewSiteLink = document.getElementById('viewSiteLink');
+    viewSiteLink.href = `book.html?artist=${encodeURIComponent(userName)}`;
   }
 
   // 2. Logout functionality
@@ -173,7 +250,6 @@
     const emptyState = document.getElementById('emptyState');
     
     try {
-      // Fetch ALL bookings from the API
       const res = await fetch('/api/get-bookings');
       const data = await res.json();
 
@@ -183,7 +259,6 @@
         return;
       }
 
-      // Hide empty state and clear container
       emptyState.style.display = 'none';
       listContainer.innerHTML = '';
 
@@ -191,7 +266,6 @@
       let acceptedCount = 0;
       let declinedCount = 0;
 
-      // Loop through bookings and build the HTML
       data.bookings.forEach(booking => {
         if (booking.status === 'pending') pendingCount++;
         if (booking.status === 'accepted') acceptedCount++;
@@ -200,7 +274,6 @@
         const card = document.createElement('div');
         card.className = 'booking-card';
         
-        // Format the date nicely
         const dateObj = new Date(booking.date);
         const dateStr = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
@@ -209,8 +282,8 @@
             <div class="booking-client">${booking.clientName} <span style="font-weight:400; font-size:13px; color:var(--muted)">(${booking.clientEmail})</span></div>
             <div class="booking-desc">${booking.description}</div>
             <div class="booking-meta">
-              <span> ${dateStr}</span>
-              <span> ${booking.placement}</span>
+              <span>📅 ${dateStr}</span>
+              <span>📍 ${booking.placement}</span>
               <span style="text-transform: capitalize; font-weight: 600; color: ${booking.status === 'pending' ? 'var(--accent)' : 'var(--ink)'}">● ${booking.status}</span>
             </div>
           </div>
@@ -224,7 +297,6 @@
         listContainer.appendChild(card);
       });
 
-      // Update stats
       document.getElementById('statPending').textContent = pendingCount;
       document.getElementById('statAccepted').textContent = acceptedCount;
       document.getElementById('statDeclined').textContent = declinedCount;
@@ -238,7 +310,7 @@
     }
   }
 
-  // 4. Function to Accept or Decline (We will build the API for this next)
+  // 4. Function to Accept or Decline
   window.updateBooking = async function(bookingId, newStatus) {
     if (!confirm(`Are you sure you want to ${newStatus} this booking?`)) return;
 
@@ -250,7 +322,7 @@
       });
       
       if (res.ok) {
-        loadBookings(); // Reload the list
+        loadBookings();
       } else {
         alert('Failed to update booking.');
       }
@@ -259,7 +331,6 @@
     }
   };
 
-  // Load bookings when page opens
   loadBookings();
 </script>
 

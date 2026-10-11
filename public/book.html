@@ -78,19 +78,31 @@
     box-shadow: 0 0 0 3px rgba(220,38,38,.1);
   }
   .row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  
+  /* New Upload Box Style */
   .file-upload {
-    border: 1px dashed var(--line);
+    border: 2px dashed var(--ink);
     border-radius: 10px;
-    padding: 24px;
+    padding: 32px 24px;
     text-align: center;
     cursor: pointer;
     transition: all .2s;
     background: #fafafa;
   }
-  .file-upload:hover { border-color: var(--ink); background: #fff; }
+  .file-upload:hover { 
+    border-color: var(--accent); 
+    background: #fff; 
+  }
   .file-upload input { display: none; }
-  .file-upload-text { font-size: 13px; color: var(--muted); }
-  .file-upload-text strong { color: var(--ink); }
+  .file-upload-text { font-size: 13px; color: var(--muted); line-height: 1.6; }
+  .file-upload-text strong { color: var(--ink); display: block; margin-top: 4px; }
+  .file-list { 
+    margin-top: 12px; 
+    font-size: 12px; 
+    color: var(--ink); 
+    font-weight: 500;
+  }
+
   .btn {
     width: 100%;
     padding: 16px;
@@ -133,7 +145,7 @@
 <div class="container">
   <div class="logo">INK<span>.</span></div>
   <h1>Book a Session</h1>
-  <p class="artist-name">Booking with <strong id="artistDisplay">Artist</strong></p>
+  <p class="artist-name">Booking with <strong id="artistDisplay">INK Artist</strong></p>
 
   <div class="error" id="errorMsg"></div>
   <div class="success" id="successMsg">Request sent! The artist will review it shortly.</div>
@@ -176,9 +188,11 @@
     <div class="field">
       <label>Reference Images (Optional)</label>
       <label class="file-upload" for="images">
-        <div class="file-upload-text">Click to upload images<br><strong>PNG, JPG up to 5MB</strong></div>
+        <div class="file-upload-text">Click here to upload images<br><strong>PNG, JPG up to 5MB each</strong></div>
         <input type="file" id="images" multiple accept="image/*" />
       </label>
+      <!-- This area will show the file names when selected -->
+      <div class="file-list" id="fileList"></div>
     </div>
 
     <button type="submit" class="btn" id="submitBtn">Send Booking Request</button>
@@ -193,11 +207,28 @@
   const errorMsg = document.getElementById('errorMsg');
   const successMsg = document.getElementById('successMsg');
   const artistDisplay = document.getElementById('artistDisplay');
+  const dateInput = document.getElementById('date');
+  const fileInput = document.getElementById('images');
+  const fileList = document.getElementById('fileList');
 
-  // Get artist name from URL if passed (e.g., book.html?artist=InkStudio)
+  // 1. Block past dates in the calendar
+  const today = new Date().toISOString().split('T')[0];
+  dateInput.setAttribute('min', today);
+
+  // Get artist name from URL
   const params = new URLSearchParams(window.location.search);
   const artistName = params.get('artist') || 'INK Artist';
   artistDisplay.textContent = artistName;
+
+  // 2. Show file names when user selects images
+  fileInput.addEventListener('change', (e) => {
+    const files = Array.from(e.target.files);
+    if (files.length > 0) {
+      fileList.textContent = 'Selected: ' + files.map(f => f.name).join(', ');
+    } else {
+      fileList.textContent = '';
+    }
+  });
 
   function sanitize(str) {
     const div = document.createElement('div');
@@ -209,6 +240,16 @@
     e.preventDefault();
     errorMsg.style.display = 'none';
     successMsg.style.display = 'none';
+
+    // 3. Double-check that the date is not in the past
+    const selectedDate = new Date(dateInput.value);
+    const todayDate = new Date(today);
+    if (selectedDate < todayDate) {
+      errorMsg.textContent = 'Please select a date that is today or in the future.';
+      errorMsg.style.display = 'block';
+      return;
+    }
+
     btn.disabled = true;
     btn.textContent = 'Sending...';
 
@@ -217,8 +258,9 @@
       clientName: sanitize(document.getElementById('clientName').value.trim()),
       clientEmail: sanitize(document.getElementById('clientEmail').value.trim()),
       placement: sanitize(document.getElementById('placement').value),
-      date: document.getElementById('date').value,
-      description: sanitize(document.getElementById('description').value.trim())
+      date: dateInput.value,
+      description: sanitize(document.getElementById('description').value.trim()),
+      imageNames: Array.from(fileInput.files).map(f => f.name)
     };
 
     try {
@@ -236,7 +278,9 @@
 
       successMsg.style.display = 'block';
       form.reset();
+      fileList.textContent = '';
       btn.textContent = 'Request Sent!';
+      setTimeout(() => { btn.disabled = false; btn.textContent = 'Send Booking Request'; }, 2000);
     } catch (err) {
       errorMsg.textContent = err.message;
       errorMsg.style.display = 'block';
