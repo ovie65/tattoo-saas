@@ -208,7 +208,7 @@
         <span class="nav-item-icon">📊</span> Dashboard
       </div>
       <div class="nav-item" id="nav-drafts" onclick="switchView('drafts')">
-        <span class="nav-item-icon">📝</span> Drafts
+        <span class="nav-item-icon"></span> Drafts
       </div>
       <div class="nav-item" id="nav-notifications" onclick="switchView('notifications')">
         <span class="nav-item-icon">🔔</span> Notifications
@@ -285,7 +285,7 @@
   const userEmail = localStorage.getItem('ink_user_email');
   const userName = localStorage.getItem('ink_user_name');
   let currentView = 'dashboard';
-  let cachedBookings = [];
+  let allBookings = [];
 
   if (!userEmail) {
     window.location.href = 'login.html';
@@ -387,7 +387,7 @@
         throw new Error('Failed to load bookings');
       }
       
-      cachedBookings = data.bookings || [];
+      allBookings = data.bookings || [];
       renderBookings();
     } catch (error) {
       if (emptyState) {
@@ -397,32 +397,37 @@
     }
   }
 
-  function normalizeStatus(status) {
-    if (!status) return '';
-    return status.toString().trim().toLowerCase();
-  }
-
   function renderBookings() {
     const listContainer = safeGetElement('bookingList');
     const emptyState = safeGetElement('emptyState');
     
     if (!listContainer || !emptyState) return;
     
-    let filtered = [];
+    // Clear the list first
+    listContainer.innerHTML = '';
     
+    let bookingsToShow = [];
+    
+    // EXPLICIT FILTERING - Only show what belongs in each view
     if (currentView === 'drafts') {
-      filtered = cachedBookings.filter(b => normalizeStatus(b.status) === 'declined');
+      // DRAFTS: ONLY show declined bookings
+      bookingsToShow = allBookings.filter(function(booking) {
+        const status = (booking.status || '').toString().trim().toLowerCase();
+        return status === 'declined';
+      });
     } else if (currentView === 'dashboard') {
-      filtered = cachedBookings.filter(b => {
-        const s = normalizeStatus(b.status);
-        return s === 'pending' || s === 'accepted';
+      // DASHBOARD: ONLY show pending and accepted bookings
+      bookingsToShow = allBookings.filter(function(booking) {
+        const status = (booking.status || '').toString().trim().toLowerCase();
+        return status === 'pending' || status === 'accepted';
       });
     } else {
-      filtered = cachedBookings;
+      // OTHER VIEWS: Show all
+      bookingsToShow = allBookings;
     }
 
-    if (filtered.length === 0) {
-      listContainer.innerHTML = '';
+    // Show empty state if no bookings match
+    if (bookingsToShow.length === 0) {
       emptyState.style.display = 'block';
       if (currentView === 'drafts') {
         emptyState.textContent = 'No drafts yet. Declined bookings will appear here.';
@@ -432,23 +437,27 @@
       return;
     }
 
+    // Hide empty state and render bookings
     emptyState.style.display = 'none';
-    listContainer.innerHTML = '';
 
+    // Count stats from ALL bookings (not just filtered)
     let pendingCount = 0, acceptedCount = 0, declinedCount = 0;
-    cachedBookings.forEach(b => {
-      const s = normalizeStatus(b.status);
+    allBookings.forEach(function(b) {
+      const s = (b.status || '').toString().trim().toLowerCase();
       if (s === 'pending') pendingCount++;
       if (s === 'accepted') acceptedCount++;
       if (s === 'declined') declinedCount++;
     });
 
-    filtered.forEach(booking => {
+    // Render each booking
+    bookingsToShow.forEach(function(booking) {
       const card = document.createElement('div');
       card.className = 'booking-card';
+      
       const dateObj = new Date(booking.date);
       const dateStr = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-      const statusNorm = normalizeStatus(booking.status);
+      const statusNorm = (booking.status || '').toString().trim().toLowerCase();
+      
       const draftNotice = statusNorm === 'declined' ? '<div class="draft-notice">📝 Saved in Drafts for 2 weeks before permanent deletion</div>' : '';
 
       let actionsHtml = '';
@@ -477,11 +486,12 @@
       listContainer.appendChild(card);
     });
 
+    // Update stats only on dashboard view
     if (currentView === 'dashboard') {
       setTextContent('statPending', pendingCount);
       setTextContent('statAccepted', acceptedCount);
       setTextContent('statDeclined', declinedCount);
-      setTextContent('statTotal', cachedBookings.length);
+      setTextContent('statTotal', allBookings.length);
       setTextContent('badgePending', `${pendingCount} New`);
     }
   }
