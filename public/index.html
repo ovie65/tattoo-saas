@@ -36,6 +36,8 @@
   .nav-links { display: flex; gap: 32px; align-items: center; }
   .nav-links a { font-size: 14px; font-weight: 500; color: var(--muted); transition: color .2s; }
   .nav-links a:hover { color: var(--ink); }
+  .nav-login { font-size: 14px; font-weight: 500; color: var(--muted); transition: color .2s; }
+  .nav-login:hover { color: var(--ink); }
   .btn-nav { background: var(--ink); color: #fff; padding: 10px 20px; border-radius: 100px; font-size: 13px; font-weight: 600; letter-spacing: .05em; transition: all .2s; }
   .btn-nav:hover { background: var(--accent); }
 
@@ -129,7 +131,7 @@
   .gsap-fade-up { opacity: 0; transform: translateY(30px); }
 
   @media (max-width: 768px) {
-    .nav-links a:not(.btn-nav) { display: none; }
+    .nav-links a:not(.btn-nav):not(.nav-login) { display: none; }
     .review-grid { grid-template-columns: 1fr; gap: 40px; }
     .hero { padding: 60px 20px; min-height: 80vh; }
     section { padding: 60px 20px; }
@@ -146,7 +148,7 @@
       <a href="#features">Features</a>
       <a href="#review">How it Works</a>
       <a href="#pricing">Pricing</a>
-      <a href="login.html" class="nav-link">Log In</a>
+      <a href="login.html" class="nav-login">Log In</a>
       <a href="signup.html" class="btn-nav">Get Started</a>
     </div>
   </div>
@@ -263,7 +265,7 @@
           <li>Remove INK branding</li>
           <li>Priority support</li>
         </ul>
-        <a href="#" class="btn-pricing primary">Go Pro</a>
+        <a href="signup.html" class="btn-pricing primary">Go Pro</a>
       </div>
     </div>
   </div>
@@ -283,9 +285,9 @@
     <div class="footer-top">
       <div class="footer-logo">INK<span>.</span></div>
       <div class="footer-links">
-        <a href="#">Features</a>
-        <a href="#">Pricing</a>
-        <a href="#">Login</a>
+        <a href="#features">Features</a>
+        <a href="#pricing">Pricing</a>
+        <a href="login.html">Login</a>
       </div>
     </div>
     <div class="footer-bottom">© 2026 INK.tattoo · All rights reserved.</div>
@@ -295,13 +297,11 @@
 <script>
   gsap.registerPlugin(ScrollTrigger);
 
-  // Hero animations
   gsap.fromTo('.hero .gsap-fade-up', 
     { opacity: 0, y: 30 },
     { opacity: 1, y: 0, duration: 0.8, stagger: 0.15, ease: 'power2.out' }
   );
 
-  // Scroll animations
   gsap.utils.toArray('.gsap-fade-up').forEach(el => {
     if (!el.closest('.hero')) {
       gsap.fromTo(el,
