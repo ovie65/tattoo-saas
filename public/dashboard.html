@@ -254,15 +254,25 @@
       
       const bookings = data.bookings || [];
       
-      // Show ALL bookings (pending, accepted, declined) in one simple list
+      // Remove only the booking cards (keep the empty state element)
+      const oldCards = listContainer.querySelectorAll('.booking-card');
+      oldCards.forEach(function(card) {
+        card.remove();
+      });
+
       if (bookings.length === 0) {
         emptyState.style.display = 'block';
         emptyState.textContent = 'No booking requests yet.';
+        document.getElementById('statPending').textContent = '0';
+        document.getElementById('statAccepted').textContent = '0';
+        document.getElementById('statDeclined').textContent = '0';
+        document.getElementById('statTotal').textContent = '0';
+        document.getElementById('badgePending').textContent = '0 New';
         return;
       }
 
+      // Hide empty state
       emptyState.style.display = 'none';
-      listContainer.innerHTML = '';
 
       let pendingCount = 0, acceptedCount = 0, declinedCount = 0;
 
@@ -278,12 +288,10 @@
         const dateObj = new Date(booking.date);
         const dateStr = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
         
-        // Show the 2-week draft notice for declined bookings
         const draftNotice = status === 'declined' 
           ? '<div class="draft-notice">📝 Saved in Drafts for 2 weeks before permanent deletion</div>' 
           : '';
 
-        // Only show Accept/Decline buttons for pending bookings
         let actionsHtml = '';
         if (status === 'pending') {
           actionsHtml = `
@@ -315,8 +323,11 @@
       document.getElementById('badgePending').textContent = `${pendingCount} New`;
 
     } catch (error) {
-      emptyState.style.display = 'block';
-      emptyState.textContent = 'Failed to load bookings. Please refresh.';
+      const emptyState = document.getElementById('emptyState');
+      if (emptyState) {
+        emptyState.style.display = 'block';
+        emptyState.textContent = 'Failed to load bookings. Please refresh.';
+      }
     }
   }
 
