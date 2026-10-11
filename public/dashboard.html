@@ -290,67 +290,95 @@
   if (!userEmail) {
     window.location.href = 'login.html';
   } else {
-    document.querySelector('.nav-user-name').textContent = userName;
+    const nameEl = document.querySelector('.nav-user-name');
+    if (nameEl) nameEl.textContent = userName;
     const viewSiteLink = document.getElementById('viewSiteLink');
-    viewSiteLink.href = `book.html?artist=${encodeURIComponent(userName)}`;
+    if (viewSiteLink) viewSiteLink.href = `book.html?artist=${encodeURIComponent(userName)}`;
   }
 
-  document.getElementById('logoutBtn').addEventListener('click', () => {
-    localStorage.removeItem('ink_user_email');
-    localStorage.removeItem('ink_user_name');
-    window.location.href = 'login.html';
-  });
+  const logoutBtn = document.getElementById('logoutBtn');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', () => {
+      localStorage.removeItem('ink_user_email');
+      localStorage.removeItem('ink_user_name');
+      window.location.href = 'login.html';
+    });
+  }
+
+  function safeGetElement(id) {
+    return document.getElementById(id);
+  }
+
+  function setTextContent(id, text) {
+    const el = safeGetElement(id);
+    if (el) el.textContent = text;
+  }
+
+  function setDisplay(id, display) {
+    const el = safeGetElement(id);
+    if (el) el.style.display = display;
+  }
+
+  function toggleActive(id, isActive) {
+    const el = safeGetElement(id);
+    if (el) {
+      if (isActive) el.classList.add('active');
+      else el.classList.remove('active');
+    }
+  }
 
   window.switchView = function(view) {
     currentView = view;
     
-    document.getElementById('nav-dashboard').classList.toggle('active', view === 'dashboard');
-    document.getElementById('nav-drafts').classList.toggle('active', view === 'drafts');
-    document.getElementById('nav-notifications').classList.toggle('active', view === 'notifications');
+    toggleActive('nav-dashboard', view === 'dashboard');
+    toggleActive('nav-drafts', view === 'drafts');
+    toggleActive('nav-notifications', view === 'notifications');
     
-    const bookingsSection = document.getElementById('bookingsSection');
-    const notificationsSection = document.getElementById('notificationsSection');
-    const statsGrid = document.getElementById('statsGrid');
-    const mainHeader = document.getElementById('mainHeader');
+    const bookingsSection = safeGetElement('bookingsSection');
+    const notificationsSection = safeGetElement('notificationsSection');
+    const statsGrid = safeGetElement('statsGrid');
+    const mainHeader = safeGetElement('mainHeader');
 
     if (view === 'notifications') {
-      mainHeader.style.display = 'block';
-      document.getElementById('pageTitle').textContent = 'Notifications';
-      document.getElementById('pageDesc').textContent = 'Manage how you receive alerts.';
-      statsGrid.style.display = 'none';
-      bookingsSection.style.display = 'none';
-      notificationsSection.style.display = 'block';
+      if (mainHeader) mainHeader.style.display = 'block';
+      setTextContent('pageTitle', 'Notifications');
+      setTextContent('pageDesc', 'Manage how you receive alerts.');
+      if (statsGrid) statsGrid.style.display = 'none';
+      if (bookingsSection) bookingsSection.style.display = 'none';
+      if (notificationsSection) notificationsSection.style.display = 'block';
     } else {
-      notificationsSection.style.display = 'none';
-      bookingsSection.style.display = 'block';
-      mainHeader.style.display = 'block';
+      if (notificationsSection) notificationsSection.style.display = 'none';
+      if (bookingsSection) bookingsSection.style.display = 'block';
+      if (mainHeader) mainHeader.style.display = 'block';
       
       if (view === 'drafts') {
-        document.getElementById('pageTitle').textContent = 'Drafts';
-        document.getElementById('pageDesc').textContent = 'Declined appointments saved for 2 weeks before permanent deletion.';
-        document.getElementById('listTitle').textContent = 'Drafted Bookings';
-        statsGrid.style.display = 'none';
-        document.getElementById('badgePending').style.display = 'none';
+        setTextContent('pageTitle', 'Drafts');
+        setTextContent('pageDesc', 'Declined appointments saved for 2 weeks before permanent deletion.');
+        setTextContent('listTitle', 'Drafted Bookings');
+        if (statsGrid) statsGrid.style.display = 'none';
+        setDisplay('badgePending', 'none');
       } else {
-        document.getElementById('pageTitle').textContent = 'Dashboard';
-        document.getElementById('pageDesc').textContent = 'Manage your bookings and studio.';
-        document.getElementById('listTitle').textContent = 'Booking Requests';
-        statsGrid.style.display = 'grid';
-        document.getElementById('badgePending').style.display = 'inline-block';
+        setTextContent('pageTitle', 'Dashboard');
+        setTextContent('pageDesc', 'Manage your bookings and studio.');
+        setTextContent('listTitle', 'Booking Requests');
+        if (statsGrid) statsGrid.style.display = 'grid';
+        setDisplay('badgePending', 'inline-block');
       }
       renderBookings();
     }
   };
 
   window.toggleNotification = function(type) {
-    const toggle = document.getElementById(type + 'Toggle');
-    toggle.classList.toggle('on');
-    const isOn = toggle.classList.contains('on');
-    alert(`${type} notifications turned ${isOn ? 'ON' : 'OFF'}`);
+    const toggle = safeGetElement(type + 'Toggle');
+    if (toggle) {
+      toggle.classList.toggle('on');
+      const isOn = toggle.classList.contains('on');
+      alert(`${type} notifications turned ${isOn ? 'ON' : 'OFF'}`);
+    }
   };
 
   async function loadBookings() {
-    const emptyState = document.getElementById('emptyState');
+    const emptyState = safeGetElement('emptyState');
     try {
       const res = await fetch('/api/get-bookings');
       const data = await res.json();
@@ -362,8 +390,10 @@
       cachedBookings = data.bookings || [];
       renderBookings();
     } catch (error) {
-      emptyState.style.display = 'block';
-      emptyState.textContent = 'Failed to load bookings. Please refresh.';
+      if (emptyState) {
+        emptyState.style.display = 'block';
+        emptyState.textContent = 'Failed to load bookings. Please refresh.';
+      }
     }
   }
 
@@ -373,16 +403,16 @@
   }
 
   function renderBookings() {
-    const listContainer = document.getElementById('bookingList');
-    const emptyState = document.getElementById('emptyState');
+    const listContainer = safeGetElement('bookingList');
+    const emptyState = safeGetElement('emptyState');
+    
+    if (!listContainer || !emptyState) return;
     
     let filtered = [];
     
     if (currentView === 'drafts') {
-      // Only show bookings with status exactly "declined"
       filtered = cachedBookings.filter(b => normalizeStatus(b.status) === 'declined');
     } else if (currentView === 'dashboard') {
-      // Only show pending or accepted
       filtered = cachedBookings.filter(b => {
         const s = normalizeStatus(b.status);
         return s === 'pending' || s === 'accepted';
@@ -448,11 +478,11 @@
     });
 
     if (currentView === 'dashboard') {
-      document.getElementById('statPending').textContent = pendingCount;
-      document.getElementById('statAccepted').textContent = acceptedCount;
-      document.getElementById('statDeclined').textContent = declinedCount;
-      document.getElementById('statTotal').textContent = cachedBookings.length;
-      document.getElementById('badgePending').textContent = `${pendingCount} New`;
+      setTextContent('statPending', pendingCount);
+      setTextContent('statAccepted', acceptedCount);
+      setTextContent('statDeclined', declinedCount);
+      setTextContent('statTotal', cachedBookings.length);
+      setTextContent('badgePending', `${pendingCount} New`);
     }
   }
 
