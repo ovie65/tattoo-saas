@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Dashboard — INK</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/space-grotesk@5/index.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5/index.css" />
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg-alt: #f7f7f7;
+    --ink: #0a0a0a;
+    --muted: #6b6b6b;
+    --line: #e5e5e5;
+    --accent: #dc2626;
+    --radius: 12px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg-alt); color: var(--ink); font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+  h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; font-weight: 700; letter-spacing: -.02em; }
+  a { color: inherit; text-decoration: none; }
+  button { font-family: inherit; cursor: pointer; border: none; background: none; }
+
+  .top-nav {
+    background: #fff;
+    border-bottom: 1px solid var(--line);
+    padding: 16px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .nav-logo { font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 800; letter-spacing: .2em; }
+  .nav-logo span { color: var(--accent); }
+  .nav-user { display: flex; align-items: center; gap: 16px; }
+  .nav-user-name { font-size: 14px; font-weight: 600; }
+  .btn-logout { font-size: 13px; color: var(--muted); font-weight: 600; transition: color .2s; }
+  .btn-logout:hover { color: var(--accent); }
+
+  .container { max-width: 1100px; margin: 0 auto; padding: 40px 24px; }
+  
+  .page-header { margin-bottom: 32px; }
+  .page-header h1 { font-size: 28px; margin-bottom: 4px; }
+  .page-header p { color: var(--muted); font-size: 14px; }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 40px;
+  }
+  .stat-card {
+    background: #fff;
+    padding: 24px;
+    border-radius: var(--radius);
+    border: 1px solid var(--line);
+  }
+  .stat-label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; font-weight: 600; margin-bottom: 8px; }
+  .stat-value { font-family: 'Space Grotesk', sans-serif; font-size: 32px; font-weight: 700; }
+  .stat-value.accent { color: var(--accent); }
+
+  .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+  .section-header h2 { font-size: 20px; }
+  .badge { background: var(--accent); color: #fff; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 100px; }
+
+  .booking-list { display: flex; flex-direction: column; gap: 12px; }
+  
+  .booking-card {
+    background: #fff;
+    border-radius: var(--radius);
+    padding: 24px;
+    border: 1px solid var(--line);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    transition: border-color .2s;
+  }
+  .booking-card:hover { border-color: var(--ink); }
+  
+  .booking-info { flex: 1; }
+  .booking-client { font-weight: 700; font-size: 16px; margin-bottom: 4px; }
+  .booking-desc { font-size: 14px; color: var(--muted); line-height: 1.5; margin-bottom: 8px; }
+  .booking-meta { display: flex; gap: 16px; font-size: 12px; color: var(--muted); }
+  .booking-meta span { display: flex; align-items: center; gap: 6px; }
+
+  .booking-actions { display: flex; gap: 8px; flex-shrink: 0; }
+  .btn { padding: 10px 18px; border-radius: 8px; font-size: 13px; font-weight: 600; transition: all .2s; }
+  .btn-accept { background: var(--ink); color: #fff; }
+  .btn-accept:hover { background: #000; transform: translateY(-1px); }
+  .btn-decline { background: #fff; color: var(--ink); border: 1px solid var(--line); }
+  .btn-decline:hover { border-color: var(--accent); color: var(--accent); }
+
+  .empty-state { text-align: center; padding: 60px 20px; color: var(--muted); background: #fff; border-radius: var(--radius); border: 1px solid var(--line); }
+
+  @media (max-width: 768px) {
+    .booking-card { flex-direction: column; align-items: flex-start; }
+    .booking-actions { width: 100%; }
+    .booking-actions .btn { flex: 1; text-align: center; }
+    .nav-user-name { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="top-nav">
+  <div class="nav-logo">INK<span>.</span></div>
+  <div class="nav-user">
+    <span class="nav-user-name">My Studio</span>
+    <button class="btn-logout" onclick="window.location.href='index.html'">Log Out</button>
+  </div>
+</nav>
+
+<main class="container">
+  <div class="page-header">
+    <h1>Dashboard</h1>
+    <p>Manage your bookings and studio.</p>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-label">Pending</div>
+      <div class="stat-value accent">3</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Accepted</div>
+      <div class="stat-value">12</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">This Month</div>
+      <div class="stat-value">4</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Plan Limit</div>
+      <div class="stat-value" style="font-size: 20px; margin-top: 8px;">4 / 10</div>
+    </div>
+  </div>
+
+  <div class="section-header">
+    <h2>Recent Requests</h2>
+    <span class="badge">3 New</span>
+  </div>
+
+  <div class="booking-list">
+    <div class="booking-card">
+      <div class="booking-info">
+        <div class="booking-client">Sarah M.</div>
+        <div class="booking-desc">Black & grey realism sleeve. Full forearm. Reference images attached. Budget: $800</div>
+        <div class="booking-meta">
+          <span>📅 Oct 15, 2026</span>
+          <span>💰 $200 Deposit</span>
+        </div>
+      </div>
+      <div class="booking-actions">
+        <button class="btn btn-decline">Decline</button>
+        <button class="btn btn-accept">Accept</button>
+      </div>
+    </div>
+
+    <div class="booking-card">
+      <div class="booking-info">
+        <div class="booking-client">James K.</div>
+        <div class="booking-desc">Color traditional cover-up. Upper arm. Needs consultation first.</div>
+        <div class="booking-meta">
+          <span>📅 Oct 18, 2026</span>
+          <span>💰 $200 Deposit</span>
+        </div>
+      </div>
+      <div class="booking-actions">
+        <button class="btn btn-decline">Decline</button>
+        <button class="btn btn-accept">Accept</button>
+      </div>
+    </div>
+
+    <div class="booking-card">
+      <div class="booking-info">
+        <div class="booking-client">Alex R.</div>
+        <div class="booking-desc">Small minimalist line work. Inner wrist. 1 hour session.</div>
+        <div class="booking-meta">
+          <span>📅 Oct 20, 2026</span>
+          <span> $200 Deposit</span>
+        </div>
+      </div>
+      <div class="booking-actions">
+        <button class="btn btn-decline">Decline</button>
+        <button class="btn btn-accept">Accept</button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+  // Check if user is logged in
+  const userEmail = localStorage.getItem('ink_user_email');
+  const userName = localStorage.getItem('ink_user_name');
+
+  if (!userEmail) {
+    // Not logged in, kick them back to login page
+    window.location.href = 'login.html';
+  } else {
+    // Logged in, update the top right with their actual name
+    document.querySelector('.nav-user-name').textContent = userName;
+  }
+</script>
+
+</body>
+</html>

@@ -227,6 +227,9 @@
       }
 
       // Redirect to dashboard (we will build this next)
+        // Save the user's info so the dashboard knows who is logged in
+      localStorage.setItem('ink_user_email', result.user.email);
+      localStorage.setItem('ink_user_name', result.user.name);
       window.location.href = 'dashboard.html';
     } catch (err) {
       errorMsg.textContent = err.message;
