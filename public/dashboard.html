@@ -23,10 +23,8 @@
   a { color: inherit; text-decoration: none; }
   button { font-family: inherit; cursor: pointer; border: none; background: none; }
 
-  /* App Layout */
   .app-layout { display: flex; min-height: 100vh; }
 
-  /* Sidebar */
   .sidebar {
     width: var(--sidebar-width);
     background: #fff;
@@ -60,6 +58,7 @@
     font-weight: 500;
     color: var(--muted);
     transition: all .2s;
+    cursor: pointer;
   }
   .nav-item:hover { background: var(--bg-alt); color: var(--ink); }
   .nav-item.active { background: var(--ink); color: #fff; }
@@ -76,7 +75,6 @@
   .btn-logout { font-size: 13px; color: var(--muted); font-weight: 600; transition: color .2s; text-align: left; padding: 4px 0; }
   .btn-logout:hover { color: var(--accent); }
 
-  /* Main Content */
   .main-content {
     margin-left: var(--sidebar-width);
     flex: 1;
@@ -129,7 +127,6 @@
   .booking-meta { display: flex; gap: 16px; font-size: 12px; color: var(--muted); flex-wrap: wrap; }
   .booking-meta span { display: flex; align-items: center; gap: 6px; }
   
-  /* Draft notice for declined bookings */
   .draft-notice {
     font-size: 11px;
     color: var(--muted);
@@ -143,18 +140,13 @@
   .btn-accept:hover { background: #000; transform: translateY(-1px); }
   .btn-decline { background: #fff; color: var(--ink); border: 1px solid var(--line); }
   .btn-decline:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-restore { background: var(--accent); color: #fff; }
+  .btn-restore:hover { background: #b91c1c; }
 
   .empty-state { text-align: center; padding: 60px 20px; color: var(--muted); background: #fff; border-radius: var(--radius); border: 1px solid var(--line); }
 
-  /* Mobile Responsive */
   @media (max-width: 768px) {
-    .sidebar {
-      width: 100%;
-      height: auto;
-      position: relative;
-      border-right: none;
-      border-bottom: 1px solid var(--line);
-    }
+    .sidebar { width: 100%; height: auto; position: relative; border-right: none; border-bottom: 1px solid var(--line); }
     .sidebar-nav { flex-direction: row; overflow-x: auto; padding: 12px 16px; }
     .nav-item { white-space: nowrap; padding: 8px 12px; font-size: 13px; }
     .sidebar-footer { flex-direction: row; align-items: center; justify-content: space-between; padding: 12px 16px; }
@@ -168,21 +160,20 @@
 <body>
 
 <div class="app-layout">
-  <!-- Sidebar -->
   <aside class="sidebar">
     <div class="sidebar-logo">INK<span>.</span></div>
     <nav class="sidebar-nav">
-      <a href="#" class="nav-item active">
+      <div class="nav-item active" id="nav-dashboard" onclick="switchView('dashboard')">
         <span class="nav-item-icon">📊</span> Dashboard
-      </a>
-      <a href="#" class="nav-item">
-        <span class="nav-item-icon">📝</span> Drafts
-      </a>
-      <a href="#" class="nav-item">
+      </div>
+      <div class="nav-item" id="nav-drafts" onclick="switchView('drafts')">
+        <span class="nav-item-icon"></span> Drafts
+      </div>
+      <div class="nav-item">
         <span class="nav-item-icon">🔔</span> Notifications
-      </a>
-      <a href="#" class="nav-item" id="viewSiteLink" target="_blank">
-        <span class="nav-item-icon">️</span> View My Site
+      </div>
+      <a href="#" class="nav-item" id="viewSiteLink" target="_blank" style="text-decoration:none;">
+        <span class="nav-item-icon">👁️</span> View My Site
       </a>
     </nav>
     <div class="sidebar-footer">
@@ -193,14 +184,13 @@
     </div>
   </aside>
 
-  <!-- Main Content -->
   <main class="main-content">
     <div class="page-header">
-      <h1>Dashboard</h1>
-      <p>Manage your bookings and studio.</p>
+      <h1 id="pageTitle">Dashboard</h1>
+      <p id="pageDesc">Manage your bookings and studio.</p>
     </div>
 
-    <div class="stats-grid">
+    <div class="stats-grid" id="statsGrid">
       <div class="stat-card">
         <div class="stat-label">Pending</div>
         <div class="stat-value accent" id="statPending">0</div>
@@ -220,7 +210,7 @@
     </div>
 
     <div class="section-header">
-      <h2>Booking Requests</h2>
+      <h2 id="listTitle">Booking Requests</h2>
       <span class="badge" id="badgePending">0 New</span>
     </div>
 
@@ -231,102 +221,134 @@
 </div>
 
 <script>
-  // 1. Check if user is logged in
   const userEmail = localStorage.getItem('ink_user_email');
   const userName = localStorage.getItem('ink_user_name');
+  let currentView = 'dashboard';
+  let cachedBookings = [];
 
   if (!userEmail) {
     window.location.href = 'login.html';
   } else {
     document.querySelector('.nav-user-name').textContent = userName;
-    
-    // Set the "View My Site" link
     const viewSiteLink = document.getElementById('viewSiteLink');
     viewSiteLink.href = `book.html?artist=${encodeURIComponent(userName)}`;
   }
 
-  // 2. Logout functionality
   document.getElementById('logoutBtn').addEventListener('click', () => {
     localStorage.removeItem('ink_user_email');
     localStorage.removeItem('ink_user_name');
     window.location.href = 'login.html';
   });
 
-  // 3. Fetch real bookings from the database
-  async function loadBookings() {
-    const listContainer = document.getElementById('bookingList');
-    const emptyState = document.getElementById('emptyState');
+  window.switchView = function(view) {
+    currentView = view;
+    document.getElementById('nav-dashboard').classList.toggle('active', view === 'dashboard');
+    document.getElementById('nav-drafts').classList.toggle('active', view === 'drafts');
     
+    if (view === 'drafts') {
+      document.getElementById('pageTitle').textContent = 'Drafts';
+      document.getElementById('pageDesc').textContent = 'Declined appointments saved for 2 weeks before permanent deletion.';
+      document.getElementById('listTitle').textContent = 'Drafted Bookings';
+      document.getElementById('statsGrid').style.display = 'none';
+      document.getElementById('badgePending').style.display = 'none';
+    } else {
+      document.getElementById('pageTitle').textContent = 'Dashboard';
+      document.getElementById('pageDesc').textContent = 'Manage your bookings and studio.';
+      document.getElementById('listTitle').textContent = 'Booking Requests';
+      document.getElementById('statsGrid').style.display = 'grid';
+      document.getElementById('badgePending').style.display = 'inline-block';
+    }
+    
+    renderBookings();
+  };
+
+  async function loadBookings() {
+    const emptyState = document.getElementById('emptyState');
     try {
       const res = await fetch('/api/get-bookings');
       const data = await res.json();
-
-      if (!data.success || !data.bookings || data.bookings.length === 0) {
-        emptyState.style.display = 'block';
-        emptyState.textContent = 'No booking requests yet. Share your INK link to get started!';
-        return;
-      }
-
-      emptyState.style.display = 'none';
-      listContainer.innerHTML = '';
-
-      let pendingCount = 0;
-      let acceptedCount = 0;
-      let declinedCount = 0;
-
-      data.bookings.forEach(booking => {
-        if (booking.status === 'pending') pendingCount++;
-        if (booking.status === 'accepted') acceptedCount++;
-        if (booking.status === 'declined') declinedCount++;
-
-        const card = document.createElement('div');
-        card.className = 'booking-card';
-        
-        const dateObj = new Date(booking.date);
-        const dateStr = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-
-        // Add draft notice for declined bookings
-        const draftNotice = booking.status === 'declined' 
-          ? '<div class="draft-notice"> Saved in Drafts for 2 weeks before permanent deletion</div>' 
-          : '';
-
-        card.innerHTML = `
-          <div class="booking-info">
-            <div class="booking-client">${booking.clientName} <span style="font-weight:400; font-size:13px; color:var(--muted)">(${booking.clientEmail})</span></div>
-            <div class="booking-desc">${booking.description}</div>
-            <div class="booking-meta">
-              <span>📅 ${dateStr}</span>
-              <span>📍 ${booking.placement}</span>
-              <span style="text-transform: capitalize; font-weight: 600; color: ${booking.status === 'pending' ? 'var(--accent)' : 'var(--ink)'}">● ${booking.status}</span>
-            </div>
-            ${draftNotice}
-          </div>
-          <div class="booking-actions">
-            ${booking.status === 'pending' ? `
-              <button class="btn btn-decline" onclick="updateBooking('${booking._id}', 'declined')">Decline</button>
-              <button class="btn btn-accept" onclick="updateBooking('${booking._id}', 'accepted')">Accept</button>
-            ` : ''}
-          </div>
-        `;
-        listContainer.appendChild(card);
-      });
-
-      document.getElementById('statPending').textContent = pendingCount;
-      document.getElementById('statAccepted').textContent = acceptedCount;
-      document.getElementById('statDeclined').textContent = declinedCount;
-      document.getElementById('statTotal').textContent = data.bookings.length;
-      document.getElementById('badgePending').textContent = `${pendingCount} New`;
-
+      if (!data.success) throw new Error('Failed');
+      cachedBookings = data.bookings || [];
+      renderBookings();
     } catch (error) {
-      console.error('Error loading bookings:', error);
       emptyState.style.display = 'block';
-      emptyState.textContent = 'Failed to load bookings. Please refresh.';
+      emptyState.textContent = 'Failed to load bookings.';
     }
   }
 
-  // 4. Function to Accept or Decline
+  function renderBookings() {
+    const listContainer = document.getElementById('bookingList');
+    const emptyState = document.getElementById('emptyState');
+    
+    let filtered = cachedBookings;
+    if (currentView === 'drafts') {
+      filtered = cachedBookings.filter(b => b.status === 'declined');
+    } else {
+      filtered = cachedBookings.filter(b => b.status !== 'declined');
+    }
+
+    if (filtered.length === 0) {
+      listContainer.innerHTML = '';
+      emptyState.style.display = 'block';
+      emptyState.textContent = currentView === 'drafts' ? 'No drafts yet. Declined bookings will appear here.' : 'No booking requests yet.';
+      return;
+    }
+
+    emptyState.style.display = 'none';
+    listContainer.innerHTML = '';
+
+    let pendingCount = 0, acceptedCount = 0, declinedCount = 0;
+    cachedBookings.forEach(b => {
+      if (b.status === 'pending') pendingCount++;
+      if (b.status === 'accepted') acceptedCount++;
+      if (b.status === 'declined') declinedCount++;
+    });
+
+    filtered.forEach(booking => {
+      const card = document.createElement('div');
+      card.className = 'booking-card';
+      const dateObj = new Date(booking.date);
+      const dateStr = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      const draftNotice = booking.status === 'declined' ? '<div class="draft-notice">📝 Saved in Drafts for 2 weeks before permanent deletion</div>' : '';
+
+      let actionsHtml = '';
+      if (booking.status === 'pending') {
+        actionsHtml = `
+          <button class="btn btn-decline" onclick="updateBooking('${booking._id}', 'declined')">Decline</button>
+          <button class="btn btn-accept" onclick="updateBooking('${booking._id}', 'accepted')">Accept</button>
+        `;
+      } else if (booking.status === 'declined') {
+        actionsHtml = `<button class="btn btn-restore" onclick="updateBooking('${booking._id}', 'pending')">Restore</button>`;
+      }
+
+      card.innerHTML = `
+        <div class="booking-info">
+          <div class="booking-client">${booking.clientName} <span style="font-weight:400; font-size:13px; color:var(--muted)">(${booking.clientEmail})</span></div>
+          <div class="booking-desc">${booking.description}</div>
+          <div class="booking-meta">
+            <span>📅 ${dateStr}</span>
+            <span> ${booking.placement}</span>
+            <span style="text-transform: capitalize; font-weight: 600; color: ${booking.status === 'pending' ? 'var(--accent)' : 'var(--ink)'}">● ${booking.status}</span>
+          </div>
+          ${draftNotice}
+        </div>
+        <div class="booking-actions">${actionsHtml}</div>
+      `;
+      listContainer.appendChild(card);
+    });
+
+    if (currentView === 'dashboard') {
+      document.getElementById('statPending').textContent = pendingCount;
+      document.getElementById('statAccepted').textContent = acceptedCount;
+      document.getElementById('statDeclined').textContent = declinedCount;
+      document.getElementById('statTotal').textContent = cachedBookings.length;
+      document.getElementById('badgePending').textContent = `${pendingCount} New`;
+    }
+  }
+
   window.updateBooking = async function(bookingId, newStatus) {
-    if (!confirm(`Are you sure you want to ${newStatus} this booking?`)) return;
+    const msg = newStatus === 'declined' ? 'move this to Drafts?' : newStatus === 'accepted' ? 'accept this booking?' : 'restore this booking?';
+    if (!confirm(`Are you sure you want to ${msg}`)) return;
 
     try {
       const res = await fetch('/api/update-booking', {
@@ -334,9 +356,8 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: bookingId, status: newStatus })
       });
-      
       if (res.ok) {
-        loadBookings();
+        await loadBookings();
       } else {
         alert('Failed to update booking.');
       }
