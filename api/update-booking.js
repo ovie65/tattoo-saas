@@ -1,8 +1,6 @@
-const { ObjectId } = require('mongodb');
 const clientPromise = require('../lib/mongodb');
 
 module.exports = async function handler(req, res) {
-  // Only allow POST requests
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -13,8 +11,7 @@ module.exports = async function handler(req, res) {
     return res.status(400).json({ error: 'Missing ID or status' });
   }
 
-  // Make sure the status is either 'accepted' or 'declined'
-  if (status !== 'accepted' && status !== 'declined') {
+  if (status !== 'accepted' && status !== 'declined' && status !== 'pending') {
     return res.status(400).json({ error: 'Invalid status' });
   }
 
@@ -23,16 +20,23 @@ module.exports = async function handler(req, res) {
     const db = client.db('inkplatform');
     const bookings = db.collection('bookings');
 
-    // Find the booking by its ID and update the status
-    await bookings.updateOne(
-      { _id: new ObjectId(id) },
-      { $set: { status: status } }
+    // Convert string ID to ObjectId
+    const { ObjectId } = require('mongodb');
+    const objectId = new ObjectId(id);
+
+    const result = await bookings.updateOne(
+      { _id: objectId },
+      { $set: { status: status, updatedAt: new Date() } }
     );
+
+    if (result.matchedCount === 0) {
+      return res.status(404).json({ error: 'Booking not found' });
+    }
 
     return res.status(200).json({ success: true, message: 'Booking updated' });
 
   } catch (error) {
-    console.error('Update booking error:', error);
-    return res.status(500).json({ error: 'Internal server error' });
+    console.error('Update booking error:', error.message);
+    return res.status(500).json({ error: 'Internal server error: ' + error.message });
   }
 };
