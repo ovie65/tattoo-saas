@@ -173,7 +173,7 @@
     const emptyState = document.getElementById('emptyState');
     
     try {
-      const res = await fetch(`/api/get-bookings?email=${encodeURIComponent(userEmail)}`);
+      const res = await fetch(`/api/get-bookings?name=${encodeURIComponent(userName)}`);
       const data = await res.json();
 
       if (!data.success || !data.bookings || data.bookings.length === 0) {
