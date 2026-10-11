@@ -14,6 +14,7 @@
     --muted: #6b6b6b;
     --line: #e5e5e5;
     --accent: #dc2626;
+    --success: #10b981;
     --radius: 12px;
     --sidebar-width: 260px;
   }
@@ -101,6 +102,7 @@
   .stat-label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; font-weight: 600; margin-bottom: 8px; }
   .stat-value { font-family: 'Space Grotesk', sans-serif; font-size: 32px; font-weight: 700; }
   .stat-value.accent { color: var(--accent); }
+  .stat-value.success { color: var(--success); }
 
   .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
   .section-header h2 { font-size: 20px; }
@@ -207,14 +209,17 @@
       <div class="nav-item active" id="nav-dashboard" onclick="switchView('dashboard')">
         <span class="nav-item-icon">📊</span> Dashboard
       </div>
+      <div class="nav-item" id="nav-accepted" onclick="switchView('accepted')">
+        <span class="nav-item-icon">✅</span> Accepted
+      </div>
       <div class="nav-item" id="nav-drafts" onclick="switchView('drafts')">
-        <span class="nav-item-icon"></span> Drafts
+        <span class="nav-item-icon">📝</span> Drafts
       </div>
       <div class="nav-item" id="nav-notifications" onclick="switchView('notifications')">
         <span class="nav-item-icon">🔔</span> Notifications
       </div>
       <a href="#" class="nav-item" id="viewSiteLink" target="_blank" style="text-decoration:none;">
-        <span class="nav-item-icon">👁️</span> View My Site
+        <span class="nav-item-icon">️</span> View My Site
       </a>
     </nav>
     <div class="sidebar-footer">
@@ -238,7 +243,7 @@
       </div>
       <div class="stat-card">
         <div class="stat-label">Accepted</div>
-        <div class="stat-value" id="statAccepted">0</div>
+        <div class="stat-value success" id="statAccepted">0</div>
       </div>
       <div class="stat-card">
         <div class="stat-label">Declined</div>
@@ -331,6 +336,7 @@
     currentView = view;
     
     toggleActive('nav-dashboard', view === 'dashboard');
+    toggleActive('nav-accepted', view === 'accepted');
     toggleActive('nav-drafts', view === 'drafts');
     toggleActive('nav-notifications', view === 'notifications');
     
@@ -357,10 +363,16 @@
         setTextContent('listTitle', 'Drafted Bookings');
         if (statsGrid) statsGrid.style.display = 'none';
         setDisplay('badgePending', 'none');
+      } else if (view === 'accepted') {
+        setTextContent('pageTitle', 'Accepted');
+        setTextContent('pageDesc', 'Your confirmed appointments.');
+        setTextContent('listTitle', 'Accepted Bookings');
+        if (statsGrid) statsGrid.style.display = 'none';
+        setDisplay('badgePending', 'none');
       } else {
         setTextContent('pageTitle', 'Dashboard');
         setTextContent('pageDesc', 'Manage your bookings and studio.');
-        setTextContent('listTitle', 'Booking Requests');
+        setTextContent('listTitle', 'Pending Requests');
         if (statsGrid) statsGrid.style.display = 'grid';
         setDisplay('badgePending', 'inline-block');
       }
@@ -397,66 +409,69 @@
     }
   }
 
+  function getStatus(booking) {
+    return (booking.status || '').toString().trim().toLowerCase();
+  }
+
   function renderBookings() {
     const listContainer = safeGetElement('bookingList');
     const emptyState = safeGetElement('emptyState');
     
     if (!listContainer || !emptyState) return;
     
-    // Clear the list first
     listContainer.innerHTML = '';
     
     let bookingsToShow = [];
     
-    // EXPLICIT FILTERING - Only show what belongs in each view
-    if (currentView === 'drafts') {
-      // DRAFTS: ONLY show declined bookings
-      bookingsToShow = allBookings.filter(function(booking) {
-        const status = (booking.status || '').toString().trim().toLowerCase();
-        return status === 'declined';
+    // STRICT FILTERING
+    if (currentView === 'dashboard') {
+      // ONLY pending
+      bookingsToShow = allBookings.filter(function(b) {
+        return getStatus(b) === 'pending';
       });
-    } else if (currentView === 'dashboard') {
-      // DASHBOARD: ONLY show pending and accepted bookings
-      bookingsToShow = allBookings.filter(function(booking) {
-        const status = (booking.status || '').toString().trim().toLowerCase();
-        return status === 'pending' || status === 'accepted';
+    } else if (currentView === 'accepted') {
+      // ONLY accepted
+      bookingsToShow = allBookings.filter(function(b) {
+        return getStatus(b) === 'accepted';
+      });
+    } else if (currentView === 'drafts') {
+      // ONLY declined
+      bookingsToShow = allBookings.filter(function(b) {
+        return getStatus(b) === 'declined';
       });
     } else {
-      // OTHER VIEWS: Show all
       bookingsToShow = allBookings;
     }
 
-    // Show empty state if no bookings match
     if (bookingsToShow.length === 0) {
       emptyState.style.display = 'block';
       if (currentView === 'drafts') {
         emptyState.textContent = 'No drafts yet. Declined bookings will appear here.';
+      } else if (currentView === 'accepted') {
+        emptyState.textContent = 'No accepted bookings yet.';
       } else {
-        emptyState.textContent = 'No booking requests yet.';
+        emptyState.textContent = 'No pending requests.';
       }
       return;
     }
 
-    // Hide empty state and render bookings
     emptyState.style.display = 'none';
 
-    // Count stats from ALL bookings (not just filtered)
     let pendingCount = 0, acceptedCount = 0, declinedCount = 0;
     allBookings.forEach(function(b) {
-      const s = (b.status || '').toString().trim().toLowerCase();
+      const s = getStatus(b);
       if (s === 'pending') pendingCount++;
       if (s === 'accepted') acceptedCount++;
       if (s === 'declined') declinedCount++;
     });
 
-    // Render each booking
     bookingsToShow.forEach(function(booking) {
       const card = document.createElement('div');
       card.className = 'booking-card';
       
       const dateObj = new Date(booking.date);
       const dateStr = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-      const statusNorm = (booking.status || '').toString().trim().toLowerCase();
+      const statusNorm = getStatus(booking);
       
       const draftNotice = statusNorm === 'declined' ? '<div class="draft-notice">📝 Saved in Drafts for 2 weeks before permanent deletion</div>' : '';
 
@@ -477,7 +492,7 @@
           <div class="booking-meta">
             <span>📅 ${dateStr}</span>
             <span>📍 ${booking.placement}</span>
-            <span style="text-transform: capitalize; font-weight: 600; color: ${statusNorm === 'pending' ? 'var(--accent)' : 'var(--ink)'}">● ${booking.status}</span>
+            <span style="text-transform: capitalize; font-weight: 600; color: ${statusNorm === 'pending' ? 'var(--accent)' : statusNorm === 'accepted' ? 'var(--success)' : 'var(--ink)'}">● ${booking.status}</span>
           </div>
           ${draftNotice}
         </div>
@@ -486,7 +501,6 @@
       listContainer.appendChild(card);
     });
 
-    // Update stats only on dashboard view
     if (currentView === 'dashboard') {
       setTextContent('statPending', pendingCount);
       setTextContent('statAccepted', acceptedCount);
