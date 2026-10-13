@@ -38,15 +38,36 @@
     bottom: 0;
     z-index: 100;
   }
+  .sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px;
+    border-bottom: 1px solid var(--line);
+  }
   .sidebar-logo {
     font-family: 'Space Grotesk', sans-serif;
     font-size: 22px;
     font-weight: 800;
     letter-spacing: .2em;
-    padding: 24px;
-    border-bottom: 1px solid var(--line);
   }
   .sidebar-logo span { color: var(--accent); }
+  
+  .close-btn {
+    display: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    border: 1px solid var(--line);
+    background: #fff;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: var(--ink);
+    transition: all .2s;
+  }
+  .close-btn:hover { background: var(--bg-alt); }
   
   .sidebar-nav { flex: 1; padding: 24px 16px; display: flex; flex-direction: column; gap: 4px; }
   .nav-item {
@@ -165,7 +186,6 @@
     flex-direction: column;
     gap: 5px;
     padding: 0;
-    transition: left .3s ease;
   }
   .hamburger span {
     display: block;
@@ -175,9 +195,6 @@
     border-radius: 2px;
     transition: all .3s;
   }
-  .hamburger.active span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
-  .hamburger.active span:nth-child(2) { opacity: 0; }
-  .hamburger.active span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
   /* Overlay - hidden by default */
   .overlay {
@@ -195,12 +212,7 @@
   /* MOBILE ONLY */
   @media (max-width: 768px) {
     .hamburger { display: flex; }
-    
-    /* When sidebar is open, move X button to the right */
-    .hamburger.active {
-      left: auto;
-      right: 16px;
-    }
+    .close-btn { display: flex; }
     
     .sidebar {
       transform: translateX(-100%);
@@ -238,7 +250,11 @@
 
 <div class="app-layout">
   <aside class="sidebar" id="sidebar">
-    <div class="sidebar-logo">INK<span>.</span></div>
+    <!-- Sidebar header with logo and X button -->
+    <div class="sidebar-header">
+      <div class="sidebar-logo">INK<span>.</span></div>
+      <button class="close-btn" id="closeBtn" aria-label="Close menu">✕</button>
+    </div>
     <nav class="sidebar-nav">
       <div class="nav-item active" id="nav-dashboard" onclick="switchView('dashboard')">
         <span class="nav-item-icon">📊</span> Dashboard
@@ -328,27 +344,20 @@
   const hamburgerBtn = document.getElementById('hamburgerBtn');
   const sidebar = document.getElementById('sidebar');
   const overlay = document.getElementById('overlay');
+  const closeBtn = document.getElementById('closeBtn');
 
   function openSidebar() {
     sidebar.classList.add('open');
     overlay.classList.add('active');
-    hamburgerBtn.classList.add('active');
   }
 
   function closeSidebar() {
     sidebar.classList.remove('open');
     overlay.classList.remove('active');
-    hamburgerBtn.classList.remove('active');
   }
 
-  hamburgerBtn.addEventListener('click', () => {
-    if (sidebar.classList.contains('open')) {
-      closeSidebar();
-    } else {
-      openSidebar();
-    }
-  });
-
+  hamburgerBtn.addEventListener('click', openSidebar);
+  closeBtn.addEventListener('click', closeSidebar);
   overlay.addEventListener('click', closeSidebar);
 
   window.switchView = function(view) {
@@ -469,7 +478,7 @@
       const dateStr = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
       
       const draftNotice = status === 'declined' 
-        ? '<div class="draft-notice">📝 Saved in Drafts for 2 weeks before permanent deletion</div>' 
+        ? '<div class="draft-notice"> Saved in Drafts for 2 weeks before permanent deletion</div>' 
         : '';
 
       let actionsHtml = '';
