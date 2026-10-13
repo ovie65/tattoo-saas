@@ -20,7 +20,7 @@
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { background: var(--bg-alt); color: var(--ink); font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
-  h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; font-weight: 700; letter-spacing: -.02em; }
+  h1, h2, h3, h4 { font-family: 'Space Grotesk', sans-serif; font-weight: 700; letter-spacing: -.02em; }
   a { color: inherit; text-decoration: none; }
   button { font-family: inherit; cursor: pointer; border: none; background: none; }
 
@@ -215,7 +215,6 @@
 
   .empty-state { text-align: center; padding: 60px 20px; color: var(--muted); background: #fff; border-radius: var(--radius); border: 1px solid var(--line); }
 
-  /* Notifications Settings Styles */
   .settings-card {
     background: #fff;
     border-radius: var(--radius);
@@ -280,7 +279,6 @@
   }
   .save-notice.show { display: block; }
 
-  /* Hamburger button - hidden on desktop */
   .hamburger {
     display: none;
     position: fixed;
@@ -366,7 +364,7 @@
     </div>
     <nav class="sidebar-nav">
       <div class="nav-item active" id="nav-dashboard" onclick="switchView('dashboard')">
-        <span class="nav-item-icon"></span> Dashboard
+        <span class="nav-item-icon">🏠</span> Dashboard
       </div>
       <div class="nav-item" id="nav-accepted" onclick="switchView('accepted')">
         <span class="nav-item-icon">✅</span> Accepted
@@ -375,7 +373,7 @@
         <span class="nav-item-icon">📝</span> Drafts
       </div>
       <div class="nav-item" id="nav-notifications" onclick="switchView('notifications')">
-        <span class="nav-item-icon"></span> Notifications
+        <span class="nav-item-icon">🔔</span> Notifications
       </div>
       <a href="#" class="nav-item" id="viewSiteLink" target="_blank" style="text-decoration:none;">
         <span class="nav-item-icon">👁️</span> View My Site
@@ -395,7 +393,6 @@
       <p id="pageDesc">Manage your bookings and studio.</p>
     </div>
 
-    <!-- Stats (only for dashboard) -->
     <div class="stats-grid" id="statsGrid">
       <div class="stat-card">
         <div class="stat-label">Pending</div>
@@ -415,7 +412,6 @@
       </div>
     </div>
 
-    <!-- Bookings section -->
     <div id="bookingsSection">
       <div class="section-header">
         <h2 id="listTitle">Booking Requests</h2>
@@ -426,7 +422,6 @@
       </div>
     </div>
 
-    <!-- Notifications settings section (hidden by default) -->
     <div id="notificationsSection" style="display: none;">
       <div class="settings-card">
         <h3>Notification Preferences</h3>
@@ -478,7 +473,6 @@
     });
   }
 
-  // Hamburger menu logic
   const hamburgerBtn = document.getElementById('hamburgerBtn');
   const sidebar = document.getElementById('sidebar');
   const overlay = document.getElementById('overlay');
@@ -500,7 +494,6 @@
   closeBtn.addEventListener('click', closeSidebar);
   overlay.addEventListener('click', closeSidebar);
 
-  // Load saved notification preferences (default: ON)
   function loadNotificationPrefs() {
     const pushPref = localStorage.getItem('ink_push_notifications');
     const emailPref = localStorage.getItem('ink_email_notifications');
@@ -508,7 +501,6 @@
     const pushToggle = document.getElementById('pushToggle');
     const emailToggle = document.getElementById('emailToggle');
     
-    // Default to ON if not set
     if (pushPref === 'off') {
       pushToggle.classList.remove('on');
     } else {
@@ -522,7 +514,6 @@
     }
   }
 
-  // Toggle notification and save
   window.toggleNotification = function(type) {
     const toggle = document.getElementById(type + 'Toggle');
     toggle.classList.toggle('on');
@@ -530,7 +521,6 @@
     const isOn = toggle.classList.contains('on');
     localStorage.setItem('ink_' + type + '_notifications', isOn ? 'on' : 'off');
     
-    // Show save notice briefly
     const notice = document.getElementById('saveNotice');
     notice.classList.add('show');
     setTimeout(function() {
@@ -538,7 +528,6 @@
     }, 2000);
   };
 
-  // View switching
   window.switchView = function(view) {
     currentView = view;
     
@@ -682,7 +671,7 @@
       const dateStr = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
       
       const draftNotice = status === 'declined' 
-        ? '<div class="draft-notice">📝 Saved in Drafts for 2 weeks before permanent deletion</div>' 
+        ? '<div class="draft-notice"> Saved in Drafts for 2 weeks before permanent deletion</div>' 
         : '';
 
       let actionsHtml = '';
@@ -698,7 +687,7 @@
       let imageTagsHtml = '';
       if (booking.imageNames && booking.imageNames.length > 0) {
         const tags = booking.imageNames.map(function(name) {
-          return '<span class="image-tag"> ' + name + '</span>';
+          return '<span class="image-tag">📎 ' + name + '</span>';
         }).join('');
         imageTagsHtml = '<div class="image-list">' + tags + '</div>';
       } else {
@@ -711,7 +700,7 @@
             <div class="booking-client">${booking.clientName} <span style="font-weight:400; font-size:13px; color:var(--muted)">(${booking.clientEmail})</span></div>
             <div class="booking-desc">${booking.description}</div>
             <div class="booking-meta">
-              <span>📅 ${dateStr}</span>
+              <span> ${dateStr}</span>
               <span>📍 ${booking.placement}</span>
               <span style="text-transform: capitalize; font-weight: 600; color: ${status === 'pending' ? 'var(--accent)' : status === 'accepted' ? 'var(--success)' : 'var(--ink)'}">● ${booking.status}</span>
             </div>
