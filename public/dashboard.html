@@ -136,14 +136,16 @@
     border-radius: var(--radius);
     padding: 24px;
     border: 1px solid var(--line);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 20px;
     transition: border-color .2s;
   }
   .booking-card:hover { border-color: var(--ink); }
   
+  .booking-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+  }
   .booking-info { flex: 1; }
   .booking-client { font-weight: 700; font-size: 16px; margin-bottom: 4px; }
   .booking-desc { font-size: 14px; color: var(--muted); line-height: 1.5; margin-bottom: 8px; }
@@ -165,6 +167,62 @@
   .btn-decline:hover { border-color: var(--accent); color: var(--accent); }
   .btn-restore { background: var(--accent); color: #fff; }
   .btn-restore:hover { background: #b91c1c; }
+
+  /* Expand button and details */
+  .expand-btn {
+    margin-top: 16px;
+    padding: 8px 16px;
+    background: var(--bg-alt);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all .2s;
+  }
+  .expand-btn:hover {
+    background: var(--ink);
+    color: #fff;
+    border-color: var(--ink);
+  }
+  .booking-details {
+    display: none;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--line);
+    font-size: 13px;
+  }
+  .booking-details.show { display: block; }
+  .detail-row {
+    margin-bottom: 12px;
+  }
+  .detail-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    margin-bottom: 4px;
+  }
+  .detail-value {
+    color: var(--ink);
+    line-height: 1.5;
+  }
+  .image-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 4px;
+  }
+  .image-tag {
+    background: var(--bg-alt);
+    border: 1px solid var(--line);
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    color: var(--ink);
+  }
 
   .empty-state { text-align: center; padding: 60px 20px; color: var(--muted); background: #fff; border-radius: var(--radius); border: 1px solid var(--line); }
 
@@ -213,8 +271,6 @@
   @media (max-width: 768px) {
     .hamburger { display: flex; }
     .close-btn { display: flex; }
-    
-    /* Hide hamburger when sidebar is open */
     .hamburger.hidden { display: none; }
     
     .sidebar {
@@ -233,7 +289,7 @@
     .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
     .stat-card { padding: 16px; }
     .stat-value { font-size: 24px; }
-    .booking-card { flex-direction: column; align-items: flex-start; }
+    .booking-header { flex-direction: column; }
     .booking-actions { width: 100%; }
     .booking-actions .btn { flex: 1; text-align: center; }
   }
@@ -253,7 +309,6 @@
 
 <div class="app-layout">
   <aside class="sidebar" id="sidebar">
-    <!-- Sidebar header with logo and X button -->
     <div class="sidebar-header">
       <div class="sidebar-logo">INK<span>.</span></div>
       <button class="close-btn" id="closeBtn" aria-label="Close menu">✕</button>
@@ -343,7 +398,6 @@
     });
   }
 
-  // Hamburger menu logic (mobile only)
   const hamburgerBtn = document.getElementById('hamburgerBtn');
   const sidebar = document.getElementById('sidebar');
   const overlay = document.getElementById('overlay');
@@ -422,6 +476,13 @@
     }
   }
 
+  function toggleDetails(bookingId) {
+    const details = document.getElementById('details-' + bookingId);
+    if (details) {
+      details.classList.toggle('show');
+    }
+  }
+
   function renderBookings() {
     const listContainer = document.getElementById('bookingList');
     const emptyState = document.getElementById('emptyState');
@@ -444,7 +505,6 @@
         return status === 'accepted';
       });
     } else {
-      // Dashboard: only pending
       filteredBookings = allBookings.filter(function(booking) {
         const status = (booking.status || '').toString().trim().toLowerCase();
         return status === 'pending';
@@ -483,7 +543,7 @@
       const dateStr = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
       
       const draftNotice = status === 'declined' 
-        ? '<div class="draft-notice"> Saved in Drafts for 2 weeks before permanent deletion</div>' 
+        ? '<div class="draft-notice">📝 Saved in Drafts for 2 weeks before permanent deletion</div>' 
         : '';
 
       let actionsHtml = '';
@@ -496,18 +556,58 @@
         actionsHtml = `<button class="btn btn-restore" onclick="updateBooking('${booking._id}', 'pending')">Restore</button>`;
       }
 
+      // Build image tags if any
+      let imageTagsHtml = '';
+      if (booking.imageNames && booking.imageNames.length > 0) {
+        const tags = booking.imageNames.map(function(name) {
+          return '<span class="image-tag">📎 ' + name + '</span>';
+        }).join('');
+        imageTagsHtml = '<div class="image-list">' + tags + '</div>';
+      } else {
+        imageTagsHtml = '<div style="color: var(--muted); font-size: 12px;">No images uploaded</div>';
+      }
+
       card.innerHTML = `
-        <div class="booking-info">
-          <div class="booking-client">${booking.clientName} <span style="font-weight:400; font-size:13px; color:var(--muted)">(${booking.clientEmail})</span></div>
-          <div class="booking-desc">${booking.description}</div>
-          <div class="booking-meta">
-            <span>📅 ${dateStr}</span>
-            <span> ${booking.placement}</span>
-            <span style="text-transform: capitalize; font-weight: 600; color: ${status === 'pending' ? 'var(--accent)' : status === 'accepted' ? 'var(--success)' : 'var(--ink)'}">● ${booking.status}</span>
+        <div class="booking-header">
+          <div class="booking-info">
+            <div class="booking-client">${booking.clientName} <span style="font-weight:400; font-size:13px; color:var(--muted)">(${booking.clientEmail})</span></div>
+            <div class="booking-desc">${booking.description}</div>
+            <div class="booking-meta">
+              <span> ${dateStr}</span>
+              <span>📍 ${booking.placement}</span>
+              <span style="text-transform: capitalize; font-weight: 600; color: ${status === 'pending' ? 'var(--accent)' : status === 'accepted' ? 'var(--success)' : 'var(--ink)'}">● ${booking.status}</span>
+            </div>
+            ${draftNotice}
           </div>
-          ${draftNotice}
+          <div class="booking-actions">${actionsHtml}</div>
         </div>
-        <div class="booking-actions">${actionsHtml}</div>
+        <button class="expand-btn" onclick="toggleDetails('${booking._id}')">▼ View Details</button>
+        <div class="booking-details" id="details-${booking._id}">
+          <div class="detail-row">
+            <div class="detail-label">Client Name</div>
+            <div class="detail-value">${booking.clientName}</div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-label">Email</div>
+            <div class="detail-value">${booking.clientEmail}</div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-label">Preferred Date</div>
+            <div class="detail-value">${dateStr}</div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-label">Placement</div>
+            <div class="detail-value">${booking.placement}</div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-label">Tattoo Description</div>
+            <div class="detail-value">${booking.description}</div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-label">Reference Images</div>
+            ${imageTagsHtml}
+          </div>
+        </div>
       `;
       listContainer.appendChild(card);
     });
