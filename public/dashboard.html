@@ -244,15 +244,12 @@
     });
   }
 
-  // Switch between Dashboard and Drafts
   window.switchView = function(view) {
     currentView = view;
     
-    // Update active button in sidebar
     document.getElementById('nav-dashboard').classList.toggle('active', view === 'dashboard');
     document.getElementById('nav-drafts').classList.toggle('active', view === 'drafts');
     
-    // Update page title and description
     const pageTitle = document.getElementById('pageTitle');
     const pageDesc = document.getElementById('pageDesc');
     const listTitle = document.getElementById('listTitle');
@@ -273,7 +270,6 @@
       badgePending.style.display = 'inline-block';
     }
     
-    // Re-render the list with new filter
     renderBookings();
   };
 
@@ -301,18 +297,25 @@
     const listContainer = document.getElementById('bookingList');
     const emptyState = document.getElementById('emptyState');
     
-    // Remove only booking cards (keep empty state element)
     const oldCards = listContainer.querySelectorAll('.booking-card');
     oldCards.forEach(function(card) {
       card.remove();
     });
 
     // Filter bookings based on current view
-    let filteredBookings = allBookings;
+    let filteredBookings = [];
+    
     if (currentView === 'drafts') {
+      // Drafts: ONLY show declined bookings
       filteredBookings = allBookings.filter(function(booking) {
         const status = (booking.status || '').toString().trim().toLowerCase();
         return status === 'declined';
+      });
+    } else {
+      // Dashboard: ONLY show pending and accepted (NOT declined)
+      filteredBookings = allBookings.filter(function(booking) {
+        const status = (booking.status || '').toString().trim().toLowerCase();
+        return status === 'pending' || status === 'accepted';
       });
     }
 
@@ -375,7 +378,6 @@
       listContainer.appendChild(card);
     });
 
-    // Only update stats when on dashboard view
     if (currentView === 'dashboard') {
       document.getElementById('statPending').textContent = pendingCount;
       document.getElementById('statAccepted').textContent = acceptedCount;
