@@ -168,7 +168,6 @@
   .btn-restore { background: var(--accent); color: #fff; }
   .btn-restore:hover { background: #b91c1c; }
 
-  /* Expand button and details */
   .expand-btn {
     margin-top: 16px;
     padding: 8px 16px;
@@ -194,9 +193,7 @@
     font-size: 13px;
   }
   .booking-details.show { display: block; }
-  .detail-row {
-    margin-bottom: 12px;
-  }
+  .detail-row { margin-bottom: 12px; }
   .detail-label {
     font-size: 11px;
     font-weight: 600;
@@ -205,16 +202,8 @@
     letter-spacing: .05em;
     margin-bottom: 4px;
   }
-  .detail-value {
-    color: var(--ink);
-    line-height: 1.5;
-  }
-  .image-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 4px;
-  }
+  .detail-value { color: var(--ink); line-height: 1.5; }
+  .image-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
   .image-tag {
     background: var(--bg-alt);
     border: 1px solid var(--line);
@@ -225,6 +214,71 @@
   }
 
   .empty-state { text-align: center; padding: 60px 20px; color: var(--muted); background: #fff; border-radius: var(--radius); border: 1px solid var(--line); }
+
+  /* Notifications Settings Styles */
+  .settings-card {
+    background: #fff;
+    border-radius: var(--radius);
+    padding: 32px;
+    border: 1px solid var(--line);
+    max-width: 600px;
+  }
+  .settings-card h3 {
+    font-size: 18px;
+    margin-bottom: 8px;
+  }
+  .settings-card > p {
+    color: var(--muted);
+    font-size: 14px;
+    margin-bottom: 24px;
+  }
+  .setting-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .setting-item:last-child { border-bottom: none; }
+  .setting-info h4 { font-size: 15px; margin-bottom: 4px; font-weight: 600; }
+  .setting-info p { font-size: 13px; color: var(--muted); line-height: 1.5; }
+  
+  .toggle-switch {
+    position: relative;
+    width: 48px;
+    height: 26px;
+    background: #ccc;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: background .3s;
+    flex-shrink: 0;
+  }
+  .toggle-switch.on { background: var(--ink); }
+  .toggle-switch::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 20px;
+    height: 20px;
+    background: #fff;
+    border-radius: 50%;
+    transition: transform .3s;
+    box-shadow: 0 1px 3px rgba(0,0,0,.2);
+  }
+  .toggle-switch.on::after { transform: translateX(22px); }
+
+  .save-notice {
+    margin-top: 20px;
+    padding: 12px 16px;
+    background: rgba(16,185,129,.08);
+    color: #059669;
+    border: 1px solid rgba(16,185,129,.2);
+    border-radius: 8px;
+    font-size: 13px;
+    display: none;
+  }
+  .save-notice.show { display: block; }
 
   /* Hamburger button - hidden on desktop */
   .hamburger {
@@ -254,7 +308,6 @@
     transition: all .3s;
   }
 
-  /* Overlay - hidden by default */
   .overlay {
     display: none;
     position: fixed;
@@ -267,7 +320,6 @@
   }
   .overlay.active { display: block; }
 
-  /* MOBILE ONLY */
   @media (max-width: 768px) {
     .hamburger { display: flex; }
     .close-btn { display: flex; }
@@ -292,19 +344,18 @@
     .booking-header { flex-direction: column; }
     .booking-actions { width: 100%; }
     .booking-actions .btn { flex: 1; text-align: center; }
+    .settings-card { padding: 24px 20px; }
   }
 </style>
 </head>
 <body>
 
-<!-- Hamburger button (mobile only) -->
 <button class="hamburger" id="hamburgerBtn" aria-label="Open menu">
   <span></span>
   <span></span>
   <span></span>
 </button>
 
-<!-- Dark overlay -->
 <div class="overlay" id="overlay"></div>
 
 <div class="app-layout">
@@ -315,7 +366,7 @@
     </div>
     <nav class="sidebar-nav">
       <div class="nav-item active" id="nav-dashboard" onclick="switchView('dashboard')">
-        <span class="nav-item-icon">📊</span> Dashboard
+        <span class="nav-item-icon"></span> Dashboard
       </div>
       <div class="nav-item" id="nav-accepted" onclick="switchView('accepted')">
         <span class="nav-item-icon">✅</span> Accepted
@@ -323,8 +374,8 @@
       <div class="nav-item" id="nav-drafts" onclick="switchView('drafts')">
         <span class="nav-item-icon">📝</span> Drafts
       </div>
-      <div class="nav-item">
-        <span class="nav-item-icon">🔔</span> Notifications
+      <div class="nav-item" id="nav-notifications" onclick="switchView('notifications')">
+        <span class="nav-item-icon"></span> Notifications
       </div>
       <a href="#" class="nav-item" id="viewSiteLink" target="_blank" style="text-decoration:none;">
         <span class="nav-item-icon">👁️</span> View My Site
@@ -344,6 +395,7 @@
       <p id="pageDesc">Manage your bookings and studio.</p>
     </div>
 
+    <!-- Stats (only for dashboard) -->
     <div class="stats-grid" id="statsGrid">
       <div class="stat-card">
         <div class="stat-label">Pending</div>
@@ -363,13 +415,41 @@
       </div>
     </div>
 
-    <div class="section-header">
-      <h2 id="listTitle">Booking Requests</h2>
-      <span class="badge" id="badgePending">0 New</span>
+    <!-- Bookings section -->
+    <div id="bookingsSection">
+      <div class="section-header">
+        <h2 id="listTitle">Booking Requests</h2>
+        <span class="badge" id="badgePending">0 New</span>
+      </div>
+      <div class="booking-list" id="bookingList">
+        <div class="empty-state" id="emptyState">Loading bookings...</div>
+      </div>
     </div>
 
-    <div class="booking-list" id="bookingList">
-      <div class="empty-state" id="emptyState">Loading bookings...</div>
+    <!-- Notifications settings section (hidden by default) -->
+    <div id="notificationsSection" style="display: none;">
+      <div class="settings-card">
+        <h3>Notification Preferences</h3>
+        <p>Choose how you want to be notified about new bookings.</p>
+        
+        <div class="setting-item">
+          <div class="setting-info">
+            <h4>Push Notifications</h4>
+            <p>Get instant alerts on your phone when a new booking is requested.</p>
+          </div>
+          <div class="toggle-switch on" id="pushToggle" onclick="toggleNotification('push')"></div>
+        </div>
+        
+        <div class="setting-item">
+          <div class="setting-info">
+            <h4>Email Notifications</h4>
+            <p>Receive an email summary of your daily bookings.</p>
+          </div>
+          <div class="toggle-switch on" id="emailToggle" onclick="toggleNotification('email')"></div>
+        </div>
+
+        <div class="save-notice" id="saveNotice">✅ Your preferences have been saved.</div>
+      </div>
     </div>
   </main>
 </div>
@@ -398,6 +478,7 @@
     });
   }
 
+  // Hamburger menu logic
   const hamburgerBtn = document.getElementById('hamburgerBtn');
   const sidebar = document.getElementById('sidebar');
   const overlay = document.getElementById('overlay');
@@ -419,41 +500,99 @@
   closeBtn.addEventListener('click', closeSidebar);
   overlay.addEventListener('click', closeSidebar);
 
+  // Load saved notification preferences (default: ON)
+  function loadNotificationPrefs() {
+    const pushPref = localStorage.getItem('ink_push_notifications');
+    const emailPref = localStorage.getItem('ink_email_notifications');
+    
+    const pushToggle = document.getElementById('pushToggle');
+    const emailToggle = document.getElementById('emailToggle');
+    
+    // Default to ON if not set
+    if (pushPref === 'off') {
+      pushToggle.classList.remove('on');
+    } else {
+      pushToggle.classList.add('on');
+    }
+    
+    if (emailPref === 'off') {
+      emailToggle.classList.remove('on');
+    } else {
+      emailToggle.classList.add('on');
+    }
+  }
+
+  // Toggle notification and save
+  window.toggleNotification = function(type) {
+    const toggle = document.getElementById(type + 'Toggle');
+    toggle.classList.toggle('on');
+    
+    const isOn = toggle.classList.contains('on');
+    localStorage.setItem('ink_' + type + '_notifications', isOn ? 'on' : 'off');
+    
+    // Show save notice briefly
+    const notice = document.getElementById('saveNotice');
+    notice.classList.add('show');
+    setTimeout(function() {
+      notice.classList.remove('show');
+    }, 2000);
+  };
+
+  // View switching
   window.switchView = function(view) {
     currentView = view;
     
     document.getElementById('nav-dashboard').classList.toggle('active', view === 'dashboard');
     document.getElementById('nav-accepted').classList.toggle('active', view === 'accepted');
     document.getElementById('nav-drafts').classList.toggle('active', view === 'drafts');
+    document.getElementById('nav-notifications').classList.toggle('active', view === 'notifications');
     
     const pageTitle = document.getElementById('pageTitle');
     const pageDesc = document.getElementById('pageDesc');
     const listTitle = document.getElementById('listTitle');
     const statsGrid = document.getElementById('statsGrid');
     const badgePending = document.getElementById('badgePending');
+    const bookingsSection = document.getElementById('bookingsSection');
+    const notificationsSection = document.getElementById('notificationsSection');
     
-    if (view === 'drafts') {
+    if (view === 'notifications') {
+      pageTitle.textContent = 'Notifications';
+      pageDesc.textContent = 'Manage how you receive alerts.';
+      statsGrid.style.display = 'none';
+      bookingsSection.style.display = 'none';
+      notificationsSection.style.display = 'block';
+      loadNotificationPrefs();
+    } else if (view === 'drafts') {
       pageTitle.textContent = 'Drafts';
       pageDesc.textContent = 'Declined appointments saved for 2 weeks before permanent deletion.';
       listTitle.textContent = 'Drafted Bookings';
       statsGrid.style.display = 'none';
       badgePending.style.display = 'none';
+      bookingsSection.style.display = 'block';
+      notificationsSection.style.display = 'none';
     } else if (view === 'accepted') {
       pageTitle.textContent = 'Accepted';
       pageDesc.textContent = 'Your confirmed appointments.';
       listTitle.textContent = 'Accepted Bookings';
       statsGrid.style.display = 'none';
       badgePending.style.display = 'none';
+      bookingsSection.style.display = 'block';
+      notificationsSection.style.display = 'none';
     } else {
       pageTitle.textContent = 'Dashboard';
       pageDesc.textContent = 'Manage your bookings and studio.';
       listTitle.textContent = 'Booking Requests';
       statsGrid.style.display = 'grid';
       badgePending.style.display = 'inline-block';
+      bookingsSection.style.display = 'block';
+      notificationsSection.style.display = 'none';
     }
     
     closeSidebar();
-    renderBookings();
+    
+    if (view !== 'notifications') {
+      renderBookings();
+    }
   };
 
   async function loadBookings() {
@@ -556,11 +695,10 @@
         actionsHtml = `<button class="btn btn-restore" onclick="updateBooking('${booking._id}', 'pending')">Restore</button>`;
       }
 
-      // Build image tags if any
       let imageTagsHtml = '';
       if (booking.imageNames && booking.imageNames.length > 0) {
         const tags = booking.imageNames.map(function(name) {
-          return '<span class="image-tag">📎 ' + name + '</span>';
+          return '<span class="image-tag"> ' + name + '</span>';
         }).join('');
         imageTagsHtml = '<div class="image-list">' + tags + '</div>';
       } else {
@@ -573,7 +711,7 @@
             <div class="booking-client">${booking.clientName} <span style="font-weight:400; font-size:13px; color:var(--muted)">(${booking.clientEmail})</span></div>
             <div class="booking-desc">${booking.description}</div>
             <div class="booking-meta">
-              <span> ${dateStr}</span>
+              <span>📅 ${dateStr}</span>
               <span>📍 ${booking.placement}</span>
               <span style="text-transform: capitalize; font-weight: 600; color: ${status === 'pending' ? 'var(--accent)' : status === 'accepted' ? 'var(--success)' : 'var(--ink)'}">● ${booking.status}</span>
             </div>
