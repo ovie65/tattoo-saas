@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title id="pageTitle">INK Artist</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/space-grotesk@5/index.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5/index.css" />
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg-alt: #fafafa;
+    --ink: #0a0a0a;
+    --muted: #6b6b6b;
+    --line: #e5e5e5;
+    --accent: #dc2626;
+    --radius: 12px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.6;
+  }
+  h1, h2, h3, h4 { font-family: 'Space Grotesk', sans-serif; font-weight: 700; letter-spacing: -.02em; }
+  a { color: inherit; text-decoration: none; }
+  button { font-family: inherit; cursor: pointer; border: none; background: none; }
+
+  .nav {
+    position: sticky;
+    top: 0;
+    background: #fff;
+    border-bottom: 1px solid var(--line);
+    z-index: 100;
+    padding: 20px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .nav-logo {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: .25em;
+  }
+  .nav-logo span { color: var(--accent); }
+  .nav-links { display: flex; gap: 32px; align-items: center; }
+  .nav-links a {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--muted);
+    transition: color .2s;
+  }
+  .nav-links a:hover { color: var(--ink); }
+  .nav-book-btn {
+    background: var(--ink);
+    color: #fff !important;
+    padding: 10px 24px;
+    border-radius: 100px;
+    font-weight: 600;
+    transition: all .2s;
+  }
+  .nav-book-btn:hover { background: var(--accent); }
+
+  .hero {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    padding: 80px 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+    align-items: center;
+  }
+  .hero-image {
+    aspect-ratio: 1;
+    background: var(--bg-alt);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    color: var(--muted);
+    overflow: hidden;
+  }
+  .hero-image-placeholder { text-align: center; padding: 40px; }
+  .hero-image-placeholder .icon { font-size: 64px; margin-bottom: 16px; }
+  .hero-content { padding: 20px 0; }
+  .hero-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: .15em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .hero-title {
+    font-size: 56px;
+    line-height: 1.05;
+    margin-bottom: 24px;
+    letter-spacing: -.03em;
+  }
+  .hero-bio {
+    font-size: 16px;
+    color: var(--muted);
+    line-height: 1.7;
+    margin-bottom: 40px;
+    max-width: 480px;
+  }
+  .hero-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+    padding-top: 32px;
+    border-top: 1px solid var(--line);
+  }
+  .stat-number {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+  .stat-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--muted);
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+
+  .section { padding: 100px 40px; max-width: 1200px; margin: 0 auto; }
+  .section-alt { background: var(--bg-alt); }
+  .section-alt .section-inner { max-width: 1200px; margin: 0 auto; }
+  .section-header { text-align: center; margin-bottom: 60px; }
+  .section-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: .15em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .section-title { font-size: 44px; letter-spacing: -.02em; }
+
+  .work-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .work-item {
+    aspect-ratio: 1;
+    background: var(--bg-alt);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--muted);
+    font-size: 13px;
+    transition: all .2s;
+  }
+  .work-item:hover { border-color: var(--ink); transform: translateY(-2px); }
+
+  .booking-cta {
+    text-align: center;
+    padding: 100px 40px;
+    background: var(--ink);
+    color: #fff;
+  }
+  .booking-cta h2 { font-size: 48px; margin-bottom: 16px; color: #fff; }
+  .booking-cta p { color: rgba(255,255,255,.7); font-size: 16px; margin-bottom: 32px; max-width: 500px; margin-left: auto; margin-right: auto; }
+  .booking-cta-btn {
+    display: inline-block;
+    background: var(--accent);
+    color: #fff;
+    padding: 16px 40px;
+    border-radius: 100px;
+    font-weight: 600;
+    font-size: 15px;
+    transition: all .2s;
+  }
+  .booking-cta-btn:hover { background: #b91c1c; transform: translateY(-2px); }
+
+  .testimonial-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  .testimonial-card { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 32px; }
+  .testimonial-stars { color: var(--accent); margin-bottom: 16px; font-size: 14px; }
+  .testimonial-text { font-size: 14px; line-height: 1.7; color: var(--ink); margin-bottom: 20px; }
+  .testimonial-author { font-weight: 600; font-size: 13px; }
+
+  .faq-list { max-width: 720px; margin: 0 auto; }
+  .faq-item { border-bottom: 1px solid var(--line); padding: 24px 0; cursor: pointer; }
+  .faq-question {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 18px;
+    font-weight: 600;
+    font-family: 'Space Grotesk', sans-serif;
+  }
+  .faq-toggle { font-size: 24px; color: var(--accent); transition: transform .3s; }
+  .faq-item.open .faq-toggle { transform: rotate(45deg); }
+  .faq-answer {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height .3s ease, padding .3s ease;
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .faq-item.open .faq-answer { max-height: 200px; padding-top: 16px; }
+
+  .guestbook-form {
+    max-width: 600px;
+    margin: 0 auto 40px;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 32px;
+  }
+  .guestbook-form input, .guestbook-form textarea {
+    width: 100%;
+    padding: 14px 16px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    margin-bottom: 16px;
+    background: var(--bg);
+    transition: border-color .2s;
+  }
+  .guestbook-form input:focus, .guestbook-form textarea:focus { outline: none; border-color: var(--ink); }
+  .guestbook-form textarea { resize: vertical; min-height: 100px; }
+  .guestbook-submit {
+    background: var(--ink);
+    color: #fff;
+    padding: 12px 28px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all .2s;
+  }
+  .guestbook-submit:hover { background: var(--accent); }
+  .guestbook-messages { max-width: 600px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
+  .gb-message { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 24px; }
+  .gb-author { font-weight: 700; font-size: 14px; margin-bottom: 4px; }
+  .gb-date { font-size: 11px; color: var(--muted); margin-bottom: 12px; }
+  .gb-text { font-size: 14px; line-height: 1.6; color: var(--ink); }
+
+  .studio-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  .studio-card { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 32px; text-align: center; }
+  .studio-icon { font-size: 32px; margin-bottom: 16px; }
+  .studio-card h4 { font-size: 16px; margin-bottom: 8px; }
+  .studio-card p { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+  .footer { background: var(--ink); color: #fff; padding: 60px 40px 30px; }
+  .footer-inner { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding-bottom: 30px; border-bottom: 1px solid rgba(255,255,255,.1); }
+  .footer-logo { font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 800; letter-spacing: .25em; }
+  .footer-logo span { color: var(--accent); }
+  .footer-socials { display: flex; gap: 20px; }
+  .footer-socials a { color: rgba(255,255,255,.6); font-size: 13px; transition: color .2s; }
+  .footer-socials a:hover { color: #fff; }
+  .footer-bottom { max-width: 1200px; margin: 0 auto; padding-top: 30px; text-align: center; font-size: 12px; color: rgba(255,255,255,.4); }
+
+  @media (max-width: 768px) {
+    .nav { padding: 16px 20px; }
+    .nav-links { gap: 16px; }
+    .nav-links a:not(.nav-book-btn) { display: none; }
+    .hero { grid-template-columns: 1fr; padding: 40px 20px; gap: 40px; }
+    .hero-title { font-size: 36px; }
+    .hero-stats { gap: 20px; }
+    .stat-number { font-size: 28px; }
+    .section { padding: 60px 20px; }
+    .section-title { font-size: 32px; }
+    .work-grid { grid-template-columns: repeat(2, 1fr); }
+    .testimonial-grid { grid-template-columns: 1fr; }
+    .studio-grid { grid-template-columns: 1fr; }
+    .booking-cta { padding: 60px 20px; }
+    .booking-cta h2 { font-size: 32px; }
+    .footer { padding: 40px 20px 20px; }
+    .footer-inner { flex-direction: column; gap: 20px; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-logo">INK<span>.</span></div>
+  <div class="nav-links">
+    <a href="#about">About</a>
+    <a href="#work">Work</a>
+    <a href="#faq">FAQ</a>
+    <a href="#book" class="nav-book-btn book-link">Book Now</a>
+  </div>
+</nav>
+
+<section class="hero" id="about">
+  <div class="hero-image">
+    <div class="hero-image-placeholder">
+      <div class="icon">🎨</div>
+      <div>Artist Photo</div>
+      <div style="font-size:11px; margin-top:4px;">Upload your photo later</div>
+    </div>
+  </div>
+  <div class="hero-content">
+    <div class="hero-label">About the Artist</div>
+    <h1 class="hero-title">Crafted by hand. Worn for life.</h1>
+    <p class="hero-bio">
+      With over a decade behind the machine, I specialize in custom work that blends bold lines with refined detail. Every piece starts with a conversation — your story, your vision, my craft. Sterile studio, professional setup, zero shortcuts.
+    </p>
+    <div class="hero-stats">
+      <div>
+        <div class="stat-number">10+</div>
+        <div class="stat-label">Years Experience</div>
+      </div>
+      <div>
+        <div class="stat-number">2K+</div>
+        <div class="stat-label">Pieces Done</div>
+      </div>
+      <div>
+        <div class="stat-number">100%</div>
+        <div class="stat-label">Sterile Studio</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section-alt" id="work">
+  <div class="section-inner">
+    <div class="section-header">
+      <div class="section-label">Portfolio</div>
+      <h2 class="section-title">Recent Work</h2>
+    </div>
+    <div class="work-grid">
+      <div class="work-item">📷 Upload Your Work</div>
+      <div class="work-item">📷 Upload Your Work</div>
+      <div class="work-item">📷 Upload Your Work</div>
+      <div class="work-item">📷 Upload Your Work</div>
+      <div class="work-item">📷 Upload Your Work</div>
+      <div class="work-item">📷 Upload Your Work</div>
+    </div>
+  </div>
+</section>
+
+<section class="booking-cta" id="book">
+  <h2>Ready to Get Inked?</h2>
+  <p>Book your session today. Let's create something amazing together.</p>
+  <a href="#" class="booking-cta-btn book-link">Book Now →</a>
+</section>
+
+<section class="section" id="testimonials">
+  <div class="section-header">
+    <div class="section-label">Testimonials</div>
+    <h2 class="section-title">What Clients Say</h2>
+  </div>
+  <div class="testimonial-grid">
+    <div class="testimonial-card">
+      <div class="testimonial-stars">★★★★★</div>
+      <p class="testimonial-text">"Absolutely incredible work. The attention to detail is unmatched. I've never felt more comfortable in a studio."</p>
+      <div class="testimonial-author">— Sarah M.</div>
+    </div>
+    <div class="testimonial-card">
+      <div class="testimonial-stars">★★★★★</div>
+      <p class="testimonial-text">"Best tattoo experience I've ever had. Professional, clean, and the final piece exceeded my expectations."</p>
+      <div class="testimonial-author">— James K.</div>
+    </div>
+    <div class="testimonial-card">
+      <div class="testimonial-stars">★★★★★</div>
+      <p class="testimonial-text">"Took my vague idea and turned it into a masterpiece. Will definitely be coming back for more."</p>
+      <div class="testimonial-author">— Priya R.</div>
+    </div>
+  </div>
+</section>
+
+<section class="section section-alt" id="faq">
+  <div class="section-inner">
+    <div class="section-header">
+      <div class="section-label">FAQ</div>
+      <h2 class="section-title">Common Questions</h2>
+    </div>
+    <div class="faq-list">
+      <div class="faq-item">
+        <div class="faq-question"><span>How do I book a session?</span><span class="faq-toggle">+</span></div>
+        <div class="faq-answer">Click the "Book Now" button and fill out the form. I'll review your request and get back to you within 24 hours to confirm details.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question"><span>What is your pricing?</span><span class="faq-toggle">+</span></div>
+        <div class="faq-answer">Pricing depends on size, detail, and placement. I provide custom quotes after reviewing your design idea during the booking process.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question"><span>How should I prepare for my appointment?</span><span class="faq-toggle">+</span></div>
+        <div class="faq-answer">Get a good night's sleep, eat a solid meal, stay hydrated, and avoid alcohol 24 hours before. Wear comfortable clothing that allows easy access to the placement area.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question"><span>Do you do cover-ups?</span><span class="faq-toggle">+</span></div>
+        <div class="faq-answer">Yes! Cover-ups are a specialty. Send me a photo of the existing tattoo when you book so I can plan the best approach.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="guestbook">
+  <div class="section-header">
+    <div class="section-label">Guestbook</div>
+    <h2 class="section-title">Leave a Message</h2>
+  </div>
+  <div class="guestbook-form">
+    <input type="text" id="gbName" placeholder="Your name" required />
+    <textarea id="gbMessage" placeholder="Leave a message for the artist..." required></textarea>
+    <button class="guestbook-submit" onclick="submitGuestbook()">Send Message</button>
+  </div>
+  <div class="guestbook-messages" id="gbMessages"></div>
+</section>
+
+<section class="section section-alt" id="studio">
+  <div class="section-inner">
+    <div class="section-header">
+      <div class="section-label">The Studio</div>
+      <h2 class="section-title">Studio Info</h2>
+    </div>
+    <div class="studio-grid">
+      <div class="studio-card">
+        <div class="studio-icon">📍</div>
+        <h4>Location</h4>
+        <p>123 Ink Street<br>Art District<br>City, State 12345</p>
+      </div>
+      <div class="studio-card">
+        <div class="studio-icon"></div>
+        <h4>Hours</h4>
+        <p>Tue – Sat: 11am – 8pm<br>Sun – Mon: Closed<br>By appointment only</p>
+      </div>
+      <div class="studio-card">
+        <div class="studio-icon">✨</div>
+        <h4>Hygiene</h4>
+        <p>Fully sterile studio<br>Single-use needles<br>Hospital-grade sanitation</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-logo">INK<span>.</span></div>
+    <div class="footer-socials">
+      <a href="#">Instagram</a>
+      <a href="#">Twitter</a>
+      <a href="#">TikTok</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    © 2026 INK STUDIO · ALL RIGHTS RESERVED · POWERED BY INK
+  </div>
+</footer>
+
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const artistName = params.get('artist') || 'INK Artist';
+  
+  document.getElementById('pageTitle').textContent = artistName + ' — INK';
+  
+  document.querySelectorAll('.book-link').forEach(function(link) {
+    link.href = 'book.html?artist=' + encodeURIComponent(artistName);
+  });
+
+  document.querySelectorAll('.faq-item').forEach(function(item) {
+    item.addEventListener('click', function() {
+      this.classList.toggle('open');
+    });
+  });
+
+  function loadGuestbook() {
+    const messages = JSON.parse(localStorage.getItem('ink_guestbook_' + artistName) || '[]');
+    const container = document.getElementById('gbMessages');
+    
+    if (messages.length === 0) {
+      container.innerHTML = '<div style="text-align:center; color:var(--muted); padding:20px; font-size:14px;">No messages yet. Be the first to leave one!</div>';
+      return;
+    }
+    
+    container.innerHTML = messages.map(function(msg) {
+      const date = new Date(msg.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      return `
+        <div class="gb-message">
+          <div class="gb-author">${escapeHtml(msg.name)}</div>
+          <div class="gb-date">${date}</div>
+          <div class="gb-text">${escapeHtml(msg.text)}</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  window.submitGuestbook = function() {
+    const name = document.getElementById('gbName').value.trim();
+    const message = document.getElementById('gbMessage').value.trim();
+    
+    if (!name || !message) {
+      alert('Please fill in both fields.');
+      return;
+    }
+    
+    const messages = JSON.parse(localStorage.getItem('ink_guestbook_' + artistName) || '[]');
+    messages.unshift({
+      name: name,
+      text: message,
+      date: new Date().toISOString()
+    });
+    
+    localStorage.setItem('ink_guestbook_' + artistName, JSON.stringify(messages));
+    document.getElementById('gbName').value = '';
+    document.getElementById('gbMessage').value = '';
+    loadGuestbook();
+  };
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  loadGuestbook();
+</script>
+
+</body>
+</html>

@@ -364,7 +364,7 @@
     </div>
     <nav class="sidebar-nav">
       <div class="nav-item active" id="nav-dashboard" onclick="switchView('dashboard')">
-        <span class="nav-item-icon">🏠</span> Dashboard
+        <span class="nav-item-icon"></span> Dashboard
       </div>
       <div class="nav-item" id="nav-accepted" onclick="switchView('accepted')">
         <span class="nav-item-icon">✅</span> Accepted
@@ -373,7 +373,7 @@
         <span class="nav-item-icon">📝</span> Drafts
       </div>
       <div class="nav-item" id="nav-notifications" onclick="switchView('notifications')">
-        <span class="nav-item-icon">🔔</span> Notifications
+        <span class="nav-item-icon"></span> Notifications
       </div>
       <a href="#" class="nav-item" id="viewSiteLink" target="_blank" style="text-decoration:none;">
         <span class="nav-item-icon">👁️</span> View My Site
@@ -461,7 +461,7 @@
     const nameEl = document.querySelector('.nav-user-name');
     if (nameEl) nameEl.textContent = userName;
     const viewSiteLink = document.getElementById('viewSiteLink');
-    if (viewSiteLink) viewSiteLink.href = `book.html?artist=${encodeURIComponent(userName)}`;
+    if (viewSiteLink) viewSiteLink.href = `artist.html?artist=${encodeURIComponent(userName)}`;
   }
 
   const logoutBtn = document.getElementById('logoutBtn');
@@ -671,7 +671,7 @@
       const dateStr = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
       
       const draftNotice = status === 'declined' 
-        ? '<div class="draft-notice"> Saved in Drafts for 2 weeks before permanent deletion</div>' 
+        ? '<div class="draft-notice">📝 Saved in Drafts for 2 weeks before permanent deletion</div>' 
         : '';
 
       let actionsHtml = '';
@@ -700,8 +700,8 @@
             <div class="booking-client">${booking.clientName} <span style="font-weight:400; font-size:13px; color:var(--muted)">(${booking.clientEmail})</span></div>
             <div class="booking-desc">${booking.description}</div>
             <div class="booking-meta">
-              <span> ${dateStr}</span>
-              <span>📍 ${booking.placement}</span>
+              <span>📅 ${dateStr}</span>
+              <span> ${booking.placement}</span>
               <span style="text-transform: capitalize; font-weight: 600; color: ${status === 'pending' ? 'var(--accent)' : status === 'accepted' ? 'var(--success)' : 'var(--ink)'}">● ${booking.status}</span>
             </div>
             ${draftNotice}
