@@ -14,6 +14,7 @@
     --muted: #6b6b6b;
     --line: #e5e5e5;
     --accent: #dc2626;
+    --success: #10b981;
     --radius: 12px;
     --sidebar-width: 260px;
   }
@@ -101,6 +102,7 @@
   .stat-label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; font-weight: 600; margin-bottom: 8px; }
   .stat-value { font-family: 'Space Grotesk', sans-serif; font-size: 32px; font-weight: 700; }
   .stat-value.accent { color: var(--accent); }
+  .stat-value.success { color: var(--success); }
 
   .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
   .section-header h2 { font-size: 20px; }
@@ -163,6 +165,7 @@
     flex-direction: column;
     gap: 5px;
     padding: 0;
+    transition: left .3s ease;
   }
   .hamburger span {
     display: block;
@@ -192,6 +195,12 @@
   /* MOBILE ONLY */
   @media (max-width: 768px) {
     .hamburger { display: flex; }
+    
+    /* When sidebar is open, move X button to the right */
+    .hamburger.active {
+      left: auto;
+      right: 16px;
+    }
     
     .sidebar {
       transform: translateX(-100%);
@@ -234,6 +243,9 @@
       <div class="nav-item active" id="nav-dashboard" onclick="switchView('dashboard')">
         <span class="nav-item-icon">📊</span> Dashboard
       </div>
+      <div class="nav-item" id="nav-accepted" onclick="switchView('accepted')">
+        <span class="nav-item-icon">✅</span> Accepted
+      </div>
       <div class="nav-item" id="nav-drafts" onclick="switchView('drafts')">
         <span class="nav-item-icon">📝</span> Drafts
       </div>
@@ -265,7 +277,7 @@
       </div>
       <div class="stat-card">
         <div class="stat-label">Accepted</div>
-        <div class="stat-value" id="statAccepted">0</div>
+        <div class="stat-value success" id="statAccepted">0</div>
       </div>
       <div class="stat-card">
         <div class="stat-label">Declined</div>
@@ -343,6 +355,7 @@
     currentView = view;
     
     document.getElementById('nav-dashboard').classList.toggle('active', view === 'dashboard');
+    document.getElementById('nav-accepted').classList.toggle('active', view === 'accepted');
     document.getElementById('nav-drafts').classList.toggle('active', view === 'drafts');
     
     const pageTitle = document.getElementById('pageTitle');
@@ -357,6 +370,12 @@
       listTitle.textContent = 'Drafted Bookings';
       statsGrid.style.display = 'none';
       badgePending.style.display = 'none';
+    } else if (view === 'accepted') {
+      pageTitle.textContent = 'Accepted';
+      pageDesc.textContent = 'Your confirmed appointments.';
+      listTitle.textContent = 'Accepted Bookings';
+      statsGrid.style.display = 'none';
+      badgePending.style.display = 'none';
     } else {
       pageTitle.textContent = 'Dashboard';
       pageDesc.textContent = 'Manage your bookings and studio.';
@@ -365,7 +384,6 @@
       badgePending.style.display = 'inline-block';
     }
     
-    // Close sidebar on mobile after clicking a menu item
     closeSidebar();
     renderBookings();
   };
@@ -406,10 +424,16 @@
         const status = (booking.status || '').toString().trim().toLowerCase();
         return status === 'declined';
       });
-    } else {
+    } else if (currentView === 'accepted') {
       filteredBookings = allBookings.filter(function(booking) {
         const status = (booking.status || '').toString().trim().toLowerCase();
-        return status === 'pending' || status === 'accepted';
+        return status === 'accepted';
+      });
+    } else {
+      // Dashboard: only pending
+      filteredBookings = allBookings.filter(function(booking) {
+        const status = (booking.status || '').toString().trim().toLowerCase();
+        return status === 'pending';
       });
     }
 
@@ -417,8 +441,10 @@
       emptyState.style.display = 'block';
       if (currentView === 'drafts') {
         emptyState.textContent = 'No drafts yet. Declined bookings will appear here.';
+      } else if (currentView === 'accepted') {
+        emptyState.textContent = 'No accepted bookings yet.';
       } else {
-        emptyState.textContent = 'No booking requests yet.';
+        emptyState.textContent = 'No pending booking requests.';
       }
       return;
     }
@@ -463,7 +489,7 @@
           <div class="booking-meta">
             <span>📅 ${dateStr}</span>
             <span> ${booking.placement}</span>
-            <span style="text-transform: capitalize; font-weight: 600; color: ${status === 'pending' ? 'var(--accent)' : 'var(--ink)'}">● ${booking.status}</span>
+            <span style="text-transform: capitalize; font-weight: 600; color: ${status === 'pending' ? 'var(--accent)' : status === 'accepted' ? 'var(--success)' : 'var(--ink)'}">● ${booking.status}</span>
           </div>
           ${draftNotice}
         </div>
