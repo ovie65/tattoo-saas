@@ -104,16 +104,18 @@
 </div>
 
 <script>
-  // Get username from URL parameter OR localStorage
+  // 1. Get the username from the URL link (?user=Ovie65)
   const urlParams = new URLSearchParams(window.location.search);
   const urlUser = urlParams.get('user');
+  
+  // 2. Fallback to localStorage just in case
   const storageUser = localStorage.getItem('ink_user_name');
   const userEmail = localStorage.getItem('ink_user_email');
   
-  // Use URL parameter if available, otherwise use localStorage
+  // Use the URL name first, otherwise use the stored name
   const userName = urlUser || storageUser;
 
-  // If no username found anywhere, kick back to login
+  // 3. If we still don't have a name, kick them back to login
   if (!userName || !userEmail) {
     window.location.href = 'login.html';
   }
@@ -168,6 +170,7 @@
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     
+    // Double-check username before saving
     if (!userName) {
       showNotice('Error: You must be logged in to save.', 'error');
       return;
@@ -178,7 +181,7 @@
     notice.className = 'notice';
 
     const data = {
-      username: userName,
+      username: userName, // This is the magic part - it uses the name from the link!
       bio: document.getElementById('bio').value.trim(),
       yearsExp: document.getElementById('yearsExp').value.trim(),
       piecesDone: document.getElementById('piecesDone').value.trim(),
