@@ -43,7 +43,6 @@
 <body>
 
 <div class="container">
-  <!-- DEBUG BOX: This will show us what username the code sees -->
   <div id="debugStatus" class="debug-box">Checking username...</div>
 
   <div class="header">
@@ -84,15 +83,11 @@
 </div>
 
 <script>
-  // 1. Get username from URL
   const urlParams = new URLSearchParams(window.location.search);
   const urlUser = urlParams.get('user');
-  
-  // 2. Fallback to storage
   const storageUser = localStorage.getItem('ink_user_name');
   const userName = urlUser || storageUser;
 
-  // 3. SHOW US WHAT IT FOUND
   const debugBox = document.getElementById('debugStatus');
   if (userName) {
     debugBox.innerText = '✅ Detected Username: ' + userName;
@@ -100,7 +95,7 @@
     debugBox.style.color = '#166534';
     debugBox.style.borderColor = '#bbf7d0';
   } else {
-    debugBox.innerText = ' No Username Found! URL: ' + window.location.href;
+    debugBox.innerText = '❌ No Username Found! URL: ' + window.location.href;
   }
 
   const form = document.getElementById('editForm');
@@ -130,7 +125,27 @@
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if (!userName) { alert('No username found!'); return; }
+    
+    // LOG what we're about to send
+    console.log('=== SAVING PROFILE ===');
+    console.log('Username:', userName);
+    console.log('Full data object:', {
+      username: userName,
+      bio: document.getElementById('bio').value,
+      yearsExp: document.getElementById('yearsExp').value,
+      piecesDone: document.getElementById('piecesDone').value,
+      sterile: document.getElementById('sterile').value,
+      location: document.getElementById('location').value,
+      hours: document.getElementById('hours').value,
+      hygiene: document.getElementById('hygiene').value,
+      faq: currentFaqs
+    });
+
+    if (!userName) { 
+      notice.textContent = 'Error: No username detected';
+      notice.className = 'notice error';
+      return; 
+    }
     
     saveBtn.disabled = true;
     saveBtn.textContent = 'Saving...';
@@ -147,16 +162,23 @@
       faq: currentFaqs
     };
 
+    console.log('Sending to API:', JSON.stringify(data));
+
     try {
       const res = await fetch('/api/save-artist-profile', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
       });
-      const result = await res.json();
-      if (!res.ok) throw new Error(result.error || 'Failed');
       
-      notice.textContent = '✅ Saved!';
+      const result = await res.json();
+      console.log('API Response:', result);
+      
+      if (!res.ok) {
+        throw new Error(result.error || 'Failed to save');
+      }
+      
+      notice.textContent = '✅ Saved successfully!';
       notice.className = 'notice success';
       saveBtn.textContent = 'Saved!';
       setTimeout(() => { saveBtn.disabled = false; saveBtn.textContent = 'Save Changes'; }, 2000);
