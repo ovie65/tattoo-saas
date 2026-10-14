@@ -21,6 +21,7 @@
   .nav { position: sticky; top: 0; background: #fff; border-bottom: 1px solid var(--line); z-index: 100; padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; }
   .nav-logo { font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 800; letter-spacing: .25em; }
   .nav-logo span { color: var(--accent); }
+  .nav-logo img { max-height: 30px; }
   .nav-links { display: flex; gap: 32px; align-items: center; }
   .nav-links a { font-size: 14px; font-weight: 500; color: var(--muted); transition: color .2s; }
   .nav-links a:hover { color: var(--ink); }
@@ -29,6 +30,7 @@
 
   .hero { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; padding: 80px 40px; max-width: 1200px; margin: 0 auto; align-items: center; }
   .hero-image { aspect-ratio: 1; background: var(--bg-alt); border: 1px solid var(--line); border-radius: var(--radius); display: flex; align-items: center; justify-content: center; font-size: 14px; color: var(--muted); overflow: hidden; }
+  .hero-image img { width: 100%; height: 100%; object-fit: cover; }
   .hero-image-placeholder { text-align: center; padding: 40px; }
   .hero-image-placeholder .icon { font-size: 64px; margin-bottom: 16px; }
   .hero-content { padding: 20px 0; }
@@ -47,8 +49,10 @@
   .section-title { font-size: 44px; letter-spacing: -.02em; }
 
   .work-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-  .work-item { aspect-ratio: 1; background: var(--bg-alt); border: 1px solid var(--line); border-radius: var(--radius); display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 13px; transition: all .2s; }
-  .work-item:hover { border-color: var(--ink); transform: translateY(-2px); }
+  .work-item { aspect-ratio: 1; background: var(--bg-alt); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; transition: all .2s; }
+  .work-item:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,.1); }
+  .work-item img { width: 100%; height: 100%; object-fit: cover; }
+  .work-item-placeholder { display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 13px; height: 100%; }
 
   .booking-cta { text-align: center; padding: 100px 40px; background: var(--ink); color: #fff; }
   .booking-cta h2 { font-size: 48px; margin-bottom: 16px; color: #fff; }
@@ -92,6 +96,7 @@
   .footer-inner { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding-bottom: 30px; border-bottom: 1px solid rgba(255,255,255,.1); }
   .footer-logo { font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 800; letter-spacing: .25em; }
   .footer-logo span { color: var(--accent); }
+  .footer-logo img { max-height: 30px; }
   .footer-socials { display: flex; gap: 20px; }
   .footer-socials a { color: rgba(255,255,255,.6); font-size: 13px; transition: color .2s; }
   .footer-socials a:hover { color: #fff; }
@@ -120,7 +125,7 @@
 <body>
 
 <nav class="nav">
-  <div class="nav-logo">INK<span>.</span></div>
+  <div class="nav-logo" id="navLogo">INK<span>.</span></div>
   <div class="nav-links">
     <a href="#about">About</a>
     <a href="#work">Work</a>
@@ -130,7 +135,7 @@
 </nav>
 
 <section class="hero" id="about">
-  <div class="hero-image">
+  <div class="hero-image" id="heroImage">
     <div class="hero-image-placeholder">
       <div class="icon">🎨</div>
       <div>Artist Photo</div>
@@ -166,13 +171,13 @@
       <div class="section-label">Portfolio</div>
       <h2 class="section-title">Recent Work</h2>
     </div>
-    <div class="work-grid">
-      <div class="work-item">📷 Upload Your Work</div>
-      <div class="work-item">📷 Upload Your Work</div>
-      <div class="work-item">📷 Upload Your Work</div>
-      <div class="work-item">📷 Upload Your Work</div>
-      <div class="work-item">📷 Upload Your Work</div>
-      <div class="work-item">📷 Upload Your Work</div>
+    <div class="work-grid" id="workGrid">
+      <div class="work-item"><div class="work-item-placeholder">📷 Upload Your Work</div></div>
+      <div class="work-item"><div class="work-item-placeholder">📷 Upload Your Work</div></div>
+      <div class="work-item"><div class="work-item-placeholder"> Upload Your Work</div></div>
+      <div class="work-item"><div class="work-item-placeholder">📷 Upload Your Work</div></div>
+      <div class="work-item"><div class="work-item-placeholder">📷 Upload Your Work</div></div>
+      <div class="work-item"><div class="work-item-placeholder">📷 Upload Your Work</div></div>
     </div>
   </div>
 </section>
@@ -214,7 +219,6 @@
       <h2 class="section-title">Common Questions</h2>
     </div>
     <div class="faq-list" id="faqList">
-      <!-- FAQs load here from database -->
       <div class="faq-item">
         <div class="faq-question"><span>How do I book a session?</span><span class="faq-toggle">+</span></div>
         <div class="faq-answer">Click the "Book Now" button and fill out the form.</div>
@@ -268,8 +272,8 @@
 
 <footer class="footer">
   <div class="footer-inner">
-    <div class="footer-logo">INK<span>.</span></div>
-    <div class="footer-socials">
+    <div class="footer-logo" id="footerLogo">INK<span>.</span></div>
+    <div class="footer-socials" id="footerSocials">
       <a href="#">Instagram</a>
       <a href="#">Twitter</a>
       <a href="#">TikTok</a>
@@ -308,10 +312,34 @@
         if (p.hours) document.getElementById('studioHours').textContent = p.hours;
         if (p.hygiene) document.getElementById('studioHygiene').textContent = p.hygiene;
 
+        // Update artist photo
+        if (p.artistPhoto) {
+          const heroImage = document.getElementById('heroImage');
+          heroImage.innerHTML = '<img src="' + escapeHtml(p.artistPhoto) + '" alt="Artist Photo" />';
+        }
+
+        // Update recent works
+        if (p.recentWorks && p.recentWorks.length > 0) {
+          const workGrid = document.getElementById('workGrid');
+          workGrid.innerHTML = '';
+          p.recentWorks.forEach(function(url) {
+            const div = document.createElement('div');
+            div.className = 'work-item';
+            div.innerHTML = '<img src="' + escapeHtml(url) + '" alt="Tattoo Work" />';
+            workGrid.appendChild(div);
+          });
+        }
+
+        // Update footer logo
+        if (p.footerLogo) {
+          const footerLogo = document.getElementById('footerLogo');
+          footerLogo.innerHTML = '<img src="' + escapeHtml(p.footerLogo) + '" alt="Artist Logo" />';
+        }
+
         // Update FAQs
         if (p.faq && p.faq.length > 0) {
           const faqContainer = document.getElementById('faqList');
-          faqContainer.innerHTML = ''; // Clear default FAQs
+          faqContainer.innerHTML = '';
           
           p.faq.forEach(function(item) {
             if (item.q && item.a) {
@@ -322,6 +350,21 @@
                 <div class="faq-answer">${escapeHtml(item.a)}</div>
               `;
               faqContainer.appendChild(div);
+            }
+          });
+        }
+
+        // Update social media
+        if (p.socials && p.socials.length > 0) {
+          const socialsContainer = document.getElementById('footerSocials');
+          socialsContainer.innerHTML = '';
+          p.socials.forEach(function(social) {
+            if (social.platform && social.handle) {
+              const a = document.createElement('a');
+              a.href = social.handle.startsWith('http') ? social.handle : '#';
+              a.textContent = social.platform;
+              a.target = '_blank';
+              socialsContainer.appendChild(a);
             }
           });
         }
