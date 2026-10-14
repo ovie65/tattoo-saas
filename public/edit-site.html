@@ -39,15 +39,21 @@
   .btn-add { width: 100%; padding: 12px; border: 2px dashed var(--line); border-radius: 8px; background: transparent; color: var(--muted); font-weight: 600; font-size: 14px; cursor: pointer; }
   .btn-add:hover { border-color: var(--ink); color: var(--ink); }
 
-  /* Upload placeholders */
-  .upload-box { border: 2px dashed var(--line); border-radius: 8px; padding: 40px; text-align: center; color: var(--muted); cursor: pointer; transition: all .2s; }
-  .upload-box:hover { border-color: var(--ink); color: var(--ink); }
-  .upload-box .icon { font-size: 48px; margin-bottom: 12px; }
-  .upload-box .text { font-size: 14px; font-weight: 600; }
-  .upload-box .hint { font-size: 12px; margin-top: 4px; }
+  /* Upload Styles */
+  .upload-box { border: 2px dashed var(--line); border-radius: 8px; padding: 30px; text-align: center; color: var(--muted); cursor: pointer; transition: all .2s; position: relative; }
+  .upload-box:hover { border-color: var(--ink); color: var(--ink); background: #fafafa; }
+  .upload-box .icon { font-size: 32px; margin-bottom: 8px; }
+  .upload-box .text { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+  .upload-box .hint { font-size: 11px; }
+  .upload-box img { max-width: 100%; max-height: 200px; border-radius: 6px; margin-top: 10px; display: none; }
+  .upload-box.has-image img { display: block; margin: 10px auto 0; }
+  .upload-box.has-image .icon, .upload-box.has-image .text { display: none; }
+  
   .image-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 16px; }
-  .image-slot { aspect-ratio: 1; background: var(--bg-alt); border: 2px dashed var(--line); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 24px; cursor: pointer; }
+  .image-slot { aspect-ratio: 1; background: var(--bg-alt); border: 2px dashed var(--line); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 24px; cursor: pointer; position: relative; overflow: hidden; }
   .image-slot:hover { border-color: var(--ink); }
+  .image-slot img { width: 100%; height: 100%; object-fit: cover; }
+  .image-slot .remove-img { position: absolute; top: 4px; right: 4px; background: rgba(0,0,0,0.7); color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 12px; cursor: pointer; }
 
   @media (max-width: 600px) { .row { grid-template-columns: 1fr; } .item-card { grid-template-columns: 1fr; } .image-grid { grid-template-columns: repeat(3, 1fr); } }
 </style>
@@ -67,28 +73,26 @@
     <div class="form-card">
       <h2>Artist Photo</h2>
       <div class="hint">Upload your profile photo. This will appear in the hero section.</div>
-      <div class="upload-box">
+      <div class="upload-box" id="photoUploadBox" onclick="document.getElementById('photoInput').click()">
         <div class="icon">📷</div>
         <div class="text">Click to upload photo</div>
         <div class="hint">JPG, PNG up to 5MB</div>
+        <img id="photoPreview" />
       </div>
+      <input type="file" id="photoInput" accept="image/*" style="display:none" onchange="handlePhotoUpload(event)" />
     </div>
 
     <!-- RECENT WORKS -->
     <div class="form-card">
       <h2>Recent Works (Portfolio)</h2>
       <div class="hint">Upload up to 20 images of your tattoo work.</div>
-      <div class="upload-box">
+      <div class="upload-box" onclick="document.getElementById('worksInput').click()">
         <div class="icon">🖼️</div>
-        <div class="text">Click to upload images</div>
-        <div class="hint">Add up to 20 images. JPG, PNG up to 5MB each.</div>
+        <div class="text">Click to add more images</div>
+        <div class="hint">JPG, PNG up to 5MB each</div>
       </div>
-      <div class="image-grid">
-        <div class="image-slot">+</div>
-        <div class="image-slot">+</div>
-        <div class="image-slot">+</div>
-        <div class="image-slot">+</div>
-      </div>
+      <input type="file" id="worksInput" accept="image/*" multiple style="display:none" onchange="handleWorksUpload(event)" />
+      <div class="image-grid" id="worksGrid"></div>
     </div>
 
     <!-- ABOUT -->
@@ -127,11 +131,13 @@
     <div class="form-card">
       <h2>Footer Logo</h2>
       <div class="hint">Replace the INK logo in the footer with your own logo. Leave empty to keep INK.</div>
-      <div class="upload-box">
+      <div class="upload-box" id="logoUploadBox" onclick="document.getElementById('logoInput').click()">
         <div class="icon">🎨</div>
         <div class="text">Click to upload logo</div>
         <div class="hint">PNG with transparent background recommended</div>
+        <img id="logoPreview" />
       </div>
+      <input type="file" id="logoInput" accept="image/*" style="display:none" onchange="handleLogoUpload(event)" />
     </div>
 
     <!-- SOCIAL MEDIA -->
@@ -149,6 +155,11 @@
 </div>
 
 <script>
+  // Cloudinary Config
+  const CLOUD_NAME = 'rm1xu1l6';
+  const UPLOAD_PRESET = 'ink_uploads';
+  const UPLOAD_URL = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`;
+
   const urlParams = new URLSearchParams(window.location.search);
   const urlUser = urlParams.get('user');
   const storageUser = localStorage.getItem('ink_user_name');
@@ -163,6 +174,7 @@
   const notice = document.getElementById('notice');
   const faqContainer = document.getElementById('faqContainer');
   const socialContainer = document.getElementById('socialContainer');
+  const worksGrid = document.getElementById('worksGrid');
 
   const defaultFaqs = [
     { q: "How do I book a session?", a: "Click the Book Now button and fill out the form." },
@@ -178,7 +190,98 @@
 
   let currentFaqs = JSON.parse(JSON.stringify(defaultFaqs));
   let currentSocials = JSON.parse(JSON.stringify(defaultSocials));
+  let currentWorks = []; // Array of image URLs
+  let artistPhotoUrl = '';
+  let footerLogoUrl = '';
 
+  // Upload Functions
+  async function uploadToCloudinary(file) {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', UPLOAD_PRESET);
+
+    try {
+      const res = await fetch(UPLOAD_URL, { method: 'POST', body: formData });
+      const data = await res.json();
+      if (data.secure_url) return data.secure_url;
+      throw new Error('Upload failed');
+    } catch (err) {
+      console.error(err);
+      return null;
+    }
+  }
+
+  window.handlePhotoUpload = async function(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    const box = document.getElementById('photoUploadBox');
+    const preview = document.getElementById('photoPreview');
+    box.querySelector('.text').textContent = 'Uploading...';
+    
+    const url = await uploadToCloudinary(file);
+    if (url) {
+      artistPhotoUrl = url;
+      preview.src = url;
+      box.classList.add('has-image');
+      box.querySelector('.text').textContent = 'Photo uploaded! Click to change.';
+    } else {
+      box.querySelector('.text').textContent = 'Upload failed. Try again.';
+    }
+  };
+
+  window.handleLogoUpload = async function(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    const box = document.getElementById('logoUploadBox');
+    const preview = document.getElementById('logoPreview');
+    box.querySelector('.text').textContent = 'Uploading...';
+    
+    const url = await uploadToCloudinary(file);
+    if (url) {
+      footerLogoUrl = url;
+      preview.src = url;
+      box.classList.add('has-image');
+      box.querySelector('.text').textContent = 'Logo uploaded! Click to change.';
+    } else {
+      box.querySelector('.text').textContent = 'Upload failed. Try again.';
+    }
+  };
+
+  window.handleWorksUpload = async function(event) {
+    const files = Array.from(event.target.files);
+    if (currentWorks.length + files.length > 20) {
+      alert('Maximum 20 images allowed.');
+      return;
+    }
+
+    for (let file of files) {
+      const url = await uploadToCloudinary(file);
+      if (url) currentWorks.push(url);
+    }
+    renderWorks();
+  };
+
+  function renderWorks() {
+    worksGrid.innerHTML = '';
+    currentWorks.forEach((url, index) => {
+      const slot = document.createElement('div');
+      slot.className = 'image-slot';
+      slot.innerHTML = `
+        <img src="${url}" />
+        <div class="remove-img" onclick="removeWork(${index})">✕</div>
+      `;
+      worksGrid.appendChild(slot);
+    });
+  }
+
+  window.removeWork = function(index) {
+    currentWorks.splice(index, 1);
+    renderWorks();
+  };
+
+  // FAQ Functions
   function renderFaqs() {
     faqContainer.innerHTML = '';
     currentFaqs.forEach((faq, index) => {
@@ -197,6 +300,7 @@
   window.removeFaq = function(index) { currentFaqs.splice(index, 1); renderFaqs(); };
   window.updateFaq = function(index, field, value) { currentFaqs[index][field] = value; };
 
+  // Social Functions
   function renderSocials() {
     socialContainer.innerHTML = '';
     currentSocials.forEach((social, index) => {
@@ -247,7 +351,10 @@
       hours: document.getElementById('hours').value.trim(),
       hygiene: document.getElementById('hygiene').value.trim(),
       faq: currentFaqs,
-      socials: currentSocials
+      socials: currentSocials,
+      artistPhoto: artistPhotoUrl,
+      recentWorks: currentWorks,
+      footerLogo: footerLogoUrl
     };
 
     try {
