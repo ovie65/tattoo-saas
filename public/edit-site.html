@@ -36,6 +36,7 @@
   
   .btn-save { width: 100%; padding: 16px; background: var(--ink); color: #fff; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 8px; }
   .btn-save:hover { background: #000; }
+  .btn-save:disabled { background: #ccc; cursor: not-allowed; }
   .btn-back { display: block; text-align: center; margin-top: 20px; font-size: 14px; color: var(--muted); }
   
   .notice { padding: 14px; border-radius: 10px; font-size: 13px; margin-bottom: 24px; text-align: center; display: none; }
@@ -90,7 +91,7 @@
       <div class="field"><label>Hygiene Standards</label><textarea id="hygiene" style="min-height: 80px;"></textarea></div>
     </div>
 
-    <!-- NEW FAQ SECTION -->
+    <!-- FAQ SECTION -->
     <div class="form-card">
       <h2>FAQ (Common Questions)</h2>
       <div class="hint">Add, edit, or remove questions your clients often ask.</div>
@@ -105,8 +106,14 @@
 </div>
 
 <script>
+  // Get BOTH email and username from storage
+  const userEmail = localStorage.getItem('ink_user_email');
   const userName = localStorage.getItem('ink_user_name');
-  if (!localStorage.getItem('ink_user_email')) window.location.href = 'login.html';
+
+  // If either is missing, kick back to login
+  if (!userEmail || !userName) {
+    window.location.href = 'login.html';
+  }
 
   const form = document.getElementById('editForm');
   const saveBtn = document.getElementById('saveBtn');
@@ -158,6 +165,13 @@
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
+    
+    // Double-check username before saving
+    if (!userName) {
+      showNotice('Error: You must be logged in to save.', 'error');
+      return;
+    }
+    
     saveBtn.disabled = true;
     saveBtn.textContent = 'Saving...';
     notice.className = 'notice';
