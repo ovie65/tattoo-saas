@@ -22,7 +22,7 @@
   .field { margin-bottom: 20px; }
   label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 8px; text-transform: uppercase; letter-spacing: .04em; }
   .hint { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
-  input, textarea, select { width: 100%; padding: 14px 16px; border: 1px solid var(--line); border-radius: 8px; font-size: 14px; font-family: inherit; background: var(--bg); }
+  input, textarea { width: 100%; padding: 14px 16px; border: 1px solid var(--line); border-radius: 8px; font-size: 14px; font-family: inherit; background: var(--bg); }
   textarea { resize: vertical; min-height: 100px; }
   .row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
   .btn-save { width: 100%; padding: 16px; background: var(--ink); color: #fff; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 8px; }
@@ -31,20 +31,19 @@
   .notice { padding: 14px; border-radius: 10px; font-size: 13px; margin-bottom: 24px; text-align: center; display: none; }
   .notice.success { background: rgba(16,185,129,.08); color: #059669; border: 1px solid rgba(16,185,129,.2); display: block; }
   .notice.error { background: rgba(220,38,38,.08); color: var(--accent); border: 1px solid rgba(220,38,38,.2); display: block; }
-  
-  .item-card { background: var(--bg-alt); border: 1px solid var(--line); border-radius: 8px; padding: 16px; margin-bottom: 16px; position: relative; display: grid; grid-template-columns: 1fr 2fr auto; gap: 12px; align-items: start; }
-  .item-card input, .item-card select { margin-bottom: 0; }
-  .btn-remove { background: transparent; color: var(--accent); font-size: 12px; font-weight: 600; padding: 8px; white-space: nowrap; }
-  .btn-remove:hover { text-decoration: underline; }
-  .btn-add { width: 100%; padding: 12px; border: 2px dashed var(--line); border-radius: 8px; background: transparent; color: var(--muted); font-weight: 600; font-size: 14px; cursor: pointer; }
-  .btn-add:hover { border-color: var(--ink); color: var(--ink); }
 
-  .example-box { background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 16px; margin-bottom: 20px; font-size: 13px; }
+  .social-row { display: grid; grid-template-columns: 1fr 2fr auto; gap: 12px; align-items: center; margin-bottom: 12px; }
+  .social-row input { margin: 0; }
+  .btn-remove-social { background: var(--accent); color: #fff; padding: 12px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; white-space: nowrap; }
+  .btn-remove-social:hover { background: #b91c1c; }
+  .btn-add-social { width: 100%; padding: 14px; border: 2px dashed var(--line); border-radius: 8px; background: transparent; color: var(--ink); font-weight: 600; font-size: 14px; cursor: pointer; margin-top: 8px; }
+  .btn-add-social:hover { border-color: var(--ink); background: var(--bg-alt); }
+
+  .example-box { background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 16px; margin-bottom: 20px; font-size: 13px; line-height: 1.6; }
   .example-box strong { color: #92400e; }
   .example-box code { background: #fef3c7; padding: 2px 6px; border-radius: 4px; font-family: monospace; color: #92400e; }
 
-  /* Upload Styles */
-  .upload-box { border: 2px dashed var(--line); border-radius: 8px; padding: 30px; text-align: center; color: var(--muted); cursor: pointer; transition: all .2s; position: relative; }
+  .upload-box { border: 2px dashed var(--line); border-radius: 8px; padding: 30px; text-align: center; color: var(--muted); cursor: pointer; transition: all .2s; }
   .upload-box:hover { border-color: var(--ink); color: var(--ink); background: #fafafa; }
   .upload-box .icon { font-size: 32px; margin-bottom: 8px; }
   .upload-box .text { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
@@ -54,12 +53,11 @@
   .upload-box.has-image .icon, .upload-box.has-image .text { display: none; }
   
   .image-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 16px; }
-  .image-slot { aspect-ratio: 1; background: var(--bg-alt); border: 2px dashed var(--line); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 24px; cursor: pointer; position: relative; overflow: hidden; }
-  .image-slot:hover { border-color: var(--ink); }
+  .image-slot { aspect-ratio: 1; background: var(--bg-alt); border: 2px dashed var(--line); border-radius: 8px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
   .image-slot img { width: 100%; height: 100%; object-fit: cover; }
   .image-slot .remove-img { position: absolute; top: 4px; right: 4px; background: rgba(0,0,0,0.7); color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 12px; cursor: pointer; }
 
-  @media (max-width: 600px) { .row { grid-template-columns: 1fr; } .item-card { grid-template-columns: 1fr; } .image-grid { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 600px) { .row { grid-template-columns: 1fr; } .social-row { grid-template-columns: 1fr; } .image-grid { grid-template-columns: repeat(3, 1fr); } }
 </style>
 </head>
 <body>
@@ -73,12 +71,11 @@
   <div class="notice" id="notice"></div>
 
   <form id="editForm">
-    <!-- ARTIST PHOTO -->
     <div class="form-card">
       <h2>Artist Photo</h2>
       <div class="hint">Upload your profile photo. This will appear in the hero section.</div>
       <div class="upload-box" id="photoUploadBox" onclick="document.getElementById('photoInput').click()">
-        <div class="icon">📷</div>
+        <div class="icon"></div>
         <div class="text">Click to upload photo</div>
         <div class="hint">JPG, PNG up to 5MB</div>
         <img id="photoPreview" />
@@ -86,7 +83,6 @@
       <input type="file" id="photoInput" accept="image/*" style="display:none" onchange="handlePhotoUpload(event)" />
     </div>
 
-    <!-- RECENT WORKS -->
     <div class="form-card">
       <h2>Recent Works (Portfolio)</h2>
       <div class="hint">Upload up to 20 images of your tattoo work.</div>
@@ -99,13 +95,11 @@
       <div class="image-grid" id="worksGrid"></div>
     </div>
 
-    <!-- ABOUT -->
     <div class="form-card">
       <h2>About Section</h2>
       <div class="field"><label>Artist Bio</label><textarea id="bio" placeholder="With over a decade..."></textarea></div>
     </div>
 
-    <!-- STATS -->
     <div class="form-card">
       <h2>Stats</h2>
       <div class="row">
@@ -115,7 +109,6 @@
       </div>
     </div>
 
-    <!-- STUDIO INFO -->
     <div class="form-card">
       <h2>Studio Info</h2>
       <div class="field"><label>Location</label><textarea id="location" style="min-height: 80px;"></textarea></div>
@@ -123,20 +116,18 @@
       <div class="field"><label>Hygiene</label><textarea id="hygiene" style="min-height: 80px;"></textarea></div>
     </div>
 
-    <!-- FAQ -->
     <div class="form-card">
       <h2>FAQ (Common Questions)</h2>
       <div class="hint">Add, edit, or remove questions your clients often ask.</div>
       <div id="faqContainer"></div>
-      <button type="button" class="btn-add" onclick="addFaq()">+ Add New Question</button>
+      <button type="button" class="btn-add-social" onclick="addFaq()">+ Add New Question</button>
     </div>
 
-    <!-- LOGO -->
     <div class="form-card">
       <h2>Footer Logo</h2>
       <div class="hint">Replace the INK logo in the footer with your own logo. Leave empty to keep INK.</div>
       <div class="upload-box" id="logoUploadBox" onclick="document.getElementById('logoInput').click()">
-        <div class="icon">🎨</div>
+        <div class="icon"></div>
         <div class="text">Click to upload logo</div>
         <div class="hint">PNG with transparent background recommended</div>
         <img id="logoPreview" />
@@ -144,22 +135,21 @@
       <input type="file" id="logoInput" accept="image/*" style="display:none" onchange="handleLogoUpload(event)" />
     </div>
 
-    <!-- SOCIAL MEDIA -->
     <div class="form-card">
       <h2>Social Media</h2>
-      <div class="hint">Add your social media handles. Leave blank to hide.</div>
+      <div class="hint">Add your social media links. These will appear in the footer of your public site.</div>
       
-      <!-- Example Box -->
       <div class="example-box">
-        <strong>📌 How to add your link:</strong><br><br>
-        Paste your <strong>full profile URL</strong> in the box on the right. Always start with <code>https://</code><br><br>
-        <strong>✅ Correct:</strong> <code>https://tiktok.com/@likethis</code><br>
+        <strong>📌 How it works:</strong><br><br>
+        <strong>Box 1 (Platform):</strong> Type the platform name — whatever you type is what shows on your site (e.g., Instagram, Facebook, TikTok, WhatsApp, etc.)<br>
+        <strong>Box 2 (Link):</strong> Paste your full profile link. Always start with <code>https://</code><br><br>
+        <strong>✅ Example:</strong> Platform: <code>TikTok</code> → Link: <code>https://tiktok.com/@likethis</code><br>
         <strong>❌ Wrong:</strong> <code>tiktok.com/@likethis</code> (missing https://)<br><br>
-        <em>On your public site, this will appear as a clickable button with the platform name (e.g., "TikTok") in the footer.</em>
+        <em>Click "+ Add Social Media" to add unlimited links.</em>
       </div>
 
       <div id="socialContainer"></div>
-      <button type="button" class="btn-add" id="addSocialBtn">+ Add Social Media</button>
+      <button type="button" class="btn-add-social" onclick="addSocial()">+ Add Social Media</button>
     </div>
 
     <button type="submit" class="btn-save" id="saveBtn">Save Changes</button>
@@ -169,15 +159,12 @@
 </div>
 
 <script>
-  // Cloudinary Config
   const CLOUD_NAME = 'rm1xu1i6';
   const UPLOAD_PRESET = 'ink_uploads';
   const UPLOAD_URL = 'https://api.cloudinary.com/v1_1/' + CLOUD_NAME + '/image/upload';
 
   const urlParams = new URLSearchParams(window.location.search);
-  const urlUser = urlParams.get('user');
-  const storageUser = localStorage.getItem('ink_user_name');
-  const userName = urlUser || storageUser;
+  const userName = urlParams.get('user') || localStorage.getItem('ink_user_name');
 
   if (!userName || !localStorage.getItem('ink_user_email')) {
     window.location.href = 'login.html';
@@ -190,49 +177,34 @@
   const socialContainer = document.getElementById('socialContainer');
   const worksGrid = document.getElementById('worksGrid');
 
-  const defaultFaqs = [
+  let currentFaqs = [
     { q: "How do I book a session?", a: "Click the Book Now button and fill out the form." },
     { q: "What is your pricing?", a: "Pricing depends on size and detail. I provide custom quotes." },
     { q: "How should I prepare?", a: "Get sleep, eat well, stay hydrated, avoid alcohol." }
   ];
 
-  const defaultSocials = [
-    { platform: "Instagram", handle: "" },
-    { platform: "Twitter", handle: "" },
-    { platform: "TikTok", handle: "" }
-  ];
-
-  let currentFaqs = JSON.parse(JSON.stringify(defaultFaqs));
-  let currentSocials = JSON.parse(JSON.stringify(defaultSocials));
+  let currentSocials = [];
   let currentWorks = [];
   let artistPhotoUrl = '';
   let footerLogoUrl = '';
 
-  // Upload Functions
   async function uploadToCloudinary(file) {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('upload_preset', UPLOAD_PRESET);
-
     try {
       const res = await fetch(UPLOAD_URL, { method: 'POST', body: formData });
       const data = await res.json();
-      if (data.secure_url) return data.secure_url;
-      throw new Error('Upload failed');
-    } catch (err) {
-      console.error(err);
-      return null;
-    }
+      return data.secure_url || null;
+    } catch (err) { return null; }
   }
 
   window.handlePhotoUpload = async function(event) {
     const file = event.target.files[0];
     if (!file) return;
-    
     const box = document.getElementById('photoUploadBox');
     const preview = document.getElementById('photoPreview');
     box.querySelector('.text').textContent = 'Uploading...';
-    
     const url = await uploadToCloudinary(file);
     if (url) {
       artistPhotoUrl = url;
@@ -247,11 +219,9 @@
   window.handleLogoUpload = async function(event) {
     const file = event.target.files[0];
     if (!file) return;
-    
     const box = document.getElementById('logoUploadBox');
     const preview = document.getElementById('logoPreview');
     box.querySelector('.text').textContent = 'Uploading...';
-    
     const url = await uploadToCloudinary(file);
     if (url) {
       footerLogoUrl = url;
@@ -265,11 +235,7 @@
 
   window.handleWorksUpload = async function(event) {
     const files = Array.from(event.target.files);
-    if (currentWorks.length + files.length > 20) {
-      alert('Maximum 20 images allowed.');
-      return;
-    }
-
+    if (currentWorks.length + files.length > 20) { alert('Maximum 20 images allowed.'); return; }
     for (let file of files) {
       const url = await uploadToCloudinary(file);
       if (url) currentWorks.push(url);
@@ -287,20 +253,16 @@
     });
   }
 
-  window.removeWork = function(index) {
-    currentWorks.splice(index, 1);
-    renderWorks();
-  };
+  window.removeWork = function(index) { currentWorks.splice(index, 1); renderWorks(); };
 
-  // FAQ Functions
   function renderFaqs() {
     faqContainer.innerHTML = '';
     currentFaqs.forEach(function(faq, index) {
       const div = document.createElement('div');
-      div.className = 'item-card';
-      div.innerHTML = '<button type="button" class="btn-remove" onclick="removeFaq(' + index + ')">Remove</button>' +
-        '<input type="text" placeholder="Question" value="' + faq.q + '" oninput="updateFaq(' + index + ', \'q\', this.value)" />' +
-        '<textarea placeholder="Answer" oninput="updateFaq(' + index + ', \'a\', this.value)">' + faq.a + '</textarea>';
+      div.style.cssText = 'display:grid; grid-template-columns:1fr 2fr auto; gap:12px; margin-bottom:12px; align-items:start;';
+      div.innerHTML = '<input type="text" placeholder="Question" value="' + faq.q.replace(/"/g, '&quot;') + '" oninput="updateFaq(' + index + ', \'q\', this.value)" style="font-weight:600;" />' +
+        '<textarea placeholder="Answer" oninput="updateFaq(' + index + ', \'a\', this.value)" style="min-height:80px;">' + faq.a + '</textarea>' +
+        '<button type="button" class="btn-remove-social" onclick="removeFaq(' + index + ')">Remove</button>';
       faqContainer.appendChild(div);
     });
   }
@@ -309,36 +271,25 @@
   window.removeFaq = function(index) { currentFaqs.splice(index, 1); renderFaqs(); };
   window.updateFaq = function(index, field, value) { currentFaqs[index][field] = value; };
 
-  // Social Functions
   function renderSocials() {
     socialContainer.innerHTML = '';
+    if (currentSocials.length === 0) {
+      socialContainer.innerHTML = '<div style="text-align:center; color:var(--muted); padding:20px; font-size:13px;">No social media added yet. Click the button below to add one.</div>';
+      return;
+    }
     currentSocials.forEach(function(social, index) {
-      const div = document.createElement('div');
-      div.className = 'item-card';
-      div.innerHTML = '<select onchange="updateSocial(' + index + ', \'platform\', this.value)">' +
-        '<option value="Instagram"' + (social.platform === 'Instagram' ? ' selected' : '') + '>Instagram</option>' +
-        '<option value="Twitter"' + (social.platform === 'Twitter' ? ' selected' : '') + '>Twitter</option>' +
-        '<option value="TikTok"' + (social.platform === 'TikTok' ? ' selected' : '') + '>TikTok</option>' +
-        '<option value="Facebook"' + (social.platform === 'Facebook' ? ' selected' : '') + '>Facebook</option>' +
-        '<option value="YouTube"' + (social.platform === 'YouTube' ? ' selected' : '') + '>YouTube</option>' +
-        '<option value="Pinterest"' + (social.platform === 'Pinterest' ? ' selected' : '') + '>Pinterest</option>' +
-        '<option value="Other"' + (social.platform === 'Other' ? ' selected' : '') + '>Other</option>' +
-        '</select>' +
-        '<input type="text" placeholder="https://tiktok.com/@likethis" value="' + social.handle + '" oninput="updateSocial(' + index + ', \'handle\', this.value)" />' +
-        '<button type="button" class="btn-remove" onclick="removeSocial(' + index + ')">Remove</button>';
-      socialContainer.appendChild(div);
+      const row = document.createElement('div');
+      row.className = 'social-row';
+      row.innerHTML = '<input type="text" placeholder="Platform (e.g., Instagram)" value="' + social.platform.replace(/"/g, '&quot;') + '" oninput="updateSocial(' + index + ', \'platform\', this.value)" />' +
+        '<input type="text" placeholder="https://tiktok.com/@likethis" value="' + social.handle.replace(/"/g, '&quot;') + '" oninput="updateSocial(' + index + ', \'handle\', this.value)" />' +
+        '<button type="button" class="btn-remove-social" onclick="removeSocial(' + index + ')">Remove</button>';
+      socialContainer.appendChild(row);
     });
   }
 
-  window.addSocial = function() { currentSocials.push({ platform: "Instagram", handle: "" }); renderSocials(); };
+  window.addSocial = function() { currentSocials.push({ platform: "", handle: "" }); renderSocials(); };
   window.removeSocial = function(index) { currentSocials.splice(index, 1); renderSocials(); };
   window.updateSocial = function(index, field, value) { currentSocials[index][field] = value; };
-
-  // Attach add social button click
-  document.getElementById('addSocialBtn').addEventListener('click', function() {
-    currentSocials.push({ platform: "Instagram", handle: "" });
-    renderSocials();
-  });
 
   function showNotice(msg, type) {
     notice.textContent = msg;
