@@ -375,8 +375,11 @@
       <div class="nav-item" id="nav-notifications" onclick="switchView('notifications')">
         <span class="nav-item-icon"></span> Notifications
       </div>
+      <a href="edit-site.html" class="nav-item" style="text-decoration:none;">
+        <span class="nav-item-icon">✏️</span> Edit My Site
+      </a>
       <a href="#" class="nav-item" id="viewSiteLink" target="_blank" style="text-decoration:none;">
-        <span class="nav-item-icon">👁️</span> View My Site
+        <span class="nav-item-icon">️</span> View My Site
       </a>
     </nav>
     <div class="sidebar-footer">
@@ -701,7 +704,7 @@
             <div class="booking-desc">${booking.description}</div>
             <div class="booking-meta">
               <span>📅 ${dateStr}</span>
-              <span> ${booking.placement}</span>
+              <span>📍 ${booking.placement}</span>
               <span style="text-transform: capitalize; font-weight: 600; color: ${status === 'pending' ? 'var(--accent)' : status === 'accepted' ? 'var(--success)' : 'var(--ink)'}">● ${booking.status}</span>
             </div>
             ${draftNotice}

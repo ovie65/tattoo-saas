@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Edit My Site — INK</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/space-grotesk@5/index.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5/index.css" />
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg-alt: #f7f7f7;
+    --ink: #0a0a0a;
+    --muted: #6b6b6b;
+    --line: #e5e5e5;
+    --accent: #dc2626;
+    --success: #10b981;
+    --radius: 12px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg-alt); color: var(--ink); font-family: 'Inter', sans-serif; min-height: 100vh; -webkit-font-smoothing: antialiased; }
+  h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; font-weight: 700; letter-spacing: -.02em; }
+  a { color: inherit; text-decoration: none; }
+  button { font-family: inherit; cursor: pointer; border: none; background: none; }
+
+  .container {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 60px 20px;
+  }
+
+  .header {
+    margin-bottom: 40px;
+  }
+  .header h1 { font-size: 32px; margin-bottom: 8px; }
+  .header p { color: var(--muted); font-size: 14px; }
+
+  .form-card {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 32px;
+    margin-bottom: 24px;
+  }
+  .form-card h2 {
+    font-size: 18px;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .field { margin-bottom: 20px; }
+  .field:last-child { margin-bottom: 0; }
+  label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: var(--ink);
+  }
+  .hint {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 8px;
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: normal;
+  }
+  input, textarea {
+    width: 100%;
+    padding: 14px 16px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    background: var(--bg);
+    transition: border-color .2s;
+  }
+  textarea { resize: vertical; min-height: 100px; }
+  input:focus, textarea:focus {
+    outline: none;
+    border-color: var(--ink);
+  }
+  .row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+
+  .btn-save {
+    width: 100%;
+    padding: 16px;
+    background: var(--ink);
+    color: #fff;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .2s;
+    margin-top: 8px;
+  }
+  .btn-save:hover { background: #000; transform: translateY(-1px); }
+  .btn-save:disabled { background: #ccc; cursor: not-allowed; transform: none; }
+
+  .btn-back {
+    display: block;
+    text-align: center;
+    margin-top: 20px;
+    font-size: 14px;
+    color: var(--muted);
+    font-weight: 500;
+  }
+  .btn-back:hover { color: var(--ink); }
+
+  .notice {
+    padding: 14px;
+    border-radius: 10px;
+    font-size: 13px;
+    margin-bottom: 24px;
+    text-align: center;
+    display: none;
+  }
+  .notice.success { background: rgba(16,185,129,.08); color: #059669; border: 1px solid rgba(16,185,129,.2); display: block; }
+  .notice.error { background: rgba(220,38,38,.08); color: var(--accent); border: 1px solid rgba(220,38,38,.2); display: block; }
+
+  @media (max-width: 600px) {
+    .row { grid-template-columns: 1fr; }
+    .form-card { padding: 24px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1>Edit My Site</h1>
+    <p>Customize your public artist page. Leave a field blank to use the default.</p>
+  </div>
+
+  <div class="notice" id="notice"></div>
+
+  <form id="editForm">
+    <!-- About Section -->
+    <div class="form-card">
+      <h2>About Section</h2>
+      <div class="field">
+        <label for="bio">Artist Bio</label>
+        <div class="hint">A short paragraph about you and your style.</div>
+        <textarea id="bio" placeholder="With over a decade behind the machine..."></textarea>
+      </div>
+    </div>
+
+    <!-- Stats Section -->
+    <div class="form-card">
+      <h2>Stats</h2>
+      <div class="row">
+        <div class="field">
+          <label for="yearsExp">Years Experience</label>
+          <input type="text" id="yearsExp" placeholder="10+" />
+        </div>
+        <div class="field">
+          <label for="piecesDone">Pieces Done</label>
+          <input type="text" id="piecesDone" placeholder="2K+" />
+        </div>
+        <div class="field">
+          <label for="sterile">Studio Standard</label>
+          <input type="text" id="sterile" placeholder="100%" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Studio Info Section -->
+    <div class="form-card">
+      <h2>Studio Info</h2>
+      <div class="field">
+        <label for="location">Location</label>
+        <textarea id="location" placeholder="123 Ink Street&#10;Art District&#10;City, State 12345" style="min-height: 80px;"></textarea>
+      </div>
+      <div class="field">
+        <label for="hours">Hours</label>
+        <textarea id="hours" placeholder="Tue – Sat: 11am – 8pm&#10;Sun – Mon: Closed" style="min-height: 80px;"></textarea>
+      </div>
+      <div class="field">
+        <label for="hygiene">Hygiene Standards</label>
+        <textarea id="hygiene" placeholder="Fully sterile studio&#10;Single-use needles" style="min-height: 80px;"></textarea>
+      </div>
+    </div>
+
+    <button type="submit" class="btn-save" id="saveBtn">Save Changes</button>
+  </form>
+
+  <a href="dashboard.html" class="btn-back">← Back to Dashboard</a>
+</div>
+
+<script>
+  const userName = localStorage.getItem('ink_user_name');
+  const userEmail = localStorage.getItem('ink_user_email');
+
+  // Protect the page - must be logged in
+  if (!userEmail) {
+    window.location.href = 'login.html';
+  }
+
+  const form = document.getElementById('editForm');
+  const saveBtn = document.getElementById('saveBtn');
+  const notice = document.getElementById('notice');
+
+  function showNotice(msg, type) {
+    notice.textContent = msg;
+    notice.className = 'notice ' + type;
+    setTimeout(() => { notice.className = 'notice'; }, 3000);
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    saveBtn.disabled = true;
+    saveBtn.textContent = 'Saving...';
+    notice.className = 'notice';
+
+    const data = {
+      username: userName,
+      bio: document.getElementById('bio').value.trim(),
+      yearsExp: document.getElementById('yearsExp').value.trim(),
+      piecesDone: document.getElementById('piecesDone').value.trim(),
+      sterile: document.getElementById('sterile').value.trim(),
+      location: document.getElementById('location').value.trim(),
+      hours: document.getElementById('hours').value.trim(),
+      hygiene: document.getElementById('hygiene').value.trim()
+    };
+
+    try {
+      const res = await fetch('/api/save-artist-profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+
+      const result = await res.json();
+
+      if (!res.ok) {
+        throw new Error(result.error || 'Failed to save');
+      }
+
+      showNotice('✅ Your site has been updated!', 'success');
+      saveBtn.textContent = 'Saved!';
+      setTimeout(() => { saveBtn.disabled = false; saveBtn.textContent = 'Save Changes'; }, 2000);
+    } catch (err) {
+      showNotice(' Error: ' + err.message, 'error');
+      saveBtn.disabled = false;
+      saveBtn.textContent = 'Save Changes';
+    }
+  });
+</script>
+
+</body>
+</html>
