@@ -33,11 +33,15 @@
   .notice.error { background: rgba(220,38,38,.08); color: var(--accent); border: 1px solid rgba(220,38,38,.2); display: block; }
   
   .item-card { background: var(--bg-alt); border: 1px solid var(--line); border-radius: 8px; padding: 16px; margin-bottom: 16px; position: relative; display: grid; grid-template-columns: 1fr 2fr auto; gap: 12px; align-items: start; }
-  .item-card input { margin-bottom: 0; }
-  .btn-remove { background: transparent; color: var(--accent); font-size: 12px; font-weight: 600; padding: 8px; }
+  .item-card input, .item-card select { margin-bottom: 0; }
+  .btn-remove { background: transparent; color: var(--accent); font-size: 12px; font-weight: 600; padding: 8px; white-space: nowrap; }
   .btn-remove:hover { text-decoration: underline; }
   .btn-add { width: 100%; padding: 12px; border: 2px dashed var(--line); border-radius: 8px; background: transparent; color: var(--muted); font-weight: 600; font-size: 14px; cursor: pointer; }
   .btn-add:hover { border-color: var(--ink); color: var(--ink); }
+
+  .example-box { background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 16px; margin-bottom: 20px; font-size: 13px; }
+  .example-box strong { color: #92400e; }
+  .example-box code { background: #fef3c7; padding: 2px 6px; border-radius: 4px; font-family: monospace; color: #92400e; }
 
   /* Upload Styles */
   .upload-box { border: 2px dashed var(--line); border-radius: 8px; padding: 30px; text-align: center; color: var(--muted); cursor: pointer; transition: all .2s; position: relative; }
@@ -144,8 +148,18 @@
     <div class="form-card">
       <h2>Social Media</h2>
       <div class="hint">Add your social media handles. Leave blank to hide.</div>
+      
+      <!-- Example Box -->
+      <div class="example-box">
+        <strong>📌 How to add your link:</strong><br><br>
+        Paste your <strong>full profile URL</strong> in the box on the right. Always start with <code>https://</code><br><br>
+        <strong>✅ Correct:</strong> <code>https://tiktok.com/@likethis</code><br>
+        <strong>❌ Wrong:</strong> <code>tiktok.com/@likethis</code> (missing https://)<br><br>
+        <em>On your public site, this will appear as a clickable button with the platform name (e.g., "TikTok") in the footer.</em>
+      </div>
+
       <div id="socialContainer"></div>
-      <button type="button" class="btn-add" onclick="addSocial()">+ Add Social Media</button>
+      <button type="button" class="btn-add" id="addSocialBtn">+ Add Social Media</button>
     </div>
 
     <button type="submit" class="btn-save" id="saveBtn">Save Changes</button>
@@ -158,7 +172,7 @@
   // Cloudinary Config
   const CLOUD_NAME = 'rm1xu1i6';
   const UPLOAD_PRESET = 'ink_uploads';
-  const UPLOAD_URL = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`;
+  const UPLOAD_URL = 'https://api.cloudinary.com/v1_1/' + CLOUD_NAME + '/image/upload';
 
   const urlParams = new URLSearchParams(window.location.search);
   const urlUser = urlParams.get('user');
@@ -190,7 +204,7 @@
 
   let currentFaqs = JSON.parse(JSON.stringify(defaultFaqs));
   let currentSocials = JSON.parse(JSON.stringify(defaultSocials));
-  let currentWorks = []; // Array of image URLs
+  let currentWorks = [];
   let artistPhotoUrl = '';
   let footerLogoUrl = '';
 
@@ -265,13 +279,10 @@
 
   function renderWorks() {
     worksGrid.innerHTML = '';
-    currentWorks.forEach((url, index) => {
+    currentWorks.forEach(function(url, index) {
       const slot = document.createElement('div');
       slot.className = 'image-slot';
-      slot.innerHTML = `
-        <img src="${url}" />
-        <div class="remove-img" onclick="removeWork(${index})">✕</div>
-      `;
+      slot.innerHTML = '<img src="' + url + '" /><div class="remove-img" onclick="removeWork(' + index + ')">✕</div>';
       worksGrid.appendChild(slot);
     });
   }
@@ -284,14 +295,12 @@
   // FAQ Functions
   function renderFaqs() {
     faqContainer.innerHTML = '';
-    currentFaqs.forEach((faq, index) => {
+    currentFaqs.forEach(function(faq, index) {
       const div = document.createElement('div');
       div.className = 'item-card';
-      div.innerHTML = `
-        <button type="button" class="btn-remove" onclick="removeFaq(${index})">Remove</button>
-        <input type="text" placeholder="Question" value="${faq.q}" oninput="updateFaq(${index}, 'q', this.value)" />
-        <textarea placeholder="Answer" oninput="updateFaq(${index}, 'a', this.value)">${faq.a}</textarea>
-      `;
+      div.innerHTML = '<button type="button" class="btn-remove" onclick="removeFaq(' + index + ')">Remove</button>' +
+        '<input type="text" placeholder="Question" value="' + faq.q + '" oninput="updateFaq(' + index + ', \'q\', this.value)" />' +
+        '<textarea placeholder="Answer" oninput="updateFaq(' + index + ', \'a\', this.value)">' + faq.a + '</textarea>';
       faqContainer.appendChild(div);
     });
   }
@@ -303,22 +312,20 @@
   // Social Functions
   function renderSocials() {
     socialContainer.innerHTML = '';
-    currentSocials.forEach((social, index) => {
+    currentSocials.forEach(function(social, index) {
       const div = document.createElement('div');
       div.className = 'item-card';
-      div.innerHTML = `
-        <select onchange="updateSocial(${index}, 'platform', this.value)">
-          <option value="Instagram" ${social.platform === 'Instagram' ? 'selected' : ''}>Instagram</option>
-          <option value="Twitter" ${social.platform === 'Twitter' ? 'selected' : ''}>Twitter</option>
-          <option value="TikTok" ${social.platform === 'TikTok' ? 'selected' : ''}>TikTok</option>
-          <option value="Facebook" ${social.platform === 'Facebook' ? 'selected' : ''}>Facebook</option>
-          <option value="YouTube" ${social.platform === 'YouTube' ? 'selected' : ''}>YouTube</option>
-          <option value="Pinterest" ${social.platform === 'Pinterest' ? 'selected' : ''}>Pinterest</option>
-          <option value="Other" ${social.platform === 'Other' ? 'selected' : ''}>Other</option>
-        </select>
-        <input type="text" placeholder="Username or full URL" value="${social.handle}" oninput="updateSocial(${index}, 'handle', this.value)" />
-        <button type="button" class="btn-remove" onclick="removeSocial(${index})">Remove</button>
-      `;
+      div.innerHTML = '<select onchange="updateSocial(' + index + ', \'platform\', this.value)">' +
+        '<option value="Instagram"' + (social.platform === 'Instagram' ? ' selected' : '') + '>Instagram</option>' +
+        '<option value="Twitter"' + (social.platform === 'Twitter' ? ' selected' : '') + '>Twitter</option>' +
+        '<option value="TikTok"' + (social.platform === 'TikTok' ? ' selected' : '') + '>TikTok</option>' +
+        '<option value="Facebook"' + (social.platform === 'Facebook' ? ' selected' : '') + '>Facebook</option>' +
+        '<option value="YouTube"' + (social.platform === 'YouTube' ? ' selected' : '') + '>YouTube</option>' +
+        '<option value="Pinterest"' + (social.platform === 'Pinterest' ? ' selected' : '') + '>Pinterest</option>' +
+        '<option value="Other"' + (social.platform === 'Other' ? ' selected' : '') + '>Other</option>' +
+        '</select>' +
+        '<input type="text" placeholder="https://tiktok.com/@likethis" value="' + social.handle + '" oninput="updateSocial(' + index + ', \'handle\', this.value)" />' +
+        '<button type="button" class="btn-remove" onclick="removeSocial(' + index + ')">Remove</button>';
       socialContainer.appendChild(div);
     });
   }
@@ -327,13 +334,19 @@
   window.removeSocial = function(index) { currentSocials.splice(index, 1); renderSocials(); };
   window.updateSocial = function(index, field, value) { currentSocials[index][field] = value; };
 
+  // Attach add social button click
+  document.getElementById('addSocialBtn').addEventListener('click', function() {
+    currentSocials.push({ platform: "Instagram", handle: "" });
+    renderSocials();
+  });
+
   function showNotice(msg, type) {
     notice.textContent = msg;
     notice.className = 'notice ' + type;
-    setTimeout(() => { notice.className = 'notice'; }, 3000);
+    setTimeout(function() { notice.className = 'notice'; }, 3000);
   }
 
-  form.addEventListener('submit', async (e) => {
+  form.addEventListener('submit', async function(e) {
     e.preventDefault();
     if (!userName) { showNotice('Error: You must be logged in.', 'error'); return; }
     
@@ -368,7 +381,7 @@
       
       showNotice('✅ Your site has been updated!', 'success');
       saveBtn.textContent = 'Saved!';
-      setTimeout(() => { saveBtn.disabled = false; saveBtn.textContent = 'Save Changes'; }, 2000);
+      setTimeout(function() { saveBtn.disabled = false; saveBtn.textContent = 'Save Changes'; }, 2000);
     } catch (err) {
       showNotice('Error: ' + err.message, 'error');
       saveBtn.disabled = false;
