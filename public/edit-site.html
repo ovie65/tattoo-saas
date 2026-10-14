@@ -43,7 +43,6 @@
   .notice.success { background: rgba(16,185,129,.08); color: #059669; border: 1px solid rgba(16,185,129,.2); display: block; }
   .notice.error { background: rgba(220,38,38,.08); color: var(--accent); border: 1px solid rgba(220,38,38,.2); display: block; }
   
-  /* FAQ Styles */
   .faq-item { background: var(--bg-alt); border: 1px solid var(--line); border-radius: 8px; padding: 16px; margin-bottom: 16px; position: relative; }
   .faq-item input { min-height: 40px; font-weight: 600; margin-bottom: 12px; }
   .faq-item textarea { min-height: 80px; }
@@ -91,7 +90,6 @@
       <div class="field"><label>Hygiene Standards</label><textarea id="hygiene" style="min-height: 80px;"></textarea></div>
     </div>
 
-    <!-- FAQ SECTION -->
     <div class="form-card">
       <h2>FAQ (Common Questions)</h2>
       <div class="hint">Add, edit, or remove questions your clients often ask.</div>
@@ -106,12 +104,17 @@
 </div>
 
 <script>
-  // Get BOTH email and username from storage
+  // Get username from URL parameter OR localStorage
+  const urlParams = new URLSearchParams(window.location.search);
+  const urlUser = urlParams.get('user');
+  const storageUser = localStorage.getItem('ink_user_name');
   const userEmail = localStorage.getItem('ink_user_email');
-  const userName = localStorage.getItem('ink_user_name');
+  
+  // Use URL parameter if available, otherwise use localStorage
+  const userName = urlUser || storageUser;
 
-  // If either is missing, kick back to login
-  if (!userEmail || !userName) {
+  // If no username found anywhere, kick back to login
+  if (!userName || !userEmail) {
     window.location.href = 'login.html';
   }
 
@@ -120,7 +123,6 @@
   const notice = document.getElementById('notice');
   const faqContainer = document.getElementById('faqContainer');
 
-  // Default FAQs to start with
   const defaultFaqs = [
     { q: "How do I book a session?", a: "Click the Book Now button and fill out the form." },
     { q: "What is your pricing?", a: "Pricing depends on size and detail. I provide custom quotes." },
@@ -166,7 +168,6 @@
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     
-    // Double-check username before saving
     if (!userName) {
       showNotice('Error: You must be logged in to save.', 'error');
       return;
@@ -207,7 +208,6 @@
     }
   });
 
-  // Initialize
   renderFaqs();
 </script>
 

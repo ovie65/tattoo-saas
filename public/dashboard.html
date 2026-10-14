@@ -360,11 +360,11 @@
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
       <div class="sidebar-logo">INK<span>.</span></div>
-      <button class="close-btn" id="closeBtn" aria-label="Close menu">✕</button>
+      <button class="close-btn" id="closeBtn" aria-label="Close menu"></button>
     </div>
     <nav class="sidebar-nav">
       <div class="nav-item active" id="nav-dashboard" onclick="switchView('dashboard')">
-        <span class="nav-item-icon"></span> Dashboard
+        <span class="nav-item-icon">📊</span> Dashboard
       </div>
       <div class="nav-item" id="nav-accepted" onclick="switchView('accepted')">
         <span class="nav-item-icon">✅</span> Accepted
@@ -373,13 +373,13 @@
         <span class="nav-item-icon">📝</span> Drafts
       </div>
       <div class="nav-item" id="nav-notifications" onclick="switchView('notifications')">
-        <span class="nav-item-icon"></span> Notifications
+        <span class="nav-item-icon">🔔</span> Notifications
       </div>
-      <a href="edit-site.html" class="nav-item" style="text-decoration:none;">
+      <a href="edit-site.html" id="editSiteLink" class="nav-item" style="text-decoration:none;">
         <span class="nav-item-icon">✏️</span> Edit My Site
       </a>
       <a href="#" class="nav-item" id="viewSiteLink" target="_blank" style="text-decoration:none;">
-        <span class="nav-item-icon">️</span> View My Site
+        <span class="nav-item-icon">👁️</span> View My Site
       </a>
     </nav>
     <div class="sidebar-footer">
@@ -463,8 +463,14 @@
   } else {
     const nameEl = document.querySelector('.nav-user-name');
     if (nameEl) nameEl.textContent = userName;
+
+    // Update View My Site link
     const viewSiteLink = document.getElementById('viewSiteLink');
     if (viewSiteLink) viewSiteLink.href = `artist.html?artist=${encodeURIComponent(userName)}`;
+
+    // Update Edit My Site link to include username
+    const editSiteLink = document.getElementById('editSiteLink');
+    if (editSiteLink) editSiteLink.href = `edit-site.html?user=${encodeURIComponent(userName)}`;
   }
 
   const logoutBtn = document.getElementById('logoutBtn');
