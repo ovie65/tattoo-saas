@@ -1,10 +1,21 @@
 const clientPromise = require('../lib/mongodb');
 
 module.exports = async function handler(req, res) {
-  // Get the username from the URL (e.g., ?username=Ovie65)
-  const { username } = req.query;
+  console.log('=== API CALLED ===');
+  console.log('Request method:', req.method);
+  console.log('Request body:', req.body);
+  console.log('Username from body:', req.body?.username);
+
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  const { username, bio, yearsExp, piecesDone, sterile, location, hours, hygiene, faq } = req.body;
+
+  console.log('Destructured username:', username);
 
   if (!username) {
+    console.log('ERROR: Username is missing!');
     return res.status(400).json({ error: 'Username is required' });
   }
 
@@ -13,18 +24,30 @@ module.exports = async function handler(req, res) {
     const db = client.db('inkplatform');
     const artists = db.collection('artists');
 
-    // Find the artist's profile in the database
-    const profile = await artists.findOne({ username: username });
+    const result = await artists.updateOne(
+      { username: username },
+      { 
+        $set: { 
+          username: username,
+          bio: bio,
+          yearsExp: yearsExp,
+          piecesDone: piecesDone,
+          sterile: sterile,
+          location: location,
+          hours: hours,
+          hygiene: hygiene,
+          faq: faq || [],
+          updatedAt: new Date()
+        } 
+      },
+      { upsert: true }
+    );
 
-    if (!profile) {
-      // If they haven't saved anything yet, return null
-      return res.status(200).json({ success: true, profile: null });
-    }
-
-    return res.status(200).json({ success: true, profile });
+    console.log('Save successful:', result);
+    return res.status(200).json({ success: true, message: 'Profile saved successfully' });
 
   } catch (error) {
-    console.error('Get profile error:', error.message);
+    console.error('Save profile error:', error.message);
     return res.status(500).json({ error: 'Internal server error' });
   }
 };
