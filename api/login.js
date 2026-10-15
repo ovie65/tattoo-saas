@@ -17,22 +17,24 @@ module.exports = async function handler(req, res) {
     const db = client.db('inkplatform');
     const users = db.collection('users');
 
-    // Find the user by email
-    const user = await users.findOne({ email });
+    // Find user by exact email OR case-insensitive username
+    const user = await users.findOne({
+      $or: [
+        { email: email },
+        { name: { $regex: new RegExp('^' + email + '$', 'i') } }
+      ]
+    });
     
-    // If user not found, return generic error for security
     if (!user) {
-      return res.status(400).json({ error: 'Invalid email or password' });
+      return res.status(400).json({ error: 'Invalid email/username or password' });
     }
 
-    // Compare the provided password with the hashed password in the database
     const isPasswordCorrect = await bcrypt.compare(password, user.password);
 
     if (!isPasswordCorrect) {
-      return res.status(400).json({ error: 'Invalid email or password' });
+      return res.status(400).json({ error: 'Invalid email/username or password' });
     }
 
-    // If we get here, the login is successful
     return res.status(200).json({ 
       success: true, 
       message: 'Logged in successfully',

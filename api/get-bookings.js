@@ -16,8 +16,10 @@ module.exports = async function handler(req, res) {
     const db = client.db('inkplatform');
     const bookings = db.collection('bookings');
 
-    // Only get bookings for THIS specific artist
-    const artistBookings = await bookings.find({ artistName: artist }).sort({ createdAt: -1 }).toArray();
+    // Case-insensitive search so "Ovie65" matches "ovie65"
+    const artistBookings = await bookings.find({ 
+      artistName: { $regex: new RegExp('^' + artist + '$', 'i') } 
+    }).sort({ createdAt: -1 }).toArray();
 
     return res.status(200).json({ success: true, bookings: artistBookings });
 
