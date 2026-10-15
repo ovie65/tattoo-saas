@@ -60,6 +60,12 @@
     text-transform: uppercase;
     color: var(--ink);
   }
+  .hint {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 6px;
+    margin-bottom: 4px;
+  }
   input {
     width: 100%;
     padding: 14px 16px;
@@ -168,8 +174,9 @@
 
   <form id="signupForm">
     <div class="field">
-      <label for="name">Studio / Artist Name</label>
-      <input type="text" id="name" name="name" required placeholder="e.g. Ink Studio" autocomplete="name" />
+      <label for="name">Username</label>
+      <input type="text" id="name" name="name" required placeholder="e.g. ovie_65" autocomplete="username" pattern="[a-z0-9_-]+" title="Username can only contain lowercase letters, numbers, underscores, and hyphens" />
+      <div class="hint">Use lowercase letters, numbers, underscores (_), or hyphens (-).</div>
     </div>
     <div class="field">
       <label for="email">Email Address</label>
@@ -209,6 +216,12 @@
   const btn = document.getElementById('submitBtn');
   const errorMsg = document.getElementById('errorMsg');
   const googleBtn = document.getElementById('googleBtn');
+  const nameInput = document.getElementById('name');
+
+  // Force lowercase as user types
+  nameInput.addEventListener('input', function(e) {
+    this.value = this.value.toLowerCase();
+  });
 
   function sanitize(str) {
     const div = document.createElement('div');
@@ -223,13 +236,22 @@
     btn.textContent = 'Creating...';
 
     const data = {
-      name: sanitize(document.getElementById('name').value.trim()),
+      name: sanitize(document.getElementById('name').value.trim().toLowerCase()),
       email: sanitize(document.getElementById('email').value.trim()),
       password: document.getElementById('password').value
     };
 
     if (data.password.length < 6) {
       errorMsg.textContent = 'Password must be at least 6 characters.';
+      errorMsg.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'Create Account';
+      return;
+    }
+
+    // Validate username format (allows lowercase, numbers, underscores, hyphens)
+    if (!/^[a-z0-9_-]+$/.test(data.name)) {
+      errorMsg.textContent = 'Username can only contain lowercase letters, numbers, underscores, and hyphens.';
       errorMsg.style.display = 'block';
       btn.disabled = false;
       btn.textContent = 'Create Account';

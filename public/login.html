@@ -17,6 +17,7 @@
   .sub { text-align: center; color: var(--muted); font-size: 14px; margin-bottom: 36px; }
   .field { margin-bottom: 16px; }
   label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 8px; letter-spacing: .04em; text-transform: uppercase; color: var(--ink); }
+  .hint { font-size: 11px; color: var(--muted); margin-top: 6px; margin-bottom: 4px; }
   input { width: 100%; padding: 14px 16px; border: 1px solid var(--ink); border-radius: 10px; font-size: 14px; font-family: inherit; background: var(--bg); transition: border-color .2s, box-shadow .2s; }
   input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(220,38,38,.1); }
   .divider { display: flex; align-items: center; gap: 12px; margin: 20px 0; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .1em; }
@@ -48,6 +49,7 @@
     <div class="field">
       <label for="email">Email or Username</label>
       <input type="text" id="email" name="email" required placeholder="you@example.com or your username" autocomplete="username" />
+      <div class="hint">Note: Username is case-sensitive. Type it exactly as you created it.</div>
     </div>
     <div class="field">
       <label for="password">Password</label>
@@ -95,6 +97,7 @@
     btn.textContent = 'Logging in...';
 
     const data = {
+      // We send the exact string the user typed. No changing to lowercase here.
       email: sanitize(document.getElementById('email').value.trim()),
       password: document.getElementById('password').value
     };
@@ -131,4 +134,3 @@
 
 </body>
 </html>
-  

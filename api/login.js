@@ -17,11 +17,12 @@ module.exports = async function handler(req, res) {
     const db = client.db('inkplatform');
     const users = db.collection('users');
 
-    // Find user by exact email OR case-insensitive username
+    // Strict, case-sensitive search. 
+    // It looks for an exact match of the email OR an exact match of the username.
     const user = await users.findOne({
       $or: [
         { email: email },
-        { name: { $regex: new RegExp('^' + email + '$', 'i') } }
+        { name: email } 
       ]
     });
     
