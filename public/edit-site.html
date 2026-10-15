@@ -32,12 +32,17 @@
   .notice.success { background: rgba(16,185,129,.08); color: #059669; border: 1px solid rgba(16,185,129,.2); display: block; }
   .notice.error { background: rgba(220,38,38,.08); color: var(--accent); border: 1px solid rgba(220,38,38,.2); display: block; }
 
-  .social-row { display: grid; grid-template-columns: 1fr 2fr auto; gap: 12px; align-items: center; margin-bottom: 12px; }
-  .social-row input { margin: 0; }
-  .btn-remove-social { background: var(--accent); color: #fff; padding: 12px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; white-space: nowrap; }
-  .btn-remove-social:hover { background: #b91c1c; }
-  .btn-add-social { width: 100%; padding: 14px; border: 2px dashed var(--line); border-radius: 8px; background: transparent; color: var(--ink); font-weight: 600; font-size: 14px; cursor: pointer; margin-top: 8px; }
-  .btn-add-social:hover { border-color: var(--ink); background: var(--bg-alt); }
+  .social-input-row { display: grid; grid-template-columns: 1fr 2fr auto; gap: 12px; align-items: center; margin-bottom: 20px; }
+  .social-input-row input { margin: 0; }
+  .btn-lock-social { background: var(--ink); color: #fff; padding: 14px 20px; border-radius: 8px; font-size: 13px; font-weight: 600; white-space: nowrap; }
+  .btn-lock-social:hover { background: var(--accent); }
+
+  .social-saved-list { margin-bottom: 16px; }
+  .social-saved-item { display: grid; grid-template-columns: 1fr 2fr auto; gap: 12px; align-items: center; padding: 12px 16px; background: var(--bg-alt); border: 1px solid var(--line); border-radius: 8px; margin-bottom: 8px; }
+  .social-saved-item .platform-name { font-weight: 600; font-size: 14px; }
+  .social-saved-item .link-text { font-size: 13px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .btn-remove-social { background: transparent; color: var(--accent); font-size: 12px; font-weight: 600; padding: 8px; }
+  .btn-remove-social:hover { text-decoration: underline; }
 
   .example-box { background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 16px; margin-bottom: 20px; font-size: 13px; line-height: 1.6; }
   .example-box strong { color: #92400e; }
@@ -57,7 +62,7 @@
   .image-slot img { width: 100%; height: 100%; object-fit: cover; }
   .image-slot .remove-img { position: absolute; top: 4px; right: 4px; background: rgba(0,0,0,0.7); color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 12px; cursor: pointer; }
 
-  @media (max-width: 600px) { .row { grid-template-columns: 1fr; } .social-row { grid-template-columns: 1fr; } .image-grid { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 600px) { .row { grid-template-columns: 1fr; } .social-input-row, .social-saved-item { grid-template-columns: 1fr; } .image-grid { grid-template-columns: repeat(3, 1fr); } }
 </style>
 </head>
 <body>
@@ -120,7 +125,7 @@
       <h2>FAQ (Common Questions)</h2>
       <div class="hint">Add, edit, or remove questions your clients often ask.</div>
       <div id="faqContainer"></div>
-      <button type="button" class="btn-add-social" onclick="addFaq()">+ Add New Question</button>
+      <button type="button" class="btn-save" style="margin-top:0; padding:12px; background:transparent; color:var(--ink); border:2px dashed var(--line);" onclick="addFaq()">+ Add New Question</button>
     </div>
 
     <div class="form-card">
@@ -140,16 +145,24 @@
       <div class="hint">Add your social media links. These will appear in the footer of your public site.</div>
       
       <div class="example-box">
-        <strong>📌 How it works:</strong><br><br>
-        <strong>Box 1 (Platform):</strong> Type the platform name — whatever you type is what shows on your site (e.g., Instagram, Facebook, TikTok, WhatsApp, etc.)<br>
-        <strong>Box 2 (Link):</strong> Paste your full profile link. Always start with <code>https://</code><br><br>
+        <strong> How it works:</strong><br><br>
+        <strong>Step 1:</strong> Type the platform name in the first box (e.g., Instagram, Facebook, TikTok, WhatsApp)<br>
+        <strong>Step 2:</strong> Paste your full profile link in the second box. Always start with <code>https://</code><br>
+        <strong>Step 3:</strong> Click <strong>"Lock In"</strong> to save it to the list above<br>
+        <strong>Step 4:</strong> Repeat for more links, then click <strong>"Save Changes"</strong> at the bottom<br><br>
         <strong>✅ Example:</strong> Platform: <code>TikTok</code> → Link: <code>https://tiktok.com/@likethis</code><br>
-        <strong>❌ Wrong:</strong> <code>tiktok.com/@likethis</code> (missing https://)<br><br>
-        <em>Click "+ Add Social Media" to add unlimited links.</em>
+        <strong>❌ Wrong:</strong> <code>tiktok.com/@likethis</code> (missing https://)
       </div>
 
-      <div id="socialContainer"></div>
-      <button type="button" class="btn-add-social" onclick="addSocial()">+ Add Social Media</button>
+      <!-- Saved entries appear here -->
+      <div class="social-saved-list" id="socialSavedList"></div>
+
+      <!-- Two boxes always visible -->
+      <div class="social-input-row">
+        <input type="text" id="newPlatform" placeholder="Platform (e.g., Instagram)" />
+        <input type="text" id="newLink" placeholder="https://tiktok.com/@likethis" />
+        <button type="button" class="btn-lock-social" id="lockBtn">Lock In</button>
+      </div>
     </div>
 
     <button type="submit" class="btn-save" id="saveBtn">Save Changes</button>
@@ -174,10 +187,9 @@
   const saveBtn = document.getElementById('saveBtn');
   const notice = document.getElementById('notice');
   const faqContainer = document.getElementById('faqContainer');
-  const socialContainer = document.getElementById('socialContainer');
+  const socialSavedList = document.getElementById('socialSavedList');
   const worksGrid = document.getElementById('worksGrid');
 
-  // Start with empty arrays. loadProfile() will fill them if data exists.
   let currentFaqs = [];
   let currentSocials = [];
   let currentWorks = [];
@@ -271,25 +283,42 @@
   window.removeFaq = function(index) { currentFaqs.splice(index, 1); renderFaqs(); };
   window.updateFaq = function(index, field, value) { currentFaqs[index][field] = value; };
 
-  function renderSocials() {
-    socialContainer.innerHTML = '';
+  // NEW SOCIAL MEDIA LOGIC
+  function renderSocialSavedList() {
+    socialSavedList.innerHTML = '';
     if (currentSocials.length === 0) {
-      socialContainer.innerHTML = '<div style="text-align:center; color:var(--muted); padding:20px; font-size:13px;">No social media added yet. Click the button below to add one.</div>';
+      socialSavedList.innerHTML = '<div style="text-align:center; color:var(--muted); padding:16px; font-size:13px;">No social media added yet. Use the boxes below to add one.</div>';
       return;
     }
     currentSocials.forEach(function(social, index) {
-      const row = document.createElement('div');
-      row.className = 'social-row';
-      row.innerHTML = '<input type="text" placeholder="Platform (e.g., Instagram)" value="' + (social.platform || '').replace(/"/g, '&quot;') + '" oninput="updateSocial(' + index + ', \'platform\', this.value)" />' +
-        '<input type="text" placeholder="https://tiktok.com/@likethis" value="' + (social.handle || '').replace(/"/g, '&quot;') + '" oninput="updateSocial(' + index + ', \'handle\', this.value)" />' +
+      const item = document.createElement('div');
+      item.className = 'social-saved-item';
+      item.innerHTML = '<div class="platform-name">' + (social.platform || 'Unknown').replace(/</g, '&lt;') + '</div>' +
+        '<div class="link-text">' + (social.handle || 'No link').replace(/</g, '&lt;') + '</div>' +
         '<button type="button" class="btn-remove-social" onclick="removeSocial(' + index + ')">Remove</button>';
-      socialContainer.appendChild(row);
+      socialSavedList.appendChild(item);
     });
   }
 
-  window.addSocial = function() { currentSocials.push({ platform: "", handle: "" }); renderSocials(); };
-  window.removeSocial = function(index) { currentSocials.splice(index, 1); renderSocials(); };
-  window.updateSocial = function(index, field, value) { currentSocials[index][field] = value; };
+  // Lock In button - takes values from the two boxes and adds to list
+  document.getElementById('lockBtn').addEventListener('click', function() {
+    const platformInput = document.getElementById('newPlatform');
+    const linkInput = document.getElementById('newLink');
+    const platform = platformInput.value.trim();
+    const link = linkInput.value.trim();
+    
+    if (!platform || !link) {
+      alert('Please fill in both the Platform and Link boxes.');
+      return;
+    }
+    
+    currentSocials.push({ platform: platform, handle: link });
+    platformInput.value = '';
+    linkInput.value = '';
+    renderSocialSavedList();
+  });
+
+  window.removeSocial = function(index) { currentSocials.splice(index, 1); renderSocialSavedList(); };
 
   function showNotice(msg, type) {
     notice.textContent = msg;
@@ -297,7 +326,6 @@
     setTimeout(function() { notice.className = 'notice'; }, 3000);
   }
 
-  // NEW FUNCTION: Load saved data from database when page opens
   async function loadProfile() {
     try {
       const res = await fetch('/api/get-artist-profile?username=' + encodeURIComponent(userName));
@@ -306,7 +334,6 @@
       if (data.success && data.profile) {
         const p = data.profile;
         
-        // Fill text boxes
         if (p.bio) document.getElementById('bio').value = p.bio;
         if (p.yearsExp) document.getElementById('yearsExp').value = p.yearsExp;
         if (p.piecesDone) document.getElementById('piecesDone').value = p.piecesDone;
@@ -315,12 +342,10 @@
         if (p.hours) document.getElementById('hours').value = p.hours;
         if (p.hygiene) document.getElementById('hygiene').value = p.hygiene;
 
-        // Fill arrays
         if (p.faq && p.faq.length > 0) currentFaqs = p.faq;
         if (p.socials && p.socials.length > 0) currentSocials = p.socials;
         if (p.recentWorks && p.recentWorks.length > 0) currentWorks = p.recentWorks;
 
-        // Show saved images
         if (p.artistPhoto) {
           artistPhotoUrl = p.artistPhoto;
           const preview = document.getElementById('photoPreview');
@@ -339,9 +364,8 @@
           box.querySelector('.text').textContent = 'Logo uploaded! Click to change.';
         }
 
-        // Render the filled data
         renderFaqs();
-        renderSocials();
+        renderSocialSavedList();
         renderWorks();
       }
     } catch (err) {
@@ -392,7 +416,6 @@
     }
   });
 
-  // Run this when page loads
   loadProfile();
 </script>
 
