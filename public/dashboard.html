@@ -464,18 +464,16 @@
     const nameEl = document.querySelector('.nav-user-name');
     if (nameEl) nameEl.textContent = userName;
 
-    // Update View My Site link
     const viewSiteLink = document.getElementById('viewSiteLink');
-    if (viewSiteLink) viewSiteLink.href = `artist.html?artist=${encodeURIComponent(userName)}`;
+    if (viewSiteLink) viewSiteLink.href = 'artist.html?artist=' + encodeURIComponent(userName);
 
-    // Update Edit My Site link to include username
     const editSiteLink = document.getElementById('editSiteLink');
-    if (editSiteLink) editSiteLink.href = `edit-site.html?user=${encodeURIComponent(userName)}`;
+    if (editSiteLink) editSiteLink.href = 'edit-site.html?user=' + encodeURIComponent(userName);
   }
 
   const logoutBtn = document.getElementById('logoutBtn');
   if (logoutBtn) {
-    logoutBtn.addEventListener('click', () => {
+    logoutBtn.addEventListener('click', function() {
       localStorage.removeItem('ink_user_email');
       localStorage.removeItem('ink_user_name');
       window.location.href = 'login.html';
@@ -595,7 +593,8 @@
 
   async function loadBookings() {
     try {
-      const res = await fetch('/api/get-bookings');
+      // THE FIX: Now sends the artist name so each artist only sees their own bookings
+      const res = await fetch('/api/get-bookings?artist=' + encodeURIComponent(userName));
       const data = await res.json();
       
       if (!data.success) {
@@ -685,12 +684,10 @@
 
       let actionsHtml = '';
       if (status === 'pending') {
-        actionsHtml = `
-          <button class="btn btn-decline" onclick="updateBooking('${booking._id}', 'declined')">Decline</button>
-          <button class="btn btn-accept" onclick="updateBooking('${booking._id}', 'accepted')">Accept</button>
-        `;
+        actionsHtml = '<button class="btn btn-decline" onclick="updateBooking(\'' + booking._id + '\', \'declined\')">Decline</button>' +
+          '<button class="btn btn-accept" onclick="updateBooking(\'' + booking._id + '\', \'accepted\')">Accept</button>';
       } else if (status === 'declined') {
-        actionsHtml = `<button class="btn btn-restore" onclick="updateBooking('${booking._id}', 'pending')">Restore</button>`;
+        actionsHtml = '<button class="btn btn-restore" onclick="updateBooking(\'' + booking._id + '\', \'pending\')">Restore</button>';
       }
 
       let imageTagsHtml = '';
@@ -703,48 +700,28 @@
         imageTagsHtml = '<div style="color: var(--muted); font-size: 12px;">No images uploaded</div>';
       }
 
-      card.innerHTML = `
-        <div class="booking-header">
-          <div class="booking-info">
-            <div class="booking-client">${booking.clientName} <span style="font-weight:400; font-size:13px; color:var(--muted)">(${booking.clientEmail})</span></div>
-            <div class="booking-desc">${booking.description}</div>
-            <div class="booking-meta">
-              <span>📅 ${dateStr}</span>
-              <span>📍 ${booking.placement}</span>
-              <span style="text-transform: capitalize; font-weight: 600; color: ${status === 'pending' ? 'var(--accent)' : status === 'accepted' ? 'var(--success)' : 'var(--ink)'}">● ${booking.status}</span>
-            </div>
-            ${draftNotice}
-          </div>
-          <div class="booking-actions">${actionsHtml}</div>
-        </div>
-        <button class="expand-btn" onclick="toggleDetails('${booking._id}')">▼ View Details</button>
-        <div class="booking-details" id="details-${booking._id}">
-          <div class="detail-row">
-            <div class="detail-label">Client Name</div>
-            <div class="detail-value">${booking.clientName}</div>
-          </div>
-          <div class="detail-row">
-            <div class="detail-label">Email</div>
-            <div class="detail-value">${booking.clientEmail}</div>
-          </div>
-          <div class="detail-row">
-            <div class="detail-label">Preferred Date</div>
-            <div class="detail-value">${dateStr}</div>
-          </div>
-          <div class="detail-row">
-            <div class="detail-label">Placement</div>
-            <div class="detail-value">${booking.placement}</div>
-          </div>
-          <div class="detail-row">
-            <div class="detail-label">Tattoo Description</div>
-            <div class="detail-value">${booking.description}</div>
-          </div>
-          <div class="detail-row">
-            <div class="detail-label">Reference Images</div>
-            ${imageTagsHtml}
-          </div>
-        </div>
-      `;
+      card.innerHTML = '<div class="booking-header">' +
+        '<div class="booking-info">' +
+          '<div class="booking-client">' + booking.clientName + ' <span style="font-weight:400; font-size:13px; color:var(--muted)">(' + booking.clientEmail + ')</span></div>' +
+          '<div class="booking-desc">' + booking.description + '</div>' +
+          '<div class="booking-meta">' +
+            '<span>📅 ' + dateStr + '</span>' +
+            '<span>📍 ' + booking.placement + '</span>' +
+            '<span style="text-transform: capitalize; font-weight: 600; color: ' + (status === 'pending' ? 'var(--accent)' : status === 'accepted' ? 'var(--success)' : 'var(--ink)') + '">● ' + booking.status + '</span>' +
+          '</div>' +
+          draftNotice +
+        '</div>' +
+        '<div class="booking-actions">' + actionsHtml + '</div>' +
+      '</div>' +
+      '<button class="expand-btn" onclick="toggleDetails(\'' + booking._id + '\')">▼ View Details</button>' +
+      '<div class="booking-details" id="details-' + booking._id + '">' +
+        '<div class="detail-row"><div class="detail-label">Client Name</div><div class="detail-value">' + booking.clientName + '</div></div>' +
+        '<div class="detail-row"><div class="detail-label">Email</div><div class="detail-value">' + booking.clientEmail + '</div></div>' +
+        '<div class="detail-row"><div class="detail-label">Preferred Date</div><div class="detail-value">' + dateStr + '</div></div>' +
+        '<div class="detail-row"><div class="detail-label">Placement</div><div class="detail-value">' + booking.placement + '</div></div>' +
+        '<div class="detail-row"><div class="detail-label">Tattoo Description</div><div class="detail-value">' + booking.description + '</div></div>' +
+        '<div class="detail-row"><div class="detail-label">Reference Images</div>' + imageTagsHtml + '</div>' +
+      '</div>';
       listContainer.appendChild(card);
     });
 
@@ -753,13 +730,13 @@
       document.getElementById('statAccepted').textContent = acceptedCount;
       document.getElementById('statDeclined').textContent = declinedCount;
       document.getElementById('statTotal').textContent = allBookings.length;
-      document.getElementById('badgePending').textContent = `${pendingCount} New`;
+      document.getElementById('badgePending').textContent = pendingCount + ' New';
     }
   }
 
   window.updateBooking = async function(bookingId, newStatus) {
     const msg = newStatus === 'declined' ? 'move this to Drafts?' : newStatus === 'accepted' ? 'accept this booking?' : 'restore this booking?';
-    if (!confirm(`Are you sure you want to ${msg}`)) return;
+    if (!confirm('Are you sure you want to ' + msg)) return;
 
     try {
       const res = await fetch('/api/update-booking', {
