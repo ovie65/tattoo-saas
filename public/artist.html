@@ -97,9 +97,16 @@
   .footer-logo { font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 800; letter-spacing: .25em; }
   .footer-logo span { color: var(--accent); }
   .footer-logo img { max-height: 30px; }
-  .footer-socials { display: flex; gap: 20px; }
-  .footer-socials a { color: rgba(255,255,255,.6); font-size: 13px; transition: color .2s; }
-  .footer-socials a:hover { color: #fff; }
+  .footer-socials { display: flex; gap: 24px; }
+  .footer-socials a { 
+    color: #ffffff; 
+    font-size: 15px; 
+    font-weight: 600;
+    transition: color .2s; 
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+  .footer-socials a:hover { color: var(--accent); }
   .footer-bottom { max-width: 1200px; margin: 0 auto; padding-top: 30px; text-align: center; font-size: 12px; color: rgba(255,255,255,.4); }
 
   @media (max-width: 768px) {
@@ -119,6 +126,7 @@
     .booking-cta h2 { font-size: 32px; }
     .footer { padding: 40px 20px 20px; }
     .footer-inner { flex-direction: column; gap: 20px; text-align: center; }
+    .footer-socials { flex-wrap: wrap; justify-content: center; }
   }
 </style>
 </head>
@@ -172,12 +180,12 @@
       <h2 class="section-title">Recent Work</h2>
     </div>
     <div class="work-grid" id="workGrid">
-      <div class="work-item"><div class="work-item-placeholder">📷 Upload Your Work</div></div>
+      <div class="work-item"><div class="work-item-placeholder"> Upload Your Work</div></div>
       <div class="work-item"><div class="work-item-placeholder">📷 Upload Your Work</div></div>
       <div class="work-item"><div class="work-item-placeholder"> Upload Your Work</div></div>
       <div class="work-item"><div class="work-item-placeholder">📷 Upload Your Work</div></div>
       <div class="work-item"><div class="work-item-placeholder">📷 Upload Your Work</div></div>
-      <div class="work-item"><div class="work-item-placeholder">📷 Upload Your Work</div></div>
+      <div class="work-item"><div class="work-item-placeholder"> Upload Your Work</div></div>
     </div>
   </div>
 </section>
@@ -294,10 +302,10 @@
     link.href = 'book.html?artist=' + encodeURIComponent(artistName);
   });
 
-  // Load custom profile from database
   async function loadProfile() {
     try {
-      const res = await fetch('/api/get-artist-profile?username=' + encodeURIComponent(artistName));
+      // CACHE BUSTER: &t= forces the browser to always get fresh data from the database
+      const res = await fetch('/api/get-artist-profile?username=' + encodeURIComponent(artistName) + '&t=' + Date.now());
       const data = await res.json();
       
       if (data.success && data.profile) {
@@ -312,13 +320,11 @@
         if (p.hours) document.getElementById('studioHours').textContent = p.hours;
         if (p.hygiene) document.getElementById('studioHygiene').textContent = p.hygiene;
 
-        // Update artist photo
         if (p.artistPhoto) {
           const heroImage = document.getElementById('heroImage');
           heroImage.innerHTML = '<img src="' + escapeHtml(p.artistPhoto) + '" alt="Artist Photo" />';
         }
 
-        // Update recent works
         if (p.recentWorks && p.recentWorks.length > 0) {
           const workGrid = document.getElementById('workGrid');
           workGrid.innerHTML = '';
@@ -330,13 +336,11 @@
           });
         }
 
-        // Update footer logo
         if (p.footerLogo) {
           const footerLogo = document.getElementById('footerLogo');
           footerLogo.innerHTML = '<img src="' + escapeHtml(p.footerLogo) + '" alt="Artist Logo" />';
         }
 
-        // Update FAQs
         if (p.faq && p.faq.length > 0) {
           const faqContainer = document.getElementById('faqList');
           faqContainer.innerHTML = '';
@@ -345,16 +349,12 @@
             if (item.q && item.a) {
               const div = document.createElement('div');
               div.className = 'faq-item';
-              div.innerHTML = `
-                <div class="faq-question"><span>${escapeHtml(item.q)}</span><span class="faq-toggle">+</span></div>
-                <div class="faq-answer">${escapeHtml(item.a)}</div>
-              `;
+              div.innerHTML = '<div class="faq-question"><span>' + escapeHtml(item.q) + '</span><span class="faq-toggle">+</span></div><div class="faq-answer">' + escapeHtml(item.a) + '</div>';
               faqContainer.appendChild(div);
             }
           });
         }
 
-        // Update social media
         if (p.socials && p.socials.length > 0) {
           const socialsContainer = document.getElementById('footerSocials');
           socialsContainer.innerHTML = '';
@@ -374,7 +374,6 @@
     }
   }
 
-  // FAQ Accordion
   document.addEventListener('click', function(e) {
     const item = e.target.closest('.faq-item');
     if (item) {
@@ -382,7 +381,6 @@
     }
   });
 
-  // Guestbook
   function loadGuestbook() {
     const messages = JSON.parse(localStorage.getItem('ink_guestbook_' + artistName) || '[]');
     const container = document.getElementById('gbMessages');
@@ -392,7 +390,7 @@
     }
     container.innerHTML = messages.map(function(msg) {
       const date = new Date(msg.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-      return `<div class="gb-message"><div class="gb-author">${escapeHtml(msg.name)}</div><div class="gb-date">${date}</div><div class="gb-text">${escapeHtml(msg.text)}</div></div>`;
+      return '<div class="gb-message"><div class="gb-author">' + escapeHtml(msg.name) + '</div><div class="gb-date">' + date + '</div><div class="gb-text">' + escapeHtml(msg.text) + '</div></div>';
     }).join('');
   }
 
@@ -414,7 +412,6 @@
     return div.innerHTML;
   }
 
-  // Initialize
   loadProfile();
   loadGuestbook();
 </script>
