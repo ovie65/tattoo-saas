@@ -177,12 +177,8 @@
   const socialContainer = document.getElementById('socialContainer');
   const worksGrid = document.getElementById('worksGrid');
 
-  let currentFaqs = [
-    { q: "How do I book a session?", a: "Click the Book Now button and fill out the form." },
-    { q: "What is your pricing?", a: "Pricing depends on size and detail. I provide custom quotes." },
-    { q: "How should I prepare?", a: "Get sleep, eat well, stay hydrated, avoid alcohol." }
-  ];
-
+  // Start with empty arrays. loadProfile() will fill them if data exists.
+  let currentFaqs = [];
   let currentSocials = [];
   let currentWorks = [];
   let artistPhotoUrl = '';
@@ -257,11 +253,15 @@
 
   function renderFaqs() {
     faqContainer.innerHTML = '';
+    if (currentFaqs.length === 0) {
+      faqContainer.innerHTML = '<div style="text-align:center; color:var(--muted); padding:20px; font-size:13px;">No questions added yet.</div>';
+      return;
+    }
     currentFaqs.forEach(function(faq, index) {
       const div = document.createElement('div');
       div.style.cssText = 'display:grid; grid-template-columns:1fr 2fr auto; gap:12px; margin-bottom:12px; align-items:start;';
-      div.innerHTML = '<input type="text" placeholder="Question" value="' + faq.q.replace(/"/g, '&quot;') + '" oninput="updateFaq(' + index + ', \'q\', this.value)" style="font-weight:600;" />' +
-        '<textarea placeholder="Answer" oninput="updateFaq(' + index + ', \'a\', this.value)" style="min-height:80px;">' + faq.a + '</textarea>' +
+      div.innerHTML = '<input type="text" placeholder="Question" value="' + (faq.q || '').replace(/"/g, '&quot;') + '" oninput="updateFaq(' + index + ', \'q\', this.value)" style="font-weight:600;" />' +
+        '<textarea placeholder="Answer" oninput="updateFaq(' + index + ', \'a\', this.value)" style="min-height:80px;">' + (faq.a || '') + '</textarea>' +
         '<button type="button" class="btn-remove-social" onclick="removeFaq(' + index + ')">Remove</button>';
       faqContainer.appendChild(div);
     });
@@ -280,8 +280,8 @@
     currentSocials.forEach(function(social, index) {
       const row = document.createElement('div');
       row.className = 'social-row';
-      row.innerHTML = '<input type="text" placeholder="Platform (e.g., Instagram)" value="' + social.platform.replace(/"/g, '&quot;') + '" oninput="updateSocial(' + index + ', \'platform\', this.value)" />' +
-        '<input type="text" placeholder="https://tiktok.com/@likethis" value="' + social.handle.replace(/"/g, '&quot;') + '" oninput="updateSocial(' + index + ', \'handle\', this.value)" />' +
+      row.innerHTML = '<input type="text" placeholder="Platform (e.g., Instagram)" value="' + (social.platform || '').replace(/"/g, '&quot;') + '" oninput="updateSocial(' + index + ', \'platform\', this.value)" />' +
+        '<input type="text" placeholder="https://tiktok.com/@likethis" value="' + (social.handle || '').replace(/"/g, '&quot;') + '" oninput="updateSocial(' + index + ', \'handle\', this.value)" />' +
         '<button type="button" class="btn-remove-social" onclick="removeSocial(' + index + ')">Remove</button>';
       socialContainer.appendChild(row);
     });
@@ -295,6 +295,58 @@
     notice.textContent = msg;
     notice.className = 'notice ' + type;
     setTimeout(function() { notice.className = 'notice'; }, 3000);
+  }
+
+  // NEW FUNCTION: Load saved data from database when page opens
+  async function loadProfile() {
+    try {
+      const res = await fetch('/api/get-artist-profile?username=' + encodeURIComponent(userName));
+      const data = await res.json();
+      
+      if (data.success && data.profile) {
+        const p = data.profile;
+        
+        // Fill text boxes
+        if (p.bio) document.getElementById('bio').value = p.bio;
+        if (p.yearsExp) document.getElementById('yearsExp').value = p.yearsExp;
+        if (p.piecesDone) document.getElementById('piecesDone').value = p.piecesDone;
+        if (p.sterile) document.getElementById('sterile').value = p.sterile;
+        if (p.location) document.getElementById('location').value = p.location;
+        if (p.hours) document.getElementById('hours').value = p.hours;
+        if (p.hygiene) document.getElementById('hygiene').value = p.hygiene;
+
+        // Fill arrays
+        if (p.faq && p.faq.length > 0) currentFaqs = p.faq;
+        if (p.socials && p.socials.length > 0) currentSocials = p.socials;
+        if (p.recentWorks && p.recentWorks.length > 0) currentWorks = p.recentWorks;
+
+        // Show saved images
+        if (p.artistPhoto) {
+          artistPhotoUrl = p.artistPhoto;
+          const preview = document.getElementById('photoPreview');
+          const box = document.getElementById('photoUploadBox');
+          preview.src = p.artistPhoto;
+          box.classList.add('has-image');
+          box.querySelector('.text').textContent = 'Photo uploaded! Click to change.';
+        }
+
+        if (p.footerLogo) {
+          footerLogoUrl = p.footerLogo;
+          const preview = document.getElementById('logoPreview');
+          const box = document.getElementById('logoUploadBox');
+          preview.src = p.footerLogo;
+          box.classList.add('has-image');
+          box.querySelector('.text').textContent = 'Logo uploaded! Click to change.';
+        }
+
+        // Render the filled data
+        renderFaqs();
+        renderSocials();
+        renderWorks();
+      }
+    } catch (err) {
+      console.error('Failed to load profile', err);
+    }
   }
 
   form.addEventListener('submit', async function(e) {
@@ -340,8 +392,8 @@
     }
   });
 
-  renderFaqs();
-  renderSocials();
+  // Run this when page loads
+  loadProfile();
 </script>
 
 </body>
