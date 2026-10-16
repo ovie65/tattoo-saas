@@ -59,11 +59,28 @@
   .booking-cta-btn { display: inline-block; background: var(--accent); color: #fff; padding: 16px 40px; border-radius: 100px; font-weight: 600; font-size: 15px; transition: all .2s; }
   .booking-cta-btn:hover { background: #b91c1c; transform: translateY(-2px); }
 
-  .testimonial-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  .testimonial-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-bottom: 60px; }
   .testimonial-card { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 32px; }
-  .testimonial-stars { color: var(--accent); margin-bottom: 16px; font-size: 14px; }
-  .testimonial-text { font-size: 14px; line-height: 1.7; color: var(--ink); margin-bottom: 20px; }
-  .testimonial-author { font-weight: 600; font-size: 13px; }
+  .testimonial-stars { color: var(--accent); margin-bottom: 16px; font-size: 16px; letter-spacing: 2px; }
+  .testimonial-text { font-size: 15px; line-height: 1.7; color: var(--ink); margin-bottom: 20px; font-style: italic; }
+  .testimonial-author { font-weight: 700; font-size: 14px; color: var(--muted); }
+
+  /* New Testimonial Form Styles */
+  .testimonial-form-container { max-width: 600px; margin: 0 auto; background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 40px; }
+  .testimonial-form-container h3 { font-size: 20px; margin-bottom: 8px; text-align: center; }
+  .testimonial-form-container p { font-size: 14px; color: var(--muted); text-align: center; margin-bottom: 24px; }
+  .t-form-group { margin-bottom: 20px; }
+  .t-form-group label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 8px; text-transform: uppercase; letter-spacing: .04em; }
+  .t-form-group input, .t-form-group select, .t-form-group textarea { width: 100%; padding: 14px 16px; border: 1px solid var(--line); border-radius: 8px; font-size: 15px; font-family: inherit; background: var(--bg); transition: border-color .2s; }
+  .t-form-group input:focus, .t-form-group select:focus, .t-form-group textarea:focus { outline: none; border-color: var(--ink); }
+  .t-form-group textarea { resize: vertical; min-height: 120px; }
+  .t-submit-btn { width: 100%; padding: 16px; background: var(--ink); color: #fff; border-radius: 10px; font-size: 15px; font-weight: 600; transition: all .2s; }
+  .t-submit-btn:hover { background: var(--accent); }
+  .t-submit-btn:disabled { background: #ccc; cursor: not-allowed; }
+  .t-notice { padding: 12px; border-radius: 8px; font-size: 13px; text-align: center; margin-top: 16px; display: none; }
+  .t-notice.success { background: rgba(16,185,129,.1); color: #059669; display: block; }
+  .t-notice.error { background: rgba(220,38,38,.1); color: var(--accent); display: block; }
+  .t-limit-msg { text-align: center; padding: 20px; background: var(--bg-alt); border-radius: 8px; color: var(--muted); font-size: 14px; display: none; }
 
   .faq-list { max-width: 720px; margin: 0 auto; }
   .faq-item { border-bottom: 1px solid var(--line); padding: 24px 0; cursor: pointer; }
@@ -105,7 +122,7 @@
     .section { padding: 60px 20px; }
     .section-title { font-size: 32px; }
     .work-grid { grid-template-columns: repeat(2, 1fr); }
-    .testimonial-grid { grid-template-columns: 1fr; }
+    .testimonial-grid { grid-template-columns: 1fr; gap: 20px; }
     .info-grid { grid-template-columns: 1fr; }
     .studio-grid { grid-template-columns: 1fr; }
     .booking-cta { padding: 60px 20px; }
@@ -113,7 +130,8 @@
     .footer { padding: 40px 20px 20px; }
     .footer-inner { flex-direction: column; gap: 20px; text-align: center; }
     .footer-socials { flex-wrap: wrap; justify-content: center; }
-    .info-card { padding: 24px 20px; }
+    .info-card, .testimonial-form-container { padding: 24px 20px; }
+    .t-form-group input, .t-form-group select, .t-form-group textarea { font-size: 16px; } /* Prevents zoom on iOS */
   }
 </style>
 </head>
@@ -125,6 +143,7 @@
     <a href="#about">About</a>
     <a href="#work">Work</a>
     <a href="#services">Services</a>
+    <a href="#testimonials">Reviews</a>
     <a href="#faq">FAQ</a>
     <a href="#book" class="nav-book-btn book-link">Book Now</a>
   </div>
@@ -141,22 +160,11 @@
   <div class="hero-content">
     <div class="hero-label">About the Artist</div>
     <h1 class="hero-title" id="heroTagline">Crafted by hand. Worn for life.</h1>
-    <p class="hero-bio" id="artistBio">
-      With over a decade behind the machine, I specialize in custom work that blends bold lines with refined detail. Every piece starts with a conversation — your story, your vision, my craft. Sterile studio, professional setup, zero shortcuts.
-    </p>
+    <p class="hero-bio" id="artistBio">Loading artist bio...</p>
     <div class="hero-stats">
-      <div>
-        <div class="stat-number" id="statYears">10+</div>
-        <div class="stat-label">Years Experience</div>
-      </div>
-      <div>
-        <div class="stat-number" id="statPieces">2K+</div>
-        <div class="stat-label">Pieces Done</div>
-      </div>
-      <div>
-        <div class="stat-number" id="statSterile">100%</div>
-        <div class="stat-label">Sterile Studio</div>
-      </div>
+      <div><div class="stat-number" id="statYears">-</div><div class="stat-label">Years Experience</div></div>
+      <div><div class="stat-number" id="statPieces">-</div><div class="stat-label">Pieces Done</div></div>
+      <div><div class="stat-number" id="statSterile">-</div><div class="stat-label">Sterile Studio</div></div>
     </div>
   </div>
 </section>
@@ -168,12 +176,7 @@
       <h2 class="section-title">Recent Work</h2>
     </div>
     <div class="work-grid" id="workGrid">
-      <div class="work-item"><div class="work-item-placeholder">Upload Your Work</div></div>
-      <div class="work-item"><div class="work-item-placeholder">📷 Upload Your Work</div></div>
-      <div class="work-item"><div class="work-item-placeholder">Upload Your Work</div></div>
-      <div class="work-item"><div class="work-item-placeholder"> Upload Your Work</div></div>
-      <div class="work-item"><div class="work-item-placeholder">📷 Upload Your Work</div></div>
-      <div class="work-item"><div class="work-item-placeholder">Upload Your Work</div></div>
+      <div class="work-item"><div class="work-item-placeholder">Loading portfolio...</div></div>
     </div>
   </div>
 </section>
@@ -183,15 +186,9 @@
     <div class="section-label">What I Offer</div>
     <h2 class="section-title">Services & Pricing</h2>
   </div>
-  <div class="info-grid" id="servicesGrid">
-    <div class="info-card">
-      <h3>Services</h3>
-      <p id="servicesText">Contact the artist for pricing details.</p>
-    </div>
-    <div class="info-card">
-      <h3>The Process</h3>
-      <p id="processText">Step 1: Submit a booking request<br>Step 2: Design consultation<br>Step 3: Session booking</p>
-    </div>
+  <div class="info-grid">
+    <div class="info-card"><h3>Services</h3><p id="servicesText">Loading services...</p></div>
+    <div class="info-card"><h3>The Process</h3><p id="processText">Loading process...</p></div>
   </div>
 </section>
 
@@ -202,14 +199,8 @@
       <h2 class="section-title">Studio Rules & Aftercare</h2>
     </div>
     <div class="info-grid">
-      <div class="info-card">
-        <h3>Studio Rules</h3>
-        <p id="rulesText">No walk-ins. Must be 18+ with valid ID. Deposit required to book.</p>
-      </div>
-      <div class="info-card">
-        <h3>Aftercare Instructions</h3>
-        <p id="aftercareText">Keep it clean and moisturized. Avoid direct sunlight for 2 weeks. Don't scratch or pick at it.</p>
-      </div>
+      <div class="info-card"><h3>Studio Rules</h3><p id="rulesText">Loading rules...</p></div>
+      <div class="info-card"><h3>Aftercare Instructions</h3><p id="aftercareText">Loading aftercare...</p></div>
     </div>
   </div>
 </section>
@@ -225,22 +216,39 @@
     <div class="section-label">Testimonials</div>
     <h2 class="section-title">What Clients Say</h2>
   </div>
+  
+  <!-- Real Testimonials Grid -->
   <div class="testimonial-grid" id="testimonialGrid">
-    <div class="testimonial-card">
-      <div class="testimonial-stars">★★★★★</div>
-      <p class="testimonial-text">"Absolutely incredible work. The attention to detail is unmatched."</p>
-      <div class="testimonial-author">— Sarah M.</div>
+    <div style="grid-column: 1/-1; text-align: center; color: var(--muted);">Loading reviews...</div>
+  </div>
+
+  <!-- Client Submission Form -->
+  <div class="testimonial-form-container" id="testimonialFormContainer">
+    <h3>Rate this Artist</h3>
+    <p>Had a great experience? Leave a review for others to see.</p>
+    
+    <div class="t-form-group">
+      <label>Your Name</label>
+      <input type="text" id="tClientName" placeholder="e.g. John Doe" required />
     </div>
-    <div class="testimonial-card">
-      <div class="testimonial-stars">★★★★★</div>
-      <p class="testimonial-text">"Best tattoo experience I've ever had. Professional and clean."</p>
-      <div class="testimonial-author">— James K.</div>
+    <div class="t-form-group">
+      <label>Rating</label>
+      <select id="tRating">
+        <option value="5">★★★★★ (5 Stars)</option>
+        <option value="4">★★★★ (4 Stars)</option>
+        <option value="3">★★★ (3 Stars)</option>
+        <option value="2">★★ (2 Stars)</option>
+        <option value="1">★ (1 Star)</option>
+      </select>
     </div>
-    <div class="testimonial-card">
-      <div class="testimonial-stars">★★★★★</div>
-      <p class="testimonial-text">"Took my vague idea and turned it into a masterpiece."</p>
-      <div class="testimonial-author">— Priya R.</div>
+    <div class="t-form-group">
+      <label>Your Review</label>
+      <textarea id="tText" placeholder="Tell us about your experience..." required></textarea>
     </div>
+    
+    <button type="button" class="t-submit-btn" id="tSubmitBtn" onclick="submitTestimonial()">Submit Review</button>
+    <div class="t-notice" id="tNotice"></div>
+    <div class="t-limit-msg" id="tLimitMsg">This artist has reached their maximum number of reviews. Please check back later.</div>
   </div>
 </section>
 
@@ -255,10 +263,6 @@
         <div class="faq-question"><span>How do I book a session?</span><span class="faq-toggle">+</span></div>
         <div class="faq-answer">Click the "Book Now" button and fill out the form.</div>
       </div>
-      <div class="faq-item">
-        <div class="faq-question"><span>What is your pricing?</span><span class="faq-toggle">+</span></div>
-        <div class="faq-answer">Pricing depends on size, detail, and placement.</div>
-      </div>
     </div>
   </div>
 </section>
@@ -270,21 +274,9 @@
       <h2 class="section-title">Studio Info</h2>
     </div>
     <div class="studio-grid">
-      <div class="studio-card">
-        <div class="studio-icon">📍</div>
-        <h4>Location</h4>
-        <p id="studioLocation">123 Ink Street<br>Art District<br>City, State 12345</p>
-      </div>
-      <div class="studio-card">
-        <div class="studio-icon">🕐</div>
-        <h4>Hours</h4>
-        <p id="studioHours">Tue – Sat: 11am – 8pm<br>Sun – Mon: Closed</p>
-      </div>
-      <div class="studio-card">
-        <div class="studio-icon">✨</div>
-        <h4>Hygiene</h4>
-        <p id="studioHygiene">Fully sterile studio<br>Single-use needles</p>
-      </div>
+      <div class="studio-card"><div class="studio-icon">📍</div><h4>Location</h4><p id="studioLocation">Loading...</p></div>
+      <div class="studio-card"><div class="studio-icon">🕐</div><h4>Hours</h4><p id="studioHours">Loading...</p></div>
+      <div class="studio-card"><div class="studio-icon">✨</div><h4>Hygiene</h4><p id="studioHygiene">Loading...</p></div>
     </div>
   </div>
 </section>
@@ -292,81 +284,59 @@
 <footer class="footer">
   <div class="footer-inner">
     <div class="footer-logo" id="footerLogo">INK<span>.</span></div>
-    <div class="footer-socials" id="footerSocials">
-      <a href="#">Instagram</a>
-      <a href="#">Twitter</a>
-      <a href="#">TikTok</a>
-    </div>
+    <div class="footer-socials" id="footerSocials"></div>
   </div>
-  <div class="footer-bottom">
-    © 2026 INK STUDIO · ALL RIGHTS RESERVED · POWERED BY INK
-  </div>
+  <div class="footer-bottom">© 2026 INK STUDIO · ALL RIGHTS RESERVED · POWERED BY INK</div>
 </footer>
 
 <script>
   const params = new URLSearchParams(window.location.search);
   const artistName = params.get('artist') || 'INK Artist';
-  
   document.getElementById('pageTitle').textContent = artistName + ' — INK';
-  
   document.querySelectorAll('.book-link').forEach(function(link) {
     link.href = 'book.html?artist=' + encodeURIComponent(artistName);
   });
+
+  let artistMaxTestimonials = 5;
 
   async function loadProfile() {
     try {
       const res = await fetch('/api/get-artist-profile?username=' + encodeURIComponent(artistName) + '&t=' + Date.now());
       const data = await res.json();
-      
       if (data.success && data.profile) {
         const p = data.profile;
+        artistMaxTestimonials = p.maxTestimonials || 5; // Get the limit from DB
         
         if (p.tagline) document.getElementById('heroTagline').textContent = p.tagline;
         if (p.bio) document.getElementById('artistBio').textContent = p.bio;
         if (p.yearsExp) document.getElementById('statYears').textContent = p.yearsExp;
         if (p.piecesDone) document.getElementById('statPieces').textContent = p.piecesDone;
         if (p.sterile) document.getElementById('statSterile').textContent = p.sterile;
-        
         if (p.services) document.getElementById('servicesText').textContent = p.services;
         if (p.process) document.getElementById('processText').textContent = p.process;
         if (p.rules) document.getElementById('rulesText').textContent = p.rules;
         if (p.aftercare) document.getElementById('aftercareText').textContent = p.aftercare;
-        
         if (p.location) document.getElementById('studioLocation').textContent = p.location;
         if (p.hours) document.getElementById('studioHours').textContent = p.hours;
         if (p.hygiene) document.getElementById('studioHygiene').textContent = p.hygiene;
 
-        if (p.artistPhoto) {
-          const heroImage = document.getElementById('heroImage');
-          heroImage.innerHTML = '<img src="' + escapeHtml(p.artistPhoto) + '" alt="Artist Photo" />';
-        }
+        if (p.artistPhoto) document.getElementById('heroImage').innerHTML = '<img src="' + escapeHtml(p.artistPhoto) + '" alt="Artist Photo" />';
+        if (p.footerLogo) document.getElementById('footerLogo').innerHTML = '<img src="' + escapeHtml(p.footerLogo) + '" alt="Artist Logo" />';
 
         if (p.recentWorks && p.recentWorks.length > 0) {
           const workGrid = document.getElementById('workGrid');
           workGrid.innerHTML = '';
           p.recentWorks.forEach(function(url) {
-            const div = document.createElement('div');
-            div.className = 'work-item';
-            div.innerHTML = '<img src="' + escapeHtml(url) + '" alt="Tattoo Work" />';
-            workGrid.appendChild(div);
+            workGrid.innerHTML += '<div class="work-item"><img src="' + escapeHtml(url) + '" alt="Tattoo Work" /></div>';
           });
-        }
-
-        if (p.footerLogo) {
-          const footerLogo = document.getElementById('footerLogo');
-          footerLogo.innerHTML = '<img src="' + escapeHtml(p.footerLogo) + '" alt="Artist Logo" />';
         }
 
         if (p.faq && p.faq.length > 0) {
           const faqContainer = document.getElementById('faqList');
           faqContainer.innerHTML = '';
-          
           p.faq.forEach(function(item) {
             if (item.q && item.a) {
-              const div = document.createElement('div');
-              div.className = 'faq-item';
-              div.innerHTML = '<div class="faq-question"><span>' + escapeHtml(item.q) + '</span><span class="faq-toggle">+</span></div><div class="faq-answer">' + escapeHtml(item.a) + '</div>';
-              faqContainer.appendChild(div);
+              faqContainer.innerHTML += '<div class="faq-item"><div class="faq-question"><span>' + escapeHtml(item.q) + '</span><span class="faq-toggle">+</span></div><div class="faq-answer">' + escapeHtml(item.a) + '</div></div>';
             }
           });
         }
@@ -376,25 +346,84 @@
           socialsContainer.innerHTML = '';
           p.socials.forEach(function(social) {
             if (social.platform && social.handle) {
-              const a = document.createElement('a');
-              a.href = social.handle.startsWith('http') ? social.handle : '#';
-              a.textContent = social.platform;
-              a.target = '_blank';
-              socialsContainer.appendChild(a);
+              socialsContainer.innerHTML += '<a href="' + escapeHtml(social.handle) + '" target="_blank">' + escapeHtml(social.platform) + '</a>';
             }
           });
         }
       }
-    } catch (err) {
-      console.error('Failed to load profile', err);
-    }
+    } catch (err) { console.error('Failed to load profile', err); }
   }
+
+  async function loadTestimonials() {
+    try {
+      const res = await fetch('/api/get-testimonials?artist=' + encodeURIComponent(artistName));
+      const data = await res.json();
+      const grid = document.getElementById('testimonialGrid');
+      
+      if (data.success && data.testimonials && data.testimonials.length > 0) {
+        grid.innerHTML = '';
+        data.testimonials.forEach(function(t) {
+          const stars = '★'.repeat(t.rating) + '☆'.repeat(5 - t.rating);
+          grid.innerHTML += '<div class="testimonial-card"><div class="testimonial-stars">' + stars + '</div><p class="testimonial-text">"' + escapeHtml(t.text) + '"</p><div class="testimonial-author">— ' + escapeHtml(t.clientName) + '</div></div>';
+        });
+      } else {
+        grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: var(--muted);">No reviews yet. Be the first to leave one!</div>';
+      }
+
+      // Check if limit is reached
+      const currentCount = data.testimonials ? data.testimonials.length : 0;
+      if (currentCount >= artistMaxTestimonials) {
+        document.getElementById('tSubmitBtn').disabled = true;
+        document.getElementById('tSubmitBtn').textContent = 'Review Limit Reached';
+        document.getElementById('tLimitMsg').style.display = 'block';
+      }
+    } catch (err) { console.error('Failed to load testimonials', err); }
+  }
+
+  window.submitTestimonial = async function() {
+    const name = document.getElementById('tClientName').value.trim();
+    const rating = document.getElementById('tRating').value;
+    const text = document.getElementById('tText').value.trim();
+    const btn = document.getElementById('tSubmitBtn');
+    const notice = document.getElementById('tNotice');
+
+    if (!name || !text) {
+      notice.textContent = 'Please fill in your name and review.';
+      notice.className = 't-notice error';
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Submitting...';
+    notice.className = 't-notice';
+
+    try {
+      const res = await fetch('/api/save-testimonial', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ artistName, clientName: name, rating, text })
+      });
+      const result = await res.json();
+      
+      if (!res.ok) throw new Error(result.error || 'Failed to submit');
+      
+      notice.textContent = '✅ Review submitted successfully!';
+      notice.className = 't-notice success';
+      document.getElementById('tClientName').value = '';
+      document.getElementById('tText').value = '';
+      
+      setTimeout(() => { loadTestimonials(); notice.className = 't-notice'; }, 2000);
+    } catch (err) {
+      notice.textContent = err.message;
+      notice.className = 't-notice error';
+      btn.disabled = false;
+      btn.textContent = 'Submit Review';
+    }
+  };
 
   document.addEventListener('click', function(e) {
     const item = e.target.closest('.faq-item');
-    if (item) {
-      item.classList.toggle('open');
-    }
+    if (item) item.classList.toggle('open');
   });
 
   function escapeHtml(str) {
@@ -404,6 +433,7 @@
   }
 
   loadProfile();
+  loadTestimonials();
 </script>
 
 </body>
