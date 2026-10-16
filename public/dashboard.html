@@ -279,7 +279,6 @@
   }
   .save-notice.show { display: block; }
 
-  /* Testimonial Styles */
   .testimonial-list { display: flex; flex-direction: column; gap: 16px; margin-bottom: 32px; }
   .testimonial-manage-card {
     background: #fff;
@@ -463,6 +462,18 @@
     <div class="page-header">
       <h1 id="pageTitle">Dashboard</h1>
       <p id="pageDesc">Manage your bookings and studio.</p>
+    </div>
+
+    <!-- Share Your Site Card -->
+    <div class="settings-card" style="max-width: 100%; margin-bottom: 32px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 20px;">
+      <div style="flex: 1; min-width: 250px;">
+        <h3 style="margin-bottom: 4px;">🔗 Share Your Site</h3>
+        <p style="margin-bottom: 0;">Copy your unique link to share with clients.</p>
+      </div>
+      <div style="display: flex; gap: 12px; align-items: center; background: var(--bg-alt); padding: 8px; border-radius: 10px; border: 1px solid var(--line); flex: 1; min-width: 300px; max-width: 500px;">
+        <input type="text" id="shareUrlInput" readonly style="flex: 1; border: none; background: transparent; padding: 8px 12px; font-size: 14px; color: var(--ink); outline: none; font-family: monospace;" />
+        <button class="btn-accept" id="copyLinkBtn" style="padding: 10px 20px; white-space: nowrap;" onclick="copySiteLink()">Copy Link</button>
+      </div>
     </div>
 
     <div class="stats-grid" id="statsGrid">
@@ -862,7 +873,6 @@
     }
   };
 
-  // TESTIMONIAL MANAGEMENT FUNCTIONS
   async function loadTestimonials() {
     try {
       const res = await fetch('/api/get-testimonials?artist=' + encodeURIComponent(userName));
@@ -898,7 +908,6 @@
         countBadge.textContent = '0 Reviews';
       }
 
-      // Load the current limit from the artist profile
       const profileRes = await fetch('/api/get-artist-profile?username=' + encodeURIComponent(userName));
       const profileData = await profileRes.json();
       if (profileData.success && profileData.profile) {
@@ -980,6 +989,37 @@
     return div.innerHTML;
   }
 
+  // --- SHARE LINK LOGIC ---
+  function setupShareLink() {
+    const input = document.getElementById('shareUrlInput');
+    if (input && userName) {
+      const cleanUrl = window.location.origin + '/' + userName;
+      input.value = cleanUrl;
+    }
+  }
+
+  window.copySiteLink = function() {
+    const input = document.getElementById('shareUrlInput');
+    const btn = document.getElementById('copyLinkBtn');
+    
+    input.select();
+    input.setSelectionRange(0, 99999);
+    
+    navigator.clipboard.writeText(input.value).then(() => {
+      const originalText = btn.textContent;
+      btn.textContent = '✅ Copied!';
+      btn.style.background = 'var(--success)';
+      
+      setTimeout(() => {
+        btn.textContent = originalText;
+        btn.style.background = 'var(--ink)';
+      }, 2000);
+    }).catch(err => {
+      alert('Failed to copy link');
+    });
+  };
+
+  setupShareLink();
   loadBookings();
 </script>
 
