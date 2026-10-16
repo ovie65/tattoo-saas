@@ -467,7 +467,7 @@
     <!-- Share Your Site Card -->
     <div class="settings-card" style="max-width: 100%; margin-bottom: 32px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 20px;">
       <div style="flex: 1; min-width: 250px;">
-        <h3 style="margin-bottom: 4px;"> Share Your Site</h3>
+        <h3 style="margin-bottom: 4px;">🔗 Share Your Site</h3>
         <p style="margin-bottom: 0;">Copy your unique link to share with clients.</p>
       </div>
       <div style="display: flex; gap: 12px; align-items: center; background: var(--bg-alt); padding: 8px; border-radius: 10px; border: 1px solid var(--line); flex: 1; min-width: 300px; max-width: 500px;">
@@ -568,7 +568,7 @@
     if (nameEl) nameEl.textContent = userName;
 
     const viewSiteLink = document.getElementById('viewSiteLink');
-    if (viewSiteLink) viewSiteLink.href = '/' + userName;
+    if (viewSiteLink) viewSiteLink.href = 'artist.html?artist=' + encodeURIComponent(userName);
 
     const editSiteLink = document.getElementById('editSiteLink');
     if (editSiteLink) editSiteLink.href = 'edit-site.html?user=' + encodeURIComponent(userName);
@@ -993,7 +993,7 @@
   function setupShareLink() {
     const input = document.getElementById('shareUrlInput');
     if (input && userName) {
-      const cleanUrl = window.location.origin + '/' + userName;
+      const cleanUrl = window.location.origin + '/artist.html?artist=' + encodeURIComponent(userName);
       input.value = cleanUrl;
     }
   }
