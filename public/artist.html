@@ -32,7 +32,6 @@
   .hero-image { aspect-ratio: 1; background: var(--bg-alt); border: 1px solid var(--line); border-radius: var(--radius); display: flex; align-items: center; justify-content: center; font-size: 14px; color: var(--muted); overflow: hidden; }
   .hero-image img { width: 100%; height: 100%; object-fit: cover; }
   .hero-image-placeholder { text-align: center; padding: 40px; }
-  .hero-image-placeholder .icon { font-size: 64px; margin-bottom: 16px; }
   .hero-content { padding: 20px 0; }
   .hero-label { font-size: 12px; font-weight: 600; color: var(--accent); letter-spacing: .15em; text-transform: uppercase; margin-bottom: 16px; }
   .hero-title { font-size: 56px; line-height: 1.05; margin-bottom: 24px; letter-spacing: -.03em; }
@@ -74,17 +73,10 @@
   .faq-answer { max-height: 0; overflow: hidden; transition: max-height .3s ease, padding .3s ease; color: var(--muted); font-size: 14px; line-height: 1.7; }
   .faq-item.open .faq-answer { max-height: 300px; padding-top: 16px; }
 
-  .guestbook-form { max-width: 600px; margin: 0 auto 40px; background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 32px; }
-  .guestbook-form input, .guestbook-form textarea { width: 100%; padding: 14px 16px; border: 1px solid var(--line); border-radius: 8px; font-size: 14px; font-family: inherit; margin-bottom: 16px; background: var(--bg); transition: border-color .2s; }
-  .guestbook-form input:focus, .guestbook-form textarea:focus { outline: none; border-color: var(--ink); }
-  .guestbook-form textarea { resize: vertical; min-height: 100px; }
-  .guestbook-submit { background: var(--ink); color: #fff; padding: 12px 28px; border-radius: 8px; font-weight: 600; font-size: 14px; transition: all .2s; }
-  .guestbook-submit:hover { background: var(--accent); }
-  .guestbook-messages { max-width: 600px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
-  .gb-message { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 24px; }
-  .gb-author { font-weight: 700; font-size: 14px; margin-bottom: 4px; }
-  .gb-date { font-size: 11px; color: var(--muted); margin-bottom: 12px; }
-  .gb-text { font-size: 14px; line-height: 1.6; color: var(--ink); }
+  .info-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
+  .info-card { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 32px; }
+  .info-card h3 { font-size: 20px; margin-bottom: 16px; color: var(--ink); }
+  .info-card p { font-size: 14px; color: var(--muted); line-height: 1.7; white-space: pre-line; }
 
   .studio-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
   .studio-card { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 32px; text-align: center; }
@@ -98,14 +90,7 @@
   .footer-logo span { color: var(--accent); }
   .footer-logo img { max-height: 30px; }
   .footer-socials { display: flex; gap: 24px; }
-  .footer-socials a { 
-    color: #ffffff; 
-    font-size: 15px; 
-    font-weight: 600;
-    transition: color .2s; 
-    text-decoration: underline;
-    text-underline-offset: 4px;
-  }
+  .footer-socials a { color: #ffffff; font-size: 15px; font-weight: 600; transition: color .2s; text-decoration: underline; text-underline-offset: 4px; }
   .footer-socials a:hover { color: var(--accent); }
   .footer-bottom { max-width: 1200px; margin: 0 auto; padding-top: 30px; text-align: center; font-size: 12px; color: rgba(255,255,255,.4); }
 
@@ -121,12 +106,14 @@
     .section-title { font-size: 32px; }
     .work-grid { grid-template-columns: repeat(2, 1fr); }
     .testimonial-grid { grid-template-columns: 1fr; }
+    .info-grid { grid-template-columns: 1fr; }
     .studio-grid { grid-template-columns: 1fr; }
     .booking-cta { padding: 60px 20px; }
     .booking-cta h2 { font-size: 32px; }
     .footer { padding: 40px 20px 20px; }
     .footer-inner { flex-direction: column; gap: 20px; text-align: center; }
     .footer-socials { flex-wrap: wrap; justify-content: center; }
+    .info-card { padding: 24px 20px; }
   }
 </style>
 </head>
@@ -137,6 +124,7 @@
   <div class="nav-links">
     <a href="#about">About</a>
     <a href="#work">Work</a>
+    <a href="#services">Services</a>
     <a href="#faq">FAQ</a>
     <a href="#book" class="nav-book-btn book-link">Book Now</a>
   </div>
@@ -152,7 +140,7 @@
   </div>
   <div class="hero-content">
     <div class="hero-label">About the Artist</div>
-    <h1 class="hero-title">Crafted by hand. Worn for life.</h1>
+    <h1 class="hero-title" id="heroTagline">Crafted by hand. Worn for life.</h1>
     <p class="hero-bio" id="artistBio">
       With over a decade behind the machine, I specialize in custom work that blends bold lines with refined detail. Every piece starts with a conversation — your story, your vision, my craft. Sterile studio, professional setup, zero shortcuts.
     </p>
@@ -180,12 +168,48 @@
       <h2 class="section-title">Recent Work</h2>
     </div>
     <div class="work-grid" id="workGrid">
+      <div class="work-item"><div class="work-item-placeholder">Upload Your Work</div></div>
+      <div class="work-item"><div class="work-item-placeholder">📷 Upload Your Work</div></div>
+      <div class="work-item"><div class="work-item-placeholder">Upload Your Work</div></div>
       <div class="work-item"><div class="work-item-placeholder"> Upload Your Work</div></div>
       <div class="work-item"><div class="work-item-placeholder">📷 Upload Your Work</div></div>
-      <div class="work-item"><div class="work-item-placeholder"> Upload Your Work</div></div>
-      <div class="work-item"><div class="work-item-placeholder">📷 Upload Your Work</div></div>
-      <div class="work-item"><div class="work-item-placeholder">📷 Upload Your Work</div></div>
-      <div class="work-item"><div class="work-item-placeholder"> Upload Your Work</div></div>
+      <div class="work-item"><div class="work-item-placeholder">Upload Your Work</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="services">
+  <div class="section-header">
+    <div class="section-label">What I Offer</div>
+    <h2 class="section-title">Services & Pricing</h2>
+  </div>
+  <div class="info-grid" id="servicesGrid">
+    <div class="info-card">
+      <h3>Services</h3>
+      <p id="servicesText">Contact the artist for pricing details.</p>
+    </div>
+    <div class="info-card">
+      <h3>The Process</h3>
+      <p id="processText">Step 1: Submit a booking request<br>Step 2: Design consultation<br>Step 3: Session booking</p>
+    </div>
+  </div>
+</section>
+
+<section class="section section-alt" id="rules">
+  <div class="section-inner">
+    <div class="section-header">
+      <div class="section-label">Please Read</div>
+      <h2 class="section-title">Studio Rules & Aftercare</h2>
+    </div>
+    <div class="info-grid">
+      <div class="info-card">
+        <h3>Studio Rules</h3>
+        <p id="rulesText">No walk-ins. Must be 18+ with valid ID. Deposit required to book.</p>
+      </div>
+      <div class="info-card">
+        <h3>Aftercare Instructions</h3>
+        <p id="aftercareText">Keep it clean and moisturized. Avoid direct sunlight for 2 weeks. Don't scratch or pick at it.</p>
+      </div>
     </div>
   </div>
 </section>
@@ -201,7 +225,7 @@
     <div class="section-label">Testimonials</div>
     <h2 class="section-title">What Clients Say</h2>
   </div>
-  <div class="testimonial-grid">
+  <div class="testimonial-grid" id="testimonialGrid">
     <div class="testimonial-card">
       <div class="testimonial-stars">★★★★★</div>
       <p class="testimonial-text">"Absolutely incredible work. The attention to detail is unmatched."</p>
@@ -237,19 +261,6 @@
       </div>
     </div>
   </div>
-</section>
-
-<section class="section" id="guestbook">
-  <div class="section-header">
-    <div class="section-label">Guestbook</div>
-    <h2 class="section-title">Leave a Message</h2>
-  </div>
-  <div class="guestbook-form">
-    <input type="text" id="gbName" placeholder="Your name" required />
-    <textarea id="gbMessage" placeholder="Leave a message for the artist..." required></textarea>
-    <button class="guestbook-submit" onclick="submitGuestbook()">Send Message</button>
-  </div>
-  <div class="guestbook-messages" id="gbMessages"></div>
 </section>
 
 <section class="section section-alt" id="studio">
@@ -304,17 +315,22 @@
 
   async function loadProfile() {
     try {
-      // CACHE BUSTER: &t= forces the browser to always get fresh data from the database
       const res = await fetch('/api/get-artist-profile?username=' + encodeURIComponent(artistName) + '&t=' + Date.now());
       const data = await res.json();
       
       if (data.success && data.profile) {
         const p = data.profile;
         
+        if (p.tagline) document.getElementById('heroTagline').textContent = p.tagline;
         if (p.bio) document.getElementById('artistBio').textContent = p.bio;
         if (p.yearsExp) document.getElementById('statYears').textContent = p.yearsExp;
         if (p.piecesDone) document.getElementById('statPieces').textContent = p.piecesDone;
         if (p.sterile) document.getElementById('statSterile').textContent = p.sterile;
+        
+        if (p.services) document.getElementById('servicesText').textContent = p.services;
+        if (p.process) document.getElementById('processText').textContent = p.process;
+        if (p.rules) document.getElementById('rulesText').textContent = p.rules;
+        if (p.aftercare) document.getElementById('aftercareText').textContent = p.aftercare;
         
         if (p.location) document.getElementById('studioLocation').textContent = p.location;
         if (p.hours) document.getElementById('studioHours').textContent = p.hours;
@@ -381,31 +397,6 @@
     }
   });
 
-  function loadGuestbook() {
-    const messages = JSON.parse(localStorage.getItem('ink_guestbook_' + artistName) || '[]');
-    const container = document.getElementById('gbMessages');
-    if (messages.length === 0) {
-      container.innerHTML = '<div style="text-align:center; color:var(--muted); padding:20px; font-size:14px;">No messages yet. Be the first!</div>';
-      return;
-    }
-    container.innerHTML = messages.map(function(msg) {
-      const date = new Date(msg.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-      return '<div class="gb-message"><div class="gb-author">' + escapeHtml(msg.name) + '</div><div class="gb-date">' + date + '</div><div class="gb-text">' + escapeHtml(msg.text) + '</div></div>';
-    }).join('');
-  }
-
-  window.submitGuestbook = function() {
-    const name = document.getElementById('gbName').value.trim();
-    const message = document.getElementById('gbMessage').value.trim();
-    if (!name || !message) { alert('Please fill in both fields.'); return; }
-    const messages = JSON.parse(localStorage.getItem('ink_guestbook_' + artistName) || '[]');
-    messages.unshift({ name: name, text: message, date: new Date().toISOString() });
-    localStorage.setItem('ink_guestbook_' + artistName, JSON.stringify(messages));
-    document.getElementById('gbName').value = '';
-    document.getElementById('gbMessage').value = '';
-    loadGuestbook();
-  };
-
   function escapeHtml(str) {
     const div = document.createElement('div');
     div.textContent = str;
@@ -413,7 +404,6 @@
   }
 
   loadProfile();
-  loadGuestbook();
 </script>
 
 </body>

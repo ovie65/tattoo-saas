@@ -22,7 +22,8 @@
   .field { margin-bottom: 20px; }
   label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 8px; text-transform: uppercase; letter-spacing: .04em; }
   .hint { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
-  input, textarea { width: 100%; padding: 14px 16px; border: 1px solid var(--line); border-radius: 8px; font-size: 14px; font-family: inherit; background: var(--bg); }
+  input, textarea { width: 100%; padding: 14px 16px; border: 1px solid var(--line); border-radius: 8px; font-size: 14px; font-family: inherit; background: var(--bg); transition: border-color .2s; }
+  input:focus, textarea:focus { outline: none; border-color: var(--ink); }
   textarea { resize: vertical; min-height: 100px; }
   .row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
   .btn-save { width: 100%; padding: 16px; background: var(--ink); color: #fff; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 8px; }
@@ -62,7 +63,16 @@
   .image-slot img { width: 100%; height: 100%; object-fit: cover; }
   .image-slot .remove-img { position: absolute; top: 4px; right: 4px; background: rgba(0,0,0,0.7); color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 12px; cursor: pointer; }
 
-  @media (max-width: 600px) { .row { grid-template-columns: 1fr; } .social-input-row, .social-saved-item { grid-template-columns: 1fr; } .image-grid { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 600px) {
+    .container { padding: 40px 16px; }
+    .header h1 { font-size: 26px; }
+    .form-card { padding: 24px 20px; }
+    .row { grid-template-columns: 1fr; }
+    .social-input-row, .social-saved-item { grid-template-columns: 1fr; }
+    .image-grid { grid-template-columns: repeat(3, 1fr); }
+    input, textarea { font-size: 16px; padding: 12px 14px; }
+    .form-card h2 { font-size: 17px; }
+  }
 </style>
 </head>
 <body>
@@ -101,24 +111,72 @@
     </div>
 
     <div class="form-card">
+      <h2>Hero Tagline</h2>
+      <div class="hint">A short, catchy phrase that appears at the top of your public page.</div>
+      <div class="field">
+        <label>Tagline</label>
+        <textarea id="tagline" placeholder="e.g., Crafted by hand. Worn for life." style="min-height: 80px;"></textarea>
+      </div>
+    </div>
+
+    <div class="form-card">
       <h2>About Section</h2>
-      <div class="field"><label>Artist Bio</label><textarea id="bio" placeholder="With over a decade..."></textarea></div>
+      <div class="field">
+        <label>Artist Bio</label>
+        <textarea id="bio" placeholder="Tell clients about your style, experience, and what makes your art unique..."></textarea>
+      </div>
     </div>
 
     <div class="form-card">
       <h2>Stats</h2>
       <div class="row">
-        <div class="field"><label>Years</label><input type="text" id="yearsExp" placeholder="10+" /></div>
-        <div class="field"><label>Pieces</label><input type="text" id="piecesDone" placeholder="2K+" /></div>
-        <div class="field"><label>Standard</label><input type="text" id="sterile" placeholder="100%" /></div>
+        <div class="field"><label>Years</label><input type="text" id="yearsExp" placeholder="e.g., 10+" /></div>
+        <div class="field"><label>Pieces</label><input type="text" id="piecesDone" placeholder="e.g., 2K+" /></div>
+        <div class="field"><label>Standard</label><input type="text" id="sterile" placeholder="e.g., 100%" /></div>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <h2>Services & Pricing</h2>
+      <div class="hint">List your services and prices. One per line.</div>
+      <div class="field">
+        <label>Services</label>
+        <textarea id="services" placeholder="e.g., Black & Grey: $150/hr&#10;Color Realism: $200/hr&#10;Touch-ups: Free" style="min-height: 120px;"></textarea>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <h2>Studio Rules / Policies</h2>
+      <div class="hint">Important rules clients should know before booking.</div>
+      <div class="field">
+        <label>Rules</label>
+        <textarea id="rules" placeholder="e.g., No walk-ins&#10;Must be 18+ with valid ID&#10;Deposit required to book" style="min-height: 120px;"></textarea>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <h2>Aftercare Instructions</h2>
+      <div class="hint">A guide for clients on how to care for their new tattoo.</div>
+      <div class="field">
+        <label>Aftercare</label>
+        <textarea id="aftercare" placeholder="e.g., Keep it clean and moisturized&#10;Avoid direct sunlight for 2 weeks&#10;Don't scratch or pick at it" style="min-height: 120px;"></textarea>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <h2>The Process</h2>
+      <div class="hint">Explain how a booking works, step by step.</div>
+      <div class="field">
+        <label>Process</label>
+        <textarea id="process" placeholder="e.g., Step 1: Submit a booking request&#10;Step 2: I'll send you a design draft&#10;Step 3: We confirm the date and deposit" style="min-height: 120px;"></textarea>
       </div>
     </div>
 
     <div class="form-card">
       <h2>Studio Info</h2>
-      <div class="field"><label>Location</label><textarea id="location" style="min-height: 80px;"></textarea></div>
-      <div class="field"><label>Hours</label><textarea id="hours" style="min-height: 80px;"></textarea></div>
-      <div class="field"><label>Hygiene</label><textarea id="hygiene" style="min-height: 80px;"></textarea></div>
+      <div class="field"><label>Location</label><textarea id="location" placeholder="Your studio address or city..." style="min-height: 80px;"></textarea></div>
+      <div class="field"><label>Hours</label><textarea id="hours" placeholder="e.g., Mon-Fri: 10am-8pm, Sat: 11am-6pm" style="min-height: 80px;"></textarea></div>
+      <div class="field"><label>Hygiene</label><textarea id="hygiene" placeholder="Describe your sterilization process and safety standards..." style="min-height: 80px;"></textarea></div>
     </div>
 
     <div class="form-card">
@@ -154,10 +212,8 @@
         <strong>❌ Wrong:</strong> <code>tiktok.com/@likethis</code> (missing https://)
       </div>
 
-      <!-- Saved entries appear here -->
       <div class="social-saved-list" id="socialSavedList"></div>
 
-      <!-- Two boxes always visible -->
       <div class="social-input-row">
         <input type="text" id="newPlatform" placeholder="Platform (e.g., Instagram)" />
         <input type="text" id="newLink" placeholder="https://tiktok.com/@likethis" />
@@ -283,7 +339,6 @@
   window.removeFaq = function(index) { currentFaqs.splice(index, 1); renderFaqs(); };
   window.updateFaq = function(index, field, value) { currentFaqs[index][field] = value; };
 
-  // NEW SOCIAL MEDIA LOGIC
   function renderSocialSavedList() {
     socialSavedList.innerHTML = '';
     if (currentSocials.length === 0) {
@@ -300,7 +355,6 @@
     });
   }
 
-  // Lock In button - takes values from the two boxes and adds to list
   document.getElementById('lockBtn').addEventListener('click', function() {
     const platformInput = document.getElementById('newPlatform');
     const linkInput = document.getElementById('newLink');
@@ -334,10 +388,15 @@
       if (data.success && data.profile) {
         const p = data.profile;
         
+        if (p.tagline) document.getElementById('tagline').value = p.tagline;
         if (p.bio) document.getElementById('bio').value = p.bio;
         if (p.yearsExp) document.getElementById('yearsExp').value = p.yearsExp;
         if (p.piecesDone) document.getElementById('piecesDone').value = p.piecesDone;
         if (p.sterile) document.getElementById('sterile').value = p.sterile;
+        if (p.services) document.getElementById('services').value = p.services;
+        if (p.rules) document.getElementById('rules').value = p.rules;
+        if (p.aftercare) document.getElementById('aftercare').value = p.aftercare;
+        if (p.process) document.getElementById('process').value = p.process;
         if (p.location) document.getElementById('location').value = p.location;
         if (p.hours) document.getElementById('hours').value = p.hours;
         if (p.hygiene) document.getElementById('hygiene').value = p.hygiene;
@@ -383,10 +442,15 @@
 
     const data = {
       username: userName,
+      tagline: document.getElementById('tagline').value.trim(),
       bio: document.getElementById('bio').value.trim(),
       yearsExp: document.getElementById('yearsExp').value.trim(),
       piecesDone: document.getElementById('piecesDone').value.trim(),
       sterile: document.getElementById('sterile').value.trim(),
+      services: document.getElementById('services').value.trim(),
+      rules: document.getElementById('rules').value.trim(),
+      aftercare: document.getElementById('aftercare').value.trim(),
+      process: document.getElementById('process').value.trim(),
       location: document.getElementById('location').value.trim(),
       hours: document.getElementById('hours').value.trim(),
       hygiene: document.getElementById('hygiene').value.trim(),
