@@ -1,0 +1,7 @@
+{
+  "rewrites": [
+    { "source": "/api/:path*", "destination": "/api/:path*" },
+    { "source": "/(.*)\\.(js|css|png|jpg|jpeg|svg|ico|woff|woff2|ttf|eot)", "destination": "/$1.$2" },
+    { "source": "/:username", "destination": "/artist.html?artist=:username" }
+  ]
+}
