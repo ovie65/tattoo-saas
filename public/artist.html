@@ -305,7 +305,7 @@
       const data = await res.json();
       if (data.success && data.profile) {
         const p = data.profile;
-        artistMaxTestimonials = p.maxTestimonials || 5; // Get the limit from DB
+        artistMaxTestimonials = p.maxTestimonials || 5; 
         
         if (p.tagline) document.getElementById('heroTagline').textContent = p.tagline;
         if (p.bio) document.getElementById('artistBio').textContent = p.bio;
@@ -377,6 +377,17 @@
         document.getElementById('tSubmitBtn').textContent = 'Review Limit Reached';
         document.getElementById('tLimitMsg').style.display = 'block';
       }
+
+      // Check if this browser already left a review
+      const hasReviewed = localStorage.getItem('ink_reviewed_' + artistName);
+      if (hasReviewed) {
+        document.getElementById('tSubmitBtn').disabled = true;
+        document.getElementById('tSubmitBtn').textContent = 'You have already reviewed';
+        document.getElementById('tClientName').disabled = true;
+        document.getElementById('tText').disabled = true;
+        document.getElementById('tClientName').value = '';
+        document.getElementById('tText').value = '';
+      }
     } catch (err) { console.error('Failed to load testimonials', err); }
   }
 
@@ -409,8 +420,15 @@
       
       notice.textContent = '✅ Review submitted successfully!';
       notice.className = 't-notice success';
+      
+      // Remember that this browser has already left a review
+      localStorage.setItem('ink_reviewed_' + artistName, 'true');
+      
       document.getElementById('tClientName').value = '';
       document.getElementById('tText').value = '';
+      document.getElementById('tClientName').disabled = true;
+      document.getElementById('tText').disabled = true;
+      btn.textContent = 'You have already reviewed';
       
       setTimeout(() => { loadTestimonials(); notice.className = 't-notice'; }, 2000);
     } catch (err) {

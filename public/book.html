@@ -79,7 +79,6 @@
   }
   .row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
   
-  /* New Upload Box Style */
   .file-upload {
     border: 2px dashed var(--ink);
     border-radius: 10px;
@@ -191,7 +190,6 @@
         <div class="file-upload-text">Click here to upload images<br><strong>PNG, JPG up to 5MB each</strong></div>
         <input type="file" id="images" multiple accept="image/*" />
       </label>
-      <!-- This area will show the file names when selected -->
       <div class="file-list" id="fileList"></div>
     </div>
 
@@ -211,9 +209,14 @@
   const fileInput = document.getElementById('images');
   const fileList = document.getElementById('fileList');
 
-  // 1. Block past dates in the calendar
-  const today = new Date().toISOString().split('T')[0];
-  dateInput.setAttribute('min', today);
+  // 1. Block past dates in the calendar (Fixed timezone bug)
+  const today = new Date();
+  const yyyy = today.getFullYear();
+  const mm = String(today.getMonth() + 1).padStart(2, '0');
+  const dd = String(today.getDate()).padStart(2, '0');
+  const todayStr = `${yyyy}-${mm}-${dd}`;
+  
+  dateInput.setAttribute('min', todayStr);
 
   // Get artist name from URL
   const params = new URLSearchParams(window.location.search);
@@ -243,7 +246,7 @@
 
     // 3. Double-check that the date is not in the past
     const selectedDate = new Date(dateInput.value);
-    const todayDate = new Date(today);
+    const todayDate = new Date(todayStr);
     if (selectedDate < todayDate) {
       errorMsg.textContent = 'Please select a date that is today or in the future.';
       errorMsg.style.display = 'block';
