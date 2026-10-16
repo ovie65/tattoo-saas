@@ -196,7 +196,7 @@
     <button type="submit" class="btn" id="submitBtn">Send Booking Request</button>
   </form>
 
-  <a href="index.html" class="back">← Back to Home</a>
+  <a href="#" class="back" id="backToArtist">← Back to Artist Page</a>
 </div>
 
 <script>
@@ -222,6 +222,12 @@
   const params = new URLSearchParams(window.location.search);
   const artistName = params.get('artist') || 'INK Artist';
   artistDisplay.textContent = artistName;
+
+  // Fix the back button to go to artist page, not the main landing page
+  const backLink = document.getElementById('backToArtist');
+  if (backLink) {
+    backLink.href = 'artist.html?artist=' + encodeURIComponent(artistName);
+  }
 
   // 2. Show file names when user selects images
   fileInput.addEventListener('change', (e) => {
