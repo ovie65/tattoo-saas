@@ -8,7 +8,7 @@ module.exports = async function handler(req, res) {
   const { 
     username, bio, tagline, yearsExp, piecesDone, sterile, 
     services, rules, aftercare, process, location, hours, hygiene, 
-    faq, socials, artistPhoto, recentWorks, footerLogo 
+    faq, socials, artistPhoto, recentWorks, footerLogo, maxTestimonials 
   } = req.body;
 
   if (!username) {
@@ -19,6 +19,9 @@ module.exports = async function handler(req, res) {
     const client = await clientPromise;
     const db = client.db('inkplatform');
     const artists = db.collection('artists');
+
+    // Default to 5 if no limit is provided
+    const limit = maxTestimonials ? parseInt(maxTestimonials) : 5;
 
     await artists.updateOne(
       { username: username },
@@ -42,6 +45,7 @@ module.exports = async function handler(req, res) {
           artistPhoto: artistPhoto || '',
           recentWorks: recentWorks || [],
           footerLogo: footerLogo || '',
+          maxTestimonials: limit, // Save the new limit
           updatedAt: new Date()
         } 
       },

@@ -69,7 +69,7 @@
   }
   .close-btn:hover { background: var(--bg-alt); }
   
-  .sidebar-nav { flex: 1; padding: 24px 16px; display: flex; flex-direction: column; gap: 4px; }
+  .sidebar-nav { flex: 1; padding: 24px 16px; display: flex; flex-direction: column; gap: 4px; overflow-y: auto; }
   .nav-item {
     display: flex;
     align-items: center;
@@ -279,6 +279,70 @@
   }
   .save-notice.show { display: block; }
 
+  /* Testimonial Styles */
+  .testimonial-list { display: flex; flex-direction: column; gap: 16px; margin-bottom: 32px; }
+  .testimonial-manage-card {
+    background: #fff;
+    border-radius: var(--radius);
+    padding: 24px;
+    border: 1px solid var(--line);
+  }
+  .testimonial-manage-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 12px;
+  }
+  .testimonial-manage-stars { color: var(--accent); font-size: 14px; letter-spacing: 2px; margin-bottom: 8px; }
+  .testimonial-manage-text { font-size: 14px; line-height: 1.6; color: var(--ink); margin-bottom: 12px; font-style: italic; }
+  .testimonial-manage-author { font-size: 13px; font-weight: 600; color: var(--muted); }
+  .testimonial-manage-date { font-size: 11px; color: var(--muted); margin-top: 4px; }
+  .btn-delete-testimonial {
+    background: transparent;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    transition: all .2s;
+    flex-shrink: 0;
+  }
+  .btn-delete-testimonial:hover { background: var(--accent); color: #fff; }
+
+  .limit-setting {
+    background: #fff;
+    border-radius: var(--radius);
+    padding: 24px;
+    border: 1px solid var(--line);
+    max-width: 600px;
+  }
+  .limit-setting h3 { font-size: 18px; margin-bottom: 8px; }
+  .limit-setting > p { color: var(--muted); font-size: 14px; margin-bottom: 20px; }
+  .limit-input-row { display: flex; gap: 12px; align-items: center; }
+  .limit-input-row input {
+    width: 80px;
+    padding: 10px 14px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    font-size: 16px;
+    font-family: inherit;
+    text-align: center;
+  }
+  .limit-input-row input:focus { outline: none; border-color: var(--ink); }
+  .btn-save-limit {
+    background: var(--ink);
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all .2s;
+  }
+  .btn-save-limit:hover { background: #000; }
+  .btn-save-limit:disabled { background: #ccc; cursor: not-allowed; }
+
   .hamburger {
     display: none;
     position: fixed;
@@ -342,7 +406,9 @@
     .booking-header { flex-direction: column; }
     .booking-actions { width: 100%; }
     .booking-actions .btn { flex: 1; text-align: center; }
-    .settings-card { padding: 24px 20px; }
+    .settings-card, .limit-setting, .testimonial-manage-card { padding: 24px 20px; }
+    .testimonial-manage-header { flex-direction: column; }
+    .btn-delete-testimonial { width: 100%; text-align: center; }
   }
 </style>
 </head>
@@ -364,13 +430,16 @@
     </div>
     <nav class="sidebar-nav">
       <div class="nav-item active" id="nav-dashboard" onclick="switchView('dashboard')">
-        <span class="nav-item-icon">📊</span> Dashboard
+        <span class="nav-item-icon"></span> Dashboard
       </div>
       <div class="nav-item" id="nav-accepted" onclick="switchView('accepted')">
         <span class="nav-item-icon">✅</span> Accepted
       </div>
       <div class="nav-item" id="nav-drafts" onclick="switchView('drafts')">
         <span class="nav-item-icon">📝</span> Drafts
+      </div>
+      <div class="nav-item" id="nav-testimonials" onclick="switchView('testimonials')">
+        <span class="nav-item-icon">⭐</span> Testimonials
       </div>
       <div class="nav-item" id="nav-notifications" onclick="switchView('notifications')">
         <span class="nav-item-icon">🔔</span> Notifications
@@ -425,6 +494,28 @@
       </div>
     </div>
 
+    <div id="testimonialsSection" style="display: none;">
+      <div class="section-header">
+        <h2>Client Testimonials</h2>
+        <span class="badge" id="testimonialCount">0 Reviews</span>
+      </div>
+      
+      <div class="testimonial-list" id="testimonialList">
+        <div class="empty-state">Loading testimonials...</div>
+      </div>
+
+      <div class="limit-setting">
+        <h3>Review Limit Settings</h3>
+        <p>By default, your page shows a maximum of 5 reviews. You can increase or decrease this limit. When the limit is reached, clients cannot submit new reviews until you delete one or raise the limit.</p>
+        <div class="limit-input-row">
+          <label for="maxTestimonialInput" style="font-size: 14px; font-weight: 600;">Max Reviews:</label>
+          <input type="number" id="maxTestimonialInput" min="1" max="50" value="5" />
+          <button class="btn-save-limit" id="saveLimitBtn" onclick="saveTestimonialLimit()">Save Limit</button>
+        </div>
+        <div class="save-notice" id="limitNotice">✅ Limit updated successfully!</div>
+      </div>
+    </div>
+
     <div id="notificationsSection" style="display: none;">
       <div class="settings-card">
         <h3>Notification Preferences</h3>
@@ -457,6 +548,7 @@
   const userName = localStorage.getItem('ink_user_name');
   let currentView = 'dashboard';
   let allBookings = [];
+  let artistMaxTestimonials = 5;
 
   if (!userEmail) {
     window.location.href = 'login.html';
@@ -541,6 +633,7 @@
     document.getElementById('nav-dashboard').classList.toggle('active', view === 'dashboard');
     document.getElementById('nav-accepted').classList.toggle('active', view === 'accepted');
     document.getElementById('nav-drafts').classList.toggle('active', view === 'drafts');
+    document.getElementById('nav-testimonials').classList.toggle('active', view === 'testimonials');
     document.getElementById('nav-notifications').classList.toggle('active', view === 'notifications');
     
     const pageTitle = document.getElementById('pageTitle');
@@ -549,6 +642,7 @@
     const statsGrid = document.getElementById('statsGrid');
     const badgePending = document.getElementById('badgePending');
     const bookingsSection = document.getElementById('bookingsSection');
+    const testimonialsSection = document.getElementById('testimonialsSection');
     const notificationsSection = document.getElementById('notificationsSection');
     
     if (view === 'notifications') {
@@ -556,8 +650,17 @@
       pageDesc.textContent = 'Manage how you receive alerts.';
       statsGrid.style.display = 'none';
       bookingsSection.style.display = 'none';
+      testimonialsSection.style.display = 'none';
       notificationsSection.style.display = 'block';
       loadNotificationPrefs();
+    } else if (view === 'testimonials') {
+      pageTitle.textContent = 'Testimonials';
+      pageDesc.textContent = 'Manage client reviews and set your review limit.';
+      statsGrid.style.display = 'none';
+      bookingsSection.style.display = 'none';
+      notificationsSection.style.display = 'none';
+      testimonialsSection.style.display = 'block';
+      loadTestimonials();
     } else if (view === 'drafts') {
       pageTitle.textContent = 'Drafts';
       pageDesc.textContent = 'Declined appointments saved for 2 weeks before permanent deletion.';
@@ -565,6 +668,7 @@
       statsGrid.style.display = 'none';
       badgePending.style.display = 'none';
       bookingsSection.style.display = 'block';
+      testimonialsSection.style.display = 'none';
       notificationsSection.style.display = 'none';
     } else if (view === 'accepted') {
       pageTitle.textContent = 'Accepted';
@@ -573,6 +677,7 @@
       statsGrid.style.display = 'none';
       badgePending.style.display = 'none';
       bookingsSection.style.display = 'block';
+      testimonialsSection.style.display = 'none';
       notificationsSection.style.display = 'none';
     } else {
       pageTitle.textContent = 'Dashboard';
@@ -581,19 +686,19 @@
       statsGrid.style.display = 'grid';
       badgePending.style.display = 'inline-block';
       bookingsSection.style.display = 'block';
+      testimonialsSection.style.display = 'none';
       notificationsSection.style.display = 'none';
     }
     
     closeSidebar();
     
-    if (view !== 'notifications') {
+    if (view !== 'notifications' && view !== 'testimonials') {
       renderBookings();
     }
   };
 
   async function loadBookings() {
     try {
-      // THE FIX: Now sends the artist name so each artist only sees their own bookings
       const res = await fetch('/api/get-bookings?artist=' + encodeURIComponent(userName));
       const data = await res.json();
       
@@ -756,6 +861,124 @@
       alert('Error: ' + error.message);
     }
   };
+
+  // TESTIMONIAL MANAGEMENT FUNCTIONS
+  async function loadTestimonials() {
+    try {
+      const res = await fetch('/api/get-testimonials?artist=' + encodeURIComponent(userName));
+      const data = await res.json();
+      
+      const list = document.getElementById('testimonialList');
+      const countBadge = document.getElementById('testimonialCount');
+      const limitInput = document.getElementById('maxTestimonialInput');
+      
+      if (data.success && data.testimonials && data.testimonials.length > 0) {
+        list.innerHTML = '';
+        countBadge.textContent = data.testimonials.length + ' Review' + (data.testimonials.length !== 1 ? 's' : '');
+        
+        data.testimonials.forEach(function(t) {
+          const stars = '★'.repeat(t.rating) + '☆'.repeat(5 - t.rating);
+          const date = new Date(t.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+          
+          const card = document.createElement('div');
+          card.className = 'testimonial-manage-card';
+          card.innerHTML = '<div class="testimonial-manage-header">' +
+            '<div style="flex:1;">' +
+              '<div class="testimonial-manage-stars">' + stars + '</div>' +
+              '<div class="testimonial-manage-text">"' + escapeHtml(t.text) + '"</div>' +
+              '<div class="testimonial-manage-author">— ' + escapeHtml(t.clientName) + '</div>' +
+              '<div class="testimonial-manage-date">' + date + '</div>' +
+            '</div>' +
+            '<button class="btn-delete-testimonial" onclick="deleteTestimonial(\'' + t._id + '\')">Delete</button>' +
+          '</div>';
+          list.appendChild(card);
+        });
+      } else {
+        list.innerHTML = '<div class="empty-state">No testimonials yet. Clients can submit reviews on your public page.</div>';
+        countBadge.textContent = '0 Reviews';
+      }
+
+      // Load the current limit from the artist profile
+      const profileRes = await fetch('/api/get-artist-profile?username=' + encodeURIComponent(userName));
+      const profileData = await profileRes.json();
+      if (profileData.success && profileData.profile) {
+        artistMaxTestimonials = profileData.profile.maxTestimonials || 5;
+        limitInput.value = artistMaxTestimonials;
+      }
+    } catch (error) {
+      console.error('Failed to load testimonials', error);
+    }
+  }
+
+  window.deleteTestimonial = async function(testimonialId) {
+    if (!confirm('Are you sure you want to delete this testimonial? This will free up a slot for a new review.')) return;
+    
+    try {
+      const res = await fetch('/api/delete-testimonial', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ testimonialId: testimonialId, username: userName })
+      });
+      
+      const result = await res.json();
+      
+      if (!res.ok) {
+        throw new Error(result.error || 'Failed to delete');
+      }
+      
+      await loadTestimonials();
+    } catch (error) {
+      alert('Error: ' + error.message);
+    }
+  };
+
+  window.saveTestimonialLimit = async function() {
+    const newLimit = parseInt(document.getElementById('maxTestimonialInput').value);
+    const btn = document.getElementById('saveLimitBtn');
+    const notice = document.getElementById('limitNotice');
+    
+    if (isNaN(newLimit) || newLimit < 1) {
+      alert('Please enter a valid number (minimum 1).');
+      return;
+    }
+    
+    btn.disabled = true;
+    btn.textContent = 'Saving...';
+    notice.classList.remove('show');
+    
+    try {
+      const res = await fetch('/api/save-artist-profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: userName, maxTestimonials: newLimit })
+      });
+      
+      const result = await res.json();
+      
+      if (!res.ok) {
+        throw new Error(result.error || 'Failed to save limit');
+      }
+      
+      artistMaxTestimonials = newLimit;
+      notice.classList.add('show');
+      btn.textContent = 'Saved!';
+      setTimeout(function() {
+        btn.disabled = false;
+        btn.textContent = 'Save Limit';
+        notice.classList.remove('show');
+      }, 2000);
+    } catch (error) {
+      alert('Error: ' + error.message);
+      btn.disabled = false;
+      btn.textContent = 'Save Limit';
+    }
+  };
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
 
   loadBookings();
 </script>
