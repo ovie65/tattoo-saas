@@ -30,6 +30,15 @@ module.exports = async function handler(req, res) {
       return res.status(400).json({ error: 'Invalid email/username or password' });
     }
 
+    // NEW: Check if the user has verified their email
+    // If it is explicitly false, block them. 
+    // (Note: Users who signed up before this update won't have this field, so they can still log in).
+    if (user.verified === false) {
+      return res.status(403).json({ 
+        error: 'Please verify your email address before logging in. Check your inbox for the verification link.' 
+      });
+    }
+
     const isPasswordCorrect = await bcrypt.compare(password, user.password);
 
     if (!isPasswordCorrect) {

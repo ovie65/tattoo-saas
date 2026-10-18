@@ -13,6 +13,7 @@
     --muted: #6b6b6b;
     --line: #e5e5e5;
     --accent: #dc2626;
+    --success: #10b981;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -65,6 +66,7 @@
     color: var(--muted);
     margin-top: 6px;
     margin-bottom: 4px;
+    line-height: 1.4;
   }
   input {
     width: 100%;
@@ -136,6 +138,18 @@
     display: none;
     border: 1px solid rgba(220,38,38,.2);
   }
+  .success {
+    background: rgba(16,185,129,.08);
+    color: #059669;
+    padding: 16px;
+    border-radius: 10px;
+    font-size: 14px;
+    margin-bottom: 16px;
+    text-align: center;
+    display: none;
+    border: 1px solid rgba(16,185,129,.2);
+    line-height: 1.6;
+  }
   .back {
     display: block;
     text-align: center;
@@ -171,12 +185,13 @@
   <p class="sub">Your studio. Your schedule. Your rules.</p>
 
   <div class="error" id="errorMsg"></div>
+  <div class="success" id="successMsg"></div>
 
   <form id="signupForm">
     <div class="field">
-      <label for="name">Username</label>
-      <input type="text" id="name" name="name" required placeholder="e.g. ovie_65" autocomplete="username" pattern="[a-z0-9_-]+" title="Username can only contain lowercase letters, numbers, underscores, and hyphens" />
-      <div class="hint">Use lowercase letters, numbers, underscores (_), or hyphens (-).</div>
+      <label for="name">Artist Ink Name</label>
+      <input type="text" id="name" name="name" required placeholder="e.g. inklord" autocomplete="username" />
+      <div class="hint">Input your artist ink name (e.g. inklord) as this will serve as your personal website address. Use lowercase letters, numbers, underscores (_), or hyphens (-). NOTE: spaces in between are automatically converted to (- hyphens).</div>
     </div>
     <div class="field">
       <label for="email">Email Address</label>
@@ -190,7 +205,7 @@
     <button type="submit" class="btn btn-primary" id="submitBtn">Create Account</button>
   </form>
 
-  <div class="divider">or</div>
+  <div class="divider" id="divider">or</div>
 
   <button type="button" class="btn btn-google" id="googleBtn">
     <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
@@ -202,7 +217,7 @@
     Sign up with Google
   </button>
 
-  <div class="signup-link">
+  <div class="signup-link" id="signupLink">
     Already have an account? <a href="login.html">Log in</a>
   </div>
 
@@ -215,12 +230,21 @@
   const form = document.getElementById('signupForm');
   const btn = document.getElementById('submitBtn');
   const errorMsg = document.getElementById('errorMsg');
+  const successMsg = document.getElementById('successMsg');
   const googleBtn = document.getElementById('googleBtn');
   const nameInput = document.getElementById('name');
 
-  // Force lowercase as user types
+  // Auto-format the Ink Name as they type
   nameInput.addEventListener('input', function(e) {
-    this.value = this.value.toLowerCase();
+    let val = this.value.toLowerCase();
+    // Replace spaces and invalid characters with a hyphen
+    val = val.replace(/[^a-z0-9_-]/g, '-');
+    // Remove multiple hyphens in a row
+    val = val.replace(/-+/g, '-');
+    // Remove leading or trailing hyphens
+    val = val.replace(/^-|-$/g, '');
+    
+    this.value = val;
   });
 
   function sanitize(str) {
@@ -232,6 +256,7 @@
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     errorMsg.style.display = 'none';
+    successMsg.style.display = 'none';
     btn.disabled = true;
     btn.textContent = 'Creating...';
 
@@ -249,9 +274,9 @@
       return;
     }
 
-    // Validate username format (allows lowercase, numbers, underscores, hyphens)
+    // Validate Ink Name format
     if (!/^[a-z0-9_-]+$/.test(data.name)) {
-      errorMsg.textContent = 'Username can only contain lowercase letters, numbers, underscores, and hyphens.';
+      errorMsg.textContent = 'Ink Name can only contain lowercase letters, numbers, underscores, and hyphens.';
       errorMsg.style.display = 'block';
       btn.disabled = false;
       btn.textContent = 'Create Account';
@@ -271,7 +296,15 @@
         throw new Error(result.error || 'Something went wrong');
       }
 
-      window.location.href = 'index.html';
+      // Hide the form and show the success message
+      form.style.display = 'none';
+      document.getElementById('divider').style.display = 'none';
+      document.getElementById('googleBtn').style.display = 'none';
+      document.getElementById('signupLink').style.display = 'none';
+      
+      successMsg.innerHTML = '<strong>Check your email!</strong><br/>We sent a verification link to <strong>' + data.email + '</strong>. Click the link to activate your account.';
+      successMsg.style.display = 'block';
+
     } catch (err) {
       errorMsg.textContent = err.message;
       errorMsg.style.display = 'block';

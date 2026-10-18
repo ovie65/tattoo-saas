@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Verify Email — INK</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/space-grotesk@5/index.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5/index.css" />
+<style>
+  :root {
+    --bg: #ffffff;
+    --ink: #0a0a0a;
+    --muted: #6b6b6b;
+    --line: #e5e5e5;
+    --accent: #dc2626;
+    --success: #10b981;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 20px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .container { max-width: 420px; width: 100%; text-align: center; }
+  .logo {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: .25em;
+    margin-bottom: 48px;
+  }
+  .logo span { color: var(--accent); }
+  h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    letter-spacing: -.02em;
+  }
+  .message {
+    font-size: 15px;
+    color: var(--muted);
+    line-height: 1.6;
+    margin-bottom: 32px;
+  }
+  .icon {
+    font-size: 48px;
+    margin-bottom: 24px;
+  }
+  .btn {
+    display: inline-block;
+    width: 100%;
+    padding: 14px;
+    background: var(--ink);
+    color: #fff;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+    transition: all .2s;
+  }
+  .btn:hover { background: #000; transform: translateY(-1px); }
+  .hidden { display: none !important; }
+  
+  /* Spinner */
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--line);
+    border-top: 3px solid var(--ink);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 24px;
+  }
+  @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="logo">INK<span>.</span></div>
+  
+  <!-- Loading State -->
+  <div id="loadingState">
+    <div class="spinner"></div>
+    <h1>Verifying your email...</h1>
+    <p class="message">Please wait a moment while we confirm your account.</p>
+  </div>
+
+  <!-- Success State -->
+  <div id="successState" class="hidden">
+    <div class="icon">✅</div>
+    <h1>Email Verified!</h1>
+    <p class="message">Your account is now active. You can log in and start setting up your studio.</p>
+    <a href="login.html" class="btn">Go to Login</a>
+  </div>
+
+  <!-- Error State -->
+  <div id="errorState" class="hidden">
+    <div class="icon">❌</div>
+    <h1>Verification Failed</h1>
+    <p class="message" id="errorMessage">This verification link is invalid or has already been used.</p>
+    <a href="login.html" class="btn">Go to Login</a>
+  </div>
+</div>
+
+<script>
+  // 1. Get the token from the URL
+  const params = new URLSearchParams(window.location.search);
+  const token = params.get('token');
+
+  const loadingState = document.getElementById('loadingState');
+  const successState = document.getElementById('successState');
+  const errorState = document.getElementById('errorState');
+  const errorMessage = document.getElementById('errorMessage');
+
+  // 2. If there is no token in the URL, show error immediately
+  if (!token) {
+    showState('error');
+    errorMessage.textContent = 'No verification token found in the link.';
+  } else {
+    // 3. Call our API to verify the token
+    fetch('/api/verify-email?token=' + encodeURIComponent(token))
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          showState('success');
+        } else {
+          showState('error');
+          errorMessage.textContent = data.error || 'Something went wrong.';
+        }
+      })
+      .catch(err => {
+        console.error('Verification error:', err);
+        showState('error');
+        errorMessage.textContent = 'Network error. Please try again later.';
+      });
+  }
+
+  function showState(state) {
+    loadingState.classList.add('hidden');
+    successState.classList.add('hidden');
+    errorState.classList.add('hidden');
+
+    if (state === 'success') {
+      successState.classList.remove('hidden');
+    } else {
+      errorState.classList.remove('hidden');
+    }
+  }
+</script>
+
+</body>
+</html>
