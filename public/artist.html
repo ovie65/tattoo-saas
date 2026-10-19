@@ -65,7 +65,6 @@
   .testimonial-text { font-size: 15px; line-height: 1.7; color: var(--ink); margin-bottom: 20px; font-style: italic; }
   .testimonial-author { font-weight: 700; font-size: 14px; color: var(--muted); }
 
-  /* New Testimonial Form Styles */
   .testimonial-form-container { max-width: 600px; margin: 0 auto; background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 40px; }
   .testimonial-form-container h3 { font-size: 20px; margin-bottom: 8px; text-align: center; }
   .testimonial-form-container p { font-size: 14px; color: var(--muted); text-align: center; margin-bottom: 24px; }
@@ -131,7 +130,7 @@
     .footer-inner { flex-direction: column; gap: 20px; text-align: center; }
     .footer-socials { flex-wrap: wrap; justify-content: center; }
     .info-card, .testimonial-form-container { padding: 24px 20px; }
-    .t-form-group input, .t-form-group select, .t-form-group textarea { font-size: 16px; } /* Prevents zoom on iOS */
+    .t-form-group input, .t-form-group select, .t-form-group textarea { font-size: 16px; }
   }
 </style>
 </head>
@@ -217,12 +216,10 @@
     <h2 class="section-title">What Clients Say</h2>
   </div>
   
-  <!-- Real Testimonials Grid -->
   <div class="testimonial-grid" id="testimonialGrid">
     <div style="grid-column: 1/-1; text-align: center; color: var(--muted);">Loading reviews...</div>
   </div>
 
-  <!-- Client Submission Form -->
   <div class="testimonial-form-container" id="testimonialFormContainer">
     <h3>Rate this Artist</h3>
     <p>Had a great experience? Leave a review for others to see.</p>
@@ -274,7 +271,7 @@
       <h2 class="section-title">Studio Info</h2>
     </div>
     <div class="studio-grid">
-      <div class="studio-card"><div class="studio-icon">📍</div><h4>Location</h4><p id="studioLocation">Loading...</p></div>
+      <div class="studio-card"><div class="studio-icon"></div><h4>Location</h4><p id="studioLocation">Loading...</p></div>
       <div class="studio-card"><div class="studio-icon">🕐</div><h4>Hours</h4><p id="studioHours">Loading...</p></div>
       <div class="studio-card"><div class="studio-icon">✨</div><h4>Hygiene</h4><p id="studioHygiene">Loading...</p></div>
     </div>
@@ -291,7 +288,13 @@
 
 <script>
   const params = new URLSearchParams(window.location.search);
-  const artistName = params.get('artist') || 'INK Artist';
+  const artistName = params.get('artist') || localStorage.getItem('ink_user_name') || 'INK Artist';
+  
+  console.log('=== ARTIST PAGE DEBUG ===');
+  console.log('URL parameter "artist":', params.get('artist'));
+  console.log('localStorage "ink_user_name":', localStorage.getItem('ink_user_name'));
+  console.log('Final artistName being used:', artistName);
+  
   document.getElementById('pageTitle').textContent = artistName + ' — INK';
   document.querySelectorAll('.book-link').forEach(function(link) {
     link.href = 'book.html?artist=' + encodeURIComponent(artistName);
@@ -300,10 +303,15 @@
   let artistMaxTestimonials = 5;
 
   async function loadProfile() {
+    console.log('Fetching profile for username:', artistName);
     try {
       const res = await fetch('/api/get-artist-profile?username=' + encodeURIComponent(artistName) + '&t=' + Date.now());
       const data = await res.json();
+      console.log('API response status:', res.status);
+      console.log('API response data:', data);
+      
       if (data.success && data.profile) {
+        console.log('Profile found! Loading data...');
         const p = data.profile;
         artistMaxTestimonials = p.maxTestimonials || 5; 
         
@@ -350,8 +358,13 @@
             }
           });
         }
+      } else {
+        console.log('No profile found for this username. Profile data:', data.profile);
+        document.getElementById('artistBio').textContent = 'This artist has not set up their page yet.';
       }
-    } catch (err) { console.error('Failed to load profile', err); }
+    } catch (err) { 
+      console.error('Failed to load profile', err); 
+    }
   }
 
   async function loadTestimonials() {
@@ -370,7 +383,6 @@
         grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: var(--muted);">No reviews yet. Be the first to leave one!</div>';
       }
 
-      // Check if limit is reached
       const currentCount = data.testimonials ? data.testimonials.length : 0;
       if (currentCount >= artistMaxTestimonials) {
         document.getElementById('tSubmitBtn').disabled = true;
@@ -378,7 +390,6 @@
         document.getElementById('tLimitMsg').style.display = 'block';
       }
 
-      // Check if this browser already left a review
       const hasReviewed = localStorage.getItem('ink_reviewed_' + artistName);
       if (hasReviewed) {
         document.getElementById('tSubmitBtn').disabled = true;
@@ -421,7 +432,6 @@
       notice.textContent = '✅ Review submitted successfully!';
       notice.className = 't-notice success';
       
-      // Remember that this browser has already left a review
       localStorage.setItem('ink_reviewed_' + artistName, 'true');
       
       document.getElementById('tClientName').value = '';
