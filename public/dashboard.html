@@ -568,7 +568,7 @@
     if (nameEl) nameEl.textContent = userName;
 
     const viewSiteLink = document.getElementById('viewSiteLink');
-    if (viewSiteLink) viewSiteLink.href = 'artist.html?artist=' + encodeURIComponent(userName);
+      if (viewSiteLink) viewSiteLink.href = '/' + encodeURIComponent(userName);
 
     const editSiteLink = document.getElementById('editSiteLink');
     if (editSiteLink) editSiteLink.href = 'edit-site.html?user=' + encodeURIComponent(userName);
