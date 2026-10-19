@@ -151,7 +151,7 @@
 <section class="hero" id="about">
   <div class="hero-image" id="heroImage">
     <div class="hero-image-placeholder">
-      <div class="icon">🎨</div>
+      <div class="icon"></div>
       <div>Artist Photo</div>
       <div style="font-size:11px; margin-top:4px;">Upload your photo later</div>
     </div>
@@ -271,7 +271,7 @@
       <h2 class="section-title">Studio Info</h2>
     </div>
     <div class="studio-grid">
-      <div class="studio-card"><div class="studio-icon"></div><h4>Location</h4><p id="studioLocation">Loading...</p></div>
+      <div class="studio-card"><div class="studio-icon">📍</div><h4>Location</h4><p id="studioLocation">Loading...</p></div>
       <div class="studio-card"><div class="studio-icon">🕐</div><h4>Hours</h4><p id="studioHours">Loading...</p></div>
       <div class="studio-card"><div class="studio-icon">✨</div><h4>Hygiene</h4><p id="studioHygiene">Loading...</p></div>
     </div>
@@ -288,9 +288,20 @@
 
 <script>
   const params = new URLSearchParams(window.location.search);
-  const artistName = params.get('artist') || localStorage.getItem('ink_user_name') || 'INK Artist';
+  
+  // Extract username from clean URL path (e.g., /ovie or /inklord)
+  const pathUsername = window.location.pathname.split('/').filter(Boolean)[0];
+  
+  // Priority order:
+  // 1. URL path (clean URL like /ovie)
+  // 2. URL query parameter (?artist=ovie) - for backwards compatibility
+  // 3. localStorage (fallback for logged-in users)
+  // 4. Default value
+  const artistName = pathUsername || params.get('artist') || localStorage.getItem('ink_user_name') || 'INK Artist';
   
   console.log('=== ARTIST PAGE DEBUG ===');
+  console.log('URL path:', window.location.pathname);
+  console.log('Extracted pathUsername:', pathUsername);
   console.log('URL parameter "artist":', params.get('artist'));
   console.log('localStorage "ink_user_name":', localStorage.getItem('ink_user_name'));
   console.log('Final artistName being used:', artistName);
