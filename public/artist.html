@@ -110,6 +110,63 @@
   .footer-socials a:hover { color: var(--accent); }
   .footer-bottom { max-width: 1200px; margin: 0 auto; padding-top: 30px; text-align: center; font-size: 12px; color: rgba(255,255,255,.4); }
 
+  /* 404 Page Styles */
+  .not-found-container {
+    display: none;
+    min-height: 100vh;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 40px 20px;
+  }
+  .not-found-container.show {
+    display: flex;
+  }
+  .not-found-code {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 120px;
+    font-weight: 800;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 16px;
+  }
+  .not-found-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    letter-spacing: -.02em;
+  }
+  .not-found-message {
+    font-size: 16px;
+    color: var(--muted);
+    max-width: 500px;
+    line-height: 1.6;
+    margin-bottom: 32px;
+  }
+  .not-found-artist {
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .not-found-btn {
+    display: inline-block;
+    background: var(--ink);
+    color: #fff;
+    padding: 14px 32px;
+    border-radius: 100px;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all .2s;
+  }
+  .not-found-btn:hover {
+    background: var(--accent);
+    transform: translateY(-2px);
+  }
+
+  .main-content { display: block; }
+  .main-content.hidden { display: none; }
+
   @media (max-width: 768px) {
     .nav { padding: 16px 20px; }
     .nav-links { gap: 16px; }
@@ -131,10 +188,26 @@
     .footer-socials { flex-wrap: wrap; justify-content: center; }
     .info-card, .testimonial-form-container { padding: 24px 20px; }
     .t-form-group input, .t-form-group select, .t-form-group textarea { font-size: 16px; }
+    .not-found-code { font-size: 80px; }
+    .not-found-title { font-size: 24px; }
   }
 </style>
 </head>
 <body>
+
+<!-- 404 Not Found Container (hidden by default) -->
+<div class="not-found-container" id="notFoundContainer">
+  <div class="not-found-code">404</div>
+  <h1 class="not-found-title">Artist Not Found</h1>
+  <p class="not-found-message">
+    The artist profile you are looking for does not exist or has been removed. 
+    Please check the link and try again.
+  </p>
+  <a href="/" class="not-found-btn">Go to Home Page</a>
+</div>
+
+<!-- Main Website Content (hidden when 404) -->
+<div class="main-content" id="mainContent">
 
 <nav class="nav">
   <div class="nav-logo" id="navLogo">INK<span>.</span></div>
@@ -151,7 +224,7 @@
 <section class="hero" id="about">
   <div class="hero-image" id="heroImage">
     <div class="hero-image-placeholder">
-      <div class="icon"></div>
+      <div class="icon">🎨</div>
       <div>Artist Photo</div>
       <div style="font-size:11px; margin-top:4px;">Upload your photo later</div>
     </div>
@@ -272,7 +345,7 @@
     </div>
     <div class="studio-grid">
       <div class="studio-card"><div class="studio-icon">📍</div><h4>Location</h4><p id="studioLocation">Loading...</p></div>
-      <div class="studio-card"><div class="studio-icon">🕐</div><h4>Hours</h4><p id="studioHours">Loading...</p></div>
+      <div class="studio-card"><div class="studio-icon"></div><h4>Hours</h4><p id="studioHours">Loading...</p></div>
       <div class="studio-card"><div class="studio-icon">✨</div><h4>Hygiene</h4><p id="studioHygiene">Loading...</p></div>
     </div>
   </div>
@@ -285,6 +358,9 @@
   </div>
   <div class="footer-bottom">© 2026 INK STUDIO · ALL RIGHTS RESERVED · POWERED BY INK</div>
 </footer>
+
+</div>
+<!-- End Main Content -->
 
 <script>
   const params = new URLSearchParams(window.location.search);
@@ -312,6 +388,14 @@
   });
 
   let artistMaxTestimonials = 5;
+
+  // Function to show 404 page
+  function showNotFound() {
+    document.getElementById('mainContent').classList.add('hidden');
+    document.getElementById('notFoundContainer').classList.add('show');
+    document.getElementById('pageTitle').textContent = 'Artist Not Found — INK';
+    console.log('Showing 404 page - artist not found');
+  }
 
   async function loadProfile() {
     console.log('Fetching profile for username:', artistName);
@@ -370,11 +454,12 @@
           });
         }
       } else {
-        console.log('No profile found for this username. Profile data:', data.profile);
-        document.getElementById('artistBio').textContent = 'This artist has not set up their page yet.';
+        console.log('No profile found for this username. Showing 404 page.');
+        showNotFound();
       }
     } catch (err) { 
-      console.error('Failed to load profile', err); 
+      console.error('Failed to load profile', err);
+      showNotFound();
     }
   }
 
