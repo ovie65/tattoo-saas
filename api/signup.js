@@ -54,23 +54,39 @@ module.exports = async function handler(req, res) {
         to: email,
         subject: 'Verify your email — INK',
         html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-            <h1 style="font-size: 24px; margin-bottom: 16px;">Welcome to INK!</h1>
-            <p style="font-size: 16px; line-height: 1.6; color: #333;">
-              Thank you for signing up. Please verify your email address to activate your account.
-            </p>
-            <p style="margin: 24px 0;">
-              <a href="${verificationLink}" style="background-color: #0a0a0a; color: #ffffff; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block;">
-                Verify My Email
-              </a>
-            </p>
-            <p style="font-size: 14px; color: #666; line-height: 1.6;">
-              If the button above doesn't work, copy and paste this link into your browser:<br/>
-              <a href="${verificationLink}" style="color: #dc2626; word-break: break-all;">${verificationLink}</a>
-            </p>
-            <p style="font-size: 13px; color: #999; margin-top: 32px; border-top: 1px solid #eee; padding-top: 16px;">
-              If you didn't create this account, you can safely ignore this email.
-            </p>
+          <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border: 1px solid #e5e5e5; border-radius: 8px; overflow: hidden;">
+            <!-- Branded Header -->
+            <div style="background-color: #0a0a0a; padding: 40px 20px; text-align: center;">
+              <h1 style="color: #ffffff; font-family: Arial, sans-serif; font-size: 36px; font-weight: 900; letter-spacing: 6px; margin: 0;">
+                INK<span style="color: #dc2626;">.</span>
+              </h1>
+              <p style="color: #dc2626; font-family: Arial, sans-serif; font-size: 11px; letter-spacing: 3px; margin-top: 12px; margin-bottom: 0; text-transform: uppercase; font-weight: bold;">
+                New Account Verification
+              </p>
+            </div>
+
+            <!-- Email Body -->
+            <div style="padding: 40px 30px; font-family: Arial, sans-serif; color: #333333;">
+              <h2 style="font-size: 22px; margin-bottom: 16px; color: #0a0a0a;">Welcome to INK!</h2>
+              <p style="font-size: 15px; line-height: 1.6; margin-bottom: 24px;">
+                Thank you for signing up. Please verify your email address to activate your studio account.
+              </p>
+              
+              <div style="text-align: center; margin: 30px 0;">
+                <a href="${verificationLink}" style="background-color: #0a0a0a; color: #ffffff; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 15px; display: inline-block;">
+                  Verify My Email
+                </a>
+              </div>
+
+              <p style="font-size: 13px; color: #666666; line-height: 1.6; border-top: 1px solid #e5e5e5; padding-top: 20px; margin-top: 30px;">
+                If the button above doesn't work, copy and paste this link into your browser:<br/>
+                <a href="${verificationLink}" style="color: #dc2626; word-break: break-all; text-decoration: underline;">${verificationLink}</a>
+              </p>
+              
+              <p style="font-size: 12px; color: #999999; margin-top: 20px;">
+                If you didn't create this account, you can safely ignore this email.
+              </p>
+            </div>
           </div>
         `
       });
