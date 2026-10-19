@@ -9,371 +9,1017 @@
 <style>
   :root {
     --bg: #ffffff;
+    --bg-alt: #f7f7f7;
     --ink: #0a0a0a;
     --muted: #6b6b6b;
     --line: #e5e5e5;
     --accent: #dc2626;
     --success: #10b981;
-    --warning: #f59e0b;
-    --danger: #ef4444;
-    --sidebar-bg: #fafafa;
+    --radius: 12px;
+    --sidebar-width: 260px;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    background: var(--bg);
-    color: var(--ink);
-    font-family: 'Inter', sans-serif;
-    display: flex;
-    min-height: 100vh;
-    -webkit-font-smoothing: antialiased;
-  }
-  
-  /* Sidebar */
+  body { background: var(--bg-alt); color: var(--ink); font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+  h1, h2, h3, h4 { font-family: 'Space Grotesk', sans-serif; font-weight: 700; letter-spacing: -.02em; }
+  a { color: inherit; text-decoration: none; }
+  button { font-family: inherit; cursor: pointer; border: none; background: none; }
+
+  .app-layout { display: flex; min-height: 100vh; }
+
   .sidebar {
-    width: 240px;
-    background: var(--sidebar-bg);
+    width: var(--sidebar-width);
+    background: #fff;
     border-right: 1px solid var(--line);
-    padding: 24px 0;
+    display: flex;
+    flex-direction: column;
     position: fixed;
-    height: 100vh;
-    overflow-y: auto;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 100;
+  }
+  .sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px;
+    border-bottom: 1px solid var(--line);
   }
   .sidebar-logo {
     font-family: 'Space Grotesk', sans-serif;
     font-size: 22px;
     font-weight: 800;
     letter-spacing: .2em;
-    padding: 0 24px;
-    margin-bottom: 40px;
   }
   .sidebar-logo span { color: var(--accent); }
+  
+  .close-btn {
+    display: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    border: 1px solid var(--line);
+    background: #fff;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: var(--ink);
+    transition: all .2s;
+  }
+  .close-btn:hover { background: var(--bg-alt); }
+  
+  .sidebar-nav { flex: 1; padding: 24px 16px; display: flex; flex-direction: column; gap: 4px; overflow-y: auto; }
   .nav-item {
-    display: block;
-    padding: 12px 24px;
-    color: var(--muted);
-    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-radius: 8px;
     font-size: 14px;
     font-weight: 500;
-    transition: all .2s;
-    border-left: 3px solid transparent;
-  }
-  .nav-item:hover { color: var(--ink); background: #f0f0f0; }
-  .nav-item.active {
-    color: var(--ink);
-    background: var(--ink);
-    color: #fff;
-    border-left-color: var(--accent);
-  }
-
-  /* Main Content */
-  .main {
-    margin-left: 240px;
-    flex: 1;
-    padding: 40px;
-    max-width: 1200px;
-  }
-  .header { margin-bottom: 32px; }
-  .header h1 {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 28px;
-    font-weight: 700;
-    margin-bottom: 8px;
-  }
-  .header p { color: var(--muted); font-size: 14px; }
-
-  /* Share Box */
-  .share-box {
-    background: #fff;
-    border: 1px solid var(--line);
-    border-radius: 12px;
-    padding: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 32px;
-    gap: 20px;
-  }
-  .share-info h3 {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 16px;
-    font-weight: 700;
-    margin-bottom: 4px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .share-info p { color: var(--muted); font-size: 13px; }
-  .share-link-container {
-    display: flex;
-    align-items: center;
-    background: var(--sidebar-bg);
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    padding: 4px;
-    flex: 1;
-    max-width: 500px;
-  }
-  .share-link-input {
-    flex: 1;
-    border: none;
-    background: transparent;
-    padding: 10px 12px;
-    font-size: 13px;
-    font-family: inherit;
-    color: var(--ink);
-    outline: none;
-  }
-  .copy-btn {
-    background: var(--ink);
-    color: #fff;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 6px;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all .2s;
-    font-family: inherit;
-  }
-  .copy-btn:hover { background: #000; }
-
-  /* Stats Grid */
-  .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 20px;
-    margin-bottom: 40px;
-  }
-  .stat-card {
-    background: #fff;
-    border: 1px solid var(--line);
-    border-radius: 12px;
-    padding: 24px;
-  }
-  .stat-label {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: .08em;
     color: var(--muted);
-    text-transform: uppercase;
-    margin-bottom: 12px;
+    transition: all .2s;
+    cursor: pointer;
   }
-  .stat-value {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 32px;
-    font-weight: 700;
-  }
-  .stat-value.pending { color: var(--accent); }
-  .stat-value.accepted { color: var(--success); }
-  .stat-value.declined { color: var(--danger); }
+  .nav-item:hover { background: var(--bg-alt); color: var(--ink); }
+  .nav-item.active { background: var(--ink); color: #fff; }
+  .nav-item-icon { font-size: 18px; width: 24px; text-align: center; }
 
-  /* Bookings Section */
-  .section-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-  }
-  .section-header h2 {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 20px;
-    font-weight: 700;
-  }
-  .badge {
-    background: var(--accent);
-    color: #fff;
-    font-size: 11px;
-    font-weight: 700;
-    padding: 4px 10px;
-    border-radius: 20px;
-  }
-  .bookings-list {
+  .sidebar-footer {
+    padding: 24px 16px;
+    border-top: 1px solid var(--line);
     display: flex;
     flex-direction: column;
     gap: 12px;
   }
+  .nav-user-name { font-size: 14px; font-weight: 600; display: block; margin-bottom: 4px; }
+  .btn-logout { font-size: 13px; color: var(--muted); font-weight: 600; transition: color .2s; text-align: left; padding: 4px 0; }
+  .btn-logout:hover { color: var(--accent); }
+
+  .main-content {
+    margin-left: var(--sidebar-width);
+    flex: 1;
+    padding: 40px;
+    max-width: 1200px;
+  }
+  
+  .page-header { margin-bottom: 32px; }
+  .page-header h1 { font-size: 28px; margin-bottom: 4px; }
+  .page-header p { color: var(--muted); font-size: 14px; }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 40px;
+  }
+  .stat-card {
+    background: #fff;
+    padding: 24px;
+    border-radius: var(--radius);
+    border: 1px solid var(--line);
+  }
+  .stat-label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; font-weight: 600; margin-bottom: 8px; }
+  .stat-value { font-family: 'Space Grotesk', sans-serif; font-size: 32px; font-weight: 700; }
+  .stat-value.accent { color: var(--accent); }
+  .stat-value.success { color: var(--success); }
+
+  .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+  .section-header h2 { font-size: 20px; }
+  .badge { background: var(--accent); color: #fff; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 100px; }
+
+  .booking-list { display: flex; flex-direction: column; gap: 12px; }
+  
   .booking-card {
     background: #fff;
+    border-radius: var(--radius);
+    padding: 24px;
     border: 1px solid var(--line);
-    border-radius: 12px;
-    padding: 20px;
+    transition: border-color .2s;
+  }
+  .booking-card:hover { border-color: var(--ink); }
+  
+  .booking-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+  }
+  .booking-info { flex: 1; }
+  .booking-client { font-weight: 700; font-size: 16px; margin-bottom: 4px; }
+  .booking-desc { font-size: 14px; color: var(--muted); line-height: 1.5; margin-bottom: 8px; }
+  .booking-meta { display: flex; gap: 16px; font-size: 12px; color: var(--muted); flex-wrap: wrap; }
+  .booking-meta span { display: flex; align-items: center; gap: 6px; }
+  
+  .draft-notice {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 8px;
+    font-style: italic;
+  }
+
+  .booking-actions { display: flex; gap: 8px; flex-shrink: 0; }
+  .btn { padding: 10px 18px; border-radius: 8px; font-size: 13px; font-weight: 600; transition: all .2s; }
+  .btn-accept { background: var(--ink); color: #fff; }
+  .btn-accept:hover { background: #000; transform: translateY(-1px); }
+  .btn-decline { background: #fff; color: var(--ink); border: 1px solid var(--line); }
+  .btn-decline:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-restore { background: var(--accent); color: #fff; }
+  .btn-restore:hover { background: #b91c1c; }
+
+  .expand-btn {
+    margin-top: 16px;
+    padding: 8px 16px;
+    background: var(--bg-alt);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all .2s;
+  }
+  .expand-btn:hover {
+    background: var(--ink);
+    color: #fff;
+    border-color: var(--ink);
+  }
+  .booking-details {
+    display: none;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--line);
+    font-size: 13px;
+  }
+  .booking-details.show { display: block; }
+  .detail-row { margin-bottom: 12px; }
+  .detail-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    margin-bottom: 4px;
+  }
+  .detail-value { color: var(--ink); line-height: 1.5; }
+  .image-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+  .image-tag {
+    background: var(--bg-alt);
+    border: 1px solid var(--line);
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    color: var(--ink);
+  }
+
+  .empty-state { text-align: center; padding: 60px 20px; color: var(--muted); background: #fff; border-radius: var(--radius); border: 1px solid var(--line); }
+
+  .settings-card {
+    background: #fff;
+    border-radius: var(--radius);
+    padding: 32px;
+    border: 1px solid var(--line);
+    max-width: 600px;
+  }
+  .settings-card h3 {
+    font-size: 18px;
+    margin-bottom: 8px;
+  }
+  .settings-card > p {
+    color: var(--muted);
+    font-size: 14px;
+    margin-bottom: 24px;
+  }
+  .setting-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--line);
   }
-  .booking-info h4 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
-  .booking-info p { font-size: 13px; color: var(--muted); }
-  .booking-status {
-    font-size: 12px;
-    font-weight: 700;
-    padding: 6px 12px;
-    border-radius: 20px;
-    text-transform: uppercase;
-    letter-spacing: .05em;
+  .setting-item:last-child { border-bottom: none; }
+  .setting-info h4 { font-size: 15px; margin-bottom: 4px; font-weight: 600; }
+  .setting-info p { font-size: 13px; color: var(--muted); line-height: 1.5; }
+  
+  .toggle-switch {
+    position: relative;
+    width: 48px;
+    height: 26px;
+    background: #ccc;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: background .3s;
+    flex-shrink: 0;
   }
-  .status-pending { background: rgba(220,38,38,.1); color: var(--accent); }
-  .status-accepted { background: rgba(16,185,129,.1); color: var(--success); }
-  .status-declined { background: rgba(239,68,68,.1); color: var(--danger); }
+  .toggle-switch.on { background: var(--ink); }
+  .toggle-switch::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 20px;
+    height: 20px;
+    background: #fff;
+    border-radius: 50%;
+    transition: transform .3s;
+    box-shadow: 0 1px 3px rgba(0,0,0,.2);
+  }
+  .toggle-switch.on::after { transform: translateX(22px); }
 
-  .empty-state {
-    text-align: center;
-    padding: 60px 20px;
-    color: var(--muted);
-    font-size: 14px;
+  .save-notice {
+    margin-top: 20px;
+    padding: 12px 16px;
+    background: rgba(16,185,129,.08);
+    color: #059669;
+    border: 1px solid rgba(16,185,129,.2);
+    border-radius: 8px;
+    font-size: 13px;
+    display: none;
   }
+  .save-notice.show { display: block; }
+
+  .testimonial-list { display: flex; flex-direction: column; gap: 16px; margin-bottom: 32px; }
+  .testimonial-manage-card {
+    background: #fff;
+    border-radius: var(--radius);
+    padding: 24px;
+    border: 1px solid var(--line);
+  }
+  .testimonial-manage-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 12px;
+  }
+  .testimonial-manage-stars { color: var(--accent); font-size: 14px; letter-spacing: 2px; margin-bottom: 8px; }
+  .testimonial-manage-text { font-size: 14px; line-height: 1.6; color: var(--ink); margin-bottom: 12px; font-style: italic; }
+  .testimonial-manage-author { font-size: 13px; font-weight: 600; color: var(--muted); }
+  .testimonial-manage-date { font-size: 11px; color: var(--muted); margin-top: 4px; }
+  .btn-delete-testimonial {
+    background: transparent;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    transition: all .2s;
+    flex-shrink: 0;
+  }
+  .btn-delete-testimonial:hover { background: var(--accent); color: #fff; }
+
+  .limit-setting {
+    background: #fff;
+    border-radius: var(--radius);
+    padding: 24px;
+    border: 1px solid var(--line);
+    max-width: 600px;
+  }
+  .limit-setting h3 { font-size: 18px; margin-bottom: 8px; }
+  .limit-setting > p { color: var(--muted); font-size: 14px; margin-bottom: 20px; }
+  .limit-input-row { display: flex; gap: 12px; align-items: center; }
+  .limit-input-row input {
+    width: 80px;
+    padding: 10px 14px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    font-size: 16px;
+    font-family: inherit;
+    text-align: center;
+  }
+  .limit-input-row input:focus { outline: none; border-color: var(--ink); }
+  .btn-save-limit {
+    background: var(--ink);
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all .2s;
+  }
+  .btn-save-limit:hover { background: #000; }
+  .btn-save-limit:disabled { background: #ccc; cursor: not-allowed; }
+
+  .hamburger {
+    display: none;
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    z-index: 200;
+    width: 44px;
+    height: 44px;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 5px;
+    padding: 0;
+  }
+  .hamburger span {
+    display: block;
+    width: 22px;
+    height: 2px;
+    background: var(--ink);
+    border-radius: 2px;
+    transition: all .3s;
+  }
+
+  .overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,.4);
+    z-index: 90;
+  }
+  .overlay.active { display: block; }
 
   @media (max-width: 768px) {
-    .sidebar { display: none; }
-    .main { margin-left: 0; padding: 20px; }
-    .stats-grid { grid-template-columns: repeat(2, 1fr); }
-    .share-box { flex-direction: column; align-items: stretch; }
-    .share-link-container { max-width: 100%; }
+    .hamburger { display: flex; }
+    .close-btn { display: flex; }
+    .hamburger.hidden { display: none; }
+    
+    .sidebar {
+      transform: translateX(-100%);
+      transition: transform .3s ease;
+      width: var(--sidebar-width);
+      max-width: 85vw;
+    }
+    .sidebar.open { transform: translateX(0); }
+    
+    .main-content {
+      margin-left: 0;
+      padding: 80px 16px 24px;
+    }
+    .page-header h1 { font-size: 24px; }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .stat-card { padding: 16px; }
+    .stat-value { font-size: 24px; }
+    .booking-header { flex-direction: column; }
+    .booking-actions { width: 100%; }
+    .booking-actions .btn { flex: 1; text-align: center; }
+    .settings-card, .limit-setting, .testimonial-manage-card { padding: 24px 20px; }
+    .testimonial-manage-header { flex-direction: column; }
+    .btn-delete-testimonial { width: 100%; text-align: center; }
   }
 </style>
 </head>
 <body>
 
-<aside class="sidebar">
-  <div class="sidebar-logo">INK<span>.</span></div>
-  <nav>
-    <a href="dashboard.html" class="nav-item active">Dashboard</a>
-    <a href="dashboard.html?tab=accepted" class="nav-item">Accepted</a>
-    <a href="dashboard.html?tab=drafts" class="nav-item">Drafts</a>
-    <a href="dashboard.html?tab=testimonials" class="nav-item">Testimonials</a>
-    <a href="dashboard.html?tab=notifications" class="nav-item">Notifications</a>
-    <a href="edit-site.html" class="nav-item">Edit My Site</a>
-    <a href="#" id="viewSiteLink" class="nav-item" target="_blank">View My Site</a>
-  </nav>
-</aside>
+<button class="hamburger" id="hamburgerBtn" aria-label="Open menu">
+  <span></span>
+  <span></span>
+  <span></span>
+</button>
 
-<main class="main">
-  <div class="header">
-    <h1>Dashboard</h1>
-    <p>Manage your bookings and studio.</p>
-  </div>
+<div class="overlay" id="overlay"></div>
 
-  <div class="share-box">
-    <div class="share-info">
-      <h3> Share Your Site</h3>
-      <p>Copy your unique link to share with clients.</p>
+<div class="app-layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">INK<span>.</span></div>
+      <button class="close-btn" id="closeBtn" aria-label="Close menu"></button>
     </div>
-    <div class="share-link-container">
-      <input type="text" class="share-link-input" id="shareLinkInput" readonly />
-      <button class="copy-btn" id="copyLinkBtn">Copy Link</button>
+    <nav class="sidebar-nav">
+      <div class="nav-item active" id="nav-dashboard" onclick="switchView('dashboard')">
+        <span class="nav-item-icon"></span> Dashboard
+      </div>
+      <div class="nav-item" id="nav-accepted" onclick="switchView('accepted')">
+        <span class="nav-item-icon">✅</span> Accepted
+      </div>
+      <div class="nav-item" id="nav-drafts" onclick="switchView('drafts')">
+        <span class="nav-item-icon">📝</span> Drafts
+      </div>
+      <div class="nav-item" id="nav-testimonials" onclick="switchView('testimonials')">
+        <span class="nav-item-icon">⭐</span> Testimonials
+      </div>
+      <div class="nav-item" id="nav-notifications" onclick="switchView('notifications')">
+        <span class="nav-item-icon">🔔</span> Notifications
+      </div>
+      <a href="edit-site.html" id="editSiteLink" class="nav-item" style="text-decoration:none;">
+        <span class="nav-item-icon">✏️</span> Edit My Site
+      </a>
+      <a href="#" class="nav-item" id="viewSiteLink" target="_blank" style="text-decoration:none;">
+        <span class="nav-item-icon">👁️</span> View My Site
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div>
+        <span class="nav-user-name">Loading...</span>
+      </div>
+      <button class="btn-logout" id="logoutBtn">Log Out</button>
     </div>
-  </div>
+  </aside>
 
-  <div class="stats-grid">
-    <div class="stat-card">
-      <div class="stat-label">Pending</div>
-      <div class="stat-value pending" id="statPending">0</div>
+  <main class="main-content">
+    <div class="page-header">
+      <h1 id="pageTitle">Dashboard</h1>
+      <p id="pageDesc">Manage your bookings and studio.</p>
     </div>
-    <div class="stat-card">
-      <div class="stat-label">Accepted</div>
-      <div class="stat-value accepted" id="statAccepted">0</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">Declined</div>
-      <div class="stat-value declined" id="statDeclined">0</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">Total Requests</div>
-      <div class="stat-value" id="statTotal">0</div>
-    </div>
-  </div>
 
-  <div class="section-header">
-    <h2>Booking Requests</h2>
-    <span class="badge" id="newBadge">0 New</span>
-  </div>
+    <!-- Share Your Site Card -->
+    <div class="settings-card" style="max-width: 100%; margin-bottom: 32px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 20px;">
+      <div style="flex: 1; min-width: 250px;">
+        <h3 style="margin-bottom: 4px;">🔗 Share Your Site</h3>
+        <p style="margin-bottom: 0;">Copy your unique link to share with clients.</p>
+      </div>
+      <div style="display: flex; gap: 12px; align-items: center; background: var(--bg-alt); padding: 8px; border-radius: 10px; border: 1px solid var(--line); flex: 1; min-width: 300px; max-width: 500px;">
+        <input type="text" id="shareUrlInput" readonly style="flex: 1; border: none; background: transparent; padding: 8px 12px; font-size: 14px; color: var(--ink); outline: none; font-family: monospace;" />
+        <button class="btn-accept" id="copyLinkBtn" style="padding: 10px 20px; white-space: nowrap;" onclick="copySiteLink()">Copy Link</button>
+      </div>
+    </div>
 
-  <div class="bookings-list" id="bookingsList">
-    <div class="empty-state">Loading bookings...</div>
-  </div>
-</main>
+    <div class="stats-grid" id="statsGrid">
+      <div class="stat-card">
+        <div class="stat-label">Pending</div>
+        <div class="stat-value accent" id="statPending">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Accepted</div>
+        <div class="stat-value success" id="statAccepted">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Declined</div>
+        <div class="stat-value" id="statDeclined">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Total Requests</div>
+        <div class="stat-value" id="statTotal">0</div>
+      </div>
+    </div>
+
+    <div id="bookingsSection">
+      <div class="section-header">
+        <h2 id="listTitle">Booking Requests</h2>
+        <span class="badge" id="badgePending">0 New</span>
+      </div>
+      <div class="booking-list" id="bookingList">
+        <div class="empty-state" id="emptyState">Loading bookings...</div>
+      </div>
+    </div>
+
+    <div id="testimonialsSection" style="display: none;">
+      <div class="section-header">
+        <h2>Client Testimonials</h2>
+        <span class="badge" id="testimonialCount">0 Reviews</span>
+      </div>
+      
+      <div class="testimonial-list" id="testimonialList">
+        <div class="empty-state">Loading testimonials...</div>
+      </div>
+
+      <div class="limit-setting">
+        <h3>Review Limit Settings</h3>
+        <p>By default, your page shows a maximum of 5 reviews. You can increase or decrease this limit. When the limit is reached, clients cannot submit new reviews until you delete one or raise the limit.</p>
+        <div class="limit-input-row">
+          <label for="maxTestimonialInput" style="font-size: 14px; font-weight: 600;">Max Reviews:</label>
+          <input type="number" id="maxTestimonialInput" min="1" max="50" value="5" />
+          <button class="btn-save-limit" id="saveLimitBtn" onclick="saveTestimonialLimit()">Save Limit</button>
+        </div>
+        <div class="save-notice" id="limitNotice">✅ Limit updated successfully!</div>
+      </div>
+    </div>
+
+    <div id="notificationsSection" style="display: none;">
+      <div class="settings-card">
+        <h3>Notification Preferences</h3>
+        <p>Choose how you want to be notified about new bookings.</p>
+        
+        <div class="setting-item">
+          <div class="setting-info">
+            <h4>Push Notifications</h4>
+            <p>Get instant alerts on your phone when a new booking is requested.</p>
+          </div>
+          <div class="toggle-switch on" id="pushToggle" onclick="toggleNotification('push')"></div>
+        </div>
+        
+        <div class="setting-item">
+          <div class="setting-info">
+            <h4>Email Notifications</h4>
+            <p>Receive an email summary of your daily bookings.</p>
+          </div>
+          <div class="toggle-switch on" id="emailToggle" onclick="toggleNotification('email')"></div>
+        </div>
+
+        <div class="save-notice" id="saveNotice">✅ Your preferences have been saved.</div>
+      </div>
+    </div>
+  </main>
+</div>
 
 <script>
-  // Check authentication
-  const userEmail = localStorage.getItem('userEmail');
-  const userName = localStorage.getItem('userName');
-  
-  if (!userEmail || !userName) {
+  const userEmail = localStorage.getItem('ink_user_email');
+  const userName = localStorage.getItem('ink_user_name');
+  let currentView = 'dashboard';
+  let allBookings = [];
+  let artistMaxTestimonials = 5;
+
+  if (!userEmail) {
     window.location.href = 'login.html';
+  } else {
+    const nameEl = document.querySelector('.nav-user-name');
+    if (nameEl) nameEl.textContent = userName;
+
+    const viewSiteLink = document.getElementById('viewSiteLink');
+      if (viewSiteLink) viewSiteLink.href = '/' + encodeURIComponent(userName);
+
+    const editSiteLink = document.getElementById('editSiteLink');
+    if (editSiteLink) editSiteLink.href = 'edit-site.html?user=' + encodeURIComponent(userName);
   }
 
-  // Set clean URLs for links
-  const cleanUrl = window.location.origin + '/' + encodeURIComponent(userName);
-  
-  const viewSiteLink = document.getElementById('viewSiteLink');
-  if (viewSiteLink) viewSiteLink.href = cleanUrl;
-
-  const shareLinkInput = document.getElementById('shareLinkInput');
-  if (shareLinkInput) shareLinkInput.value = cleanUrl;
-
-  // Copy Link functionality
-  const copyBtn = document.getElementById('copyLinkBtn');
-  if (copyBtn) {
-    copyBtn.addEventListener('click', async () => {
-      try {
-        await navigator.clipboard.writeText(cleanUrl);
-        const originalText = copyBtn.textContent;
-        copyBtn.textContent = 'Copied!';
-        copyBtn.style.background = '#10b981';
-        setTimeout(() => {
-          copyBtn.textContent = originalText;
-          copyBtn.style.background = '';
-        }, 2000);
-      } catch (err) {
-        shareLinkInput.select();
-        document.execCommand('copy');
-      }
+  const logoutBtn = document.getElementById('logoutBtn');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', function() {
+      localStorage.removeItem('ink_user_email');
+      localStorage.removeItem('ink_user_name');
+      window.location.href = 'login.html';
     });
   }
 
-  // Fetch bookings
+  const hamburgerBtn = document.getElementById('hamburgerBtn');
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('overlay');
+  const closeBtn = document.getElementById('closeBtn');
+
+  function openSidebar() {
+    sidebar.classList.add('open');
+    overlay.classList.add('active');
+    hamburgerBtn.classList.add('hidden');
+  }
+
+  function closeSidebar() {
+    sidebar.classList.remove('open');
+    overlay.classList.remove('active');
+    hamburgerBtn.classList.remove('hidden');
+  }
+
+  hamburgerBtn.addEventListener('click', openSidebar);
+  closeBtn.addEventListener('click', closeSidebar);
+  overlay.addEventListener('click', closeSidebar);
+
+  function loadNotificationPrefs() {
+    const pushPref = localStorage.getItem('ink_push_notifications');
+    const emailPref = localStorage.getItem('ink_email_notifications');
+    
+    const pushToggle = document.getElementById('pushToggle');
+    const emailToggle = document.getElementById('emailToggle');
+    
+    if (pushPref === 'off') {
+      pushToggle.classList.remove('on');
+    } else {
+      pushToggle.classList.add('on');
+    }
+    
+    if (emailPref === 'off') {
+      emailToggle.classList.remove('on');
+    } else {
+      emailToggle.classList.add('on');
+    }
+  }
+
+  window.toggleNotification = function(type) {
+    const toggle = document.getElementById(type + 'Toggle');
+    toggle.classList.toggle('on');
+    
+    const isOn = toggle.classList.contains('on');
+    localStorage.setItem('ink_' + type + '_notifications', isOn ? 'on' : 'off');
+    
+    const notice = document.getElementById('saveNotice');
+    notice.classList.add('show');
+    setTimeout(function() {
+      notice.classList.remove('show');
+    }, 2000);
+  };
+
+  window.switchView = function(view) {
+    currentView = view;
+    
+    document.getElementById('nav-dashboard').classList.toggle('active', view === 'dashboard');
+    document.getElementById('nav-accepted').classList.toggle('active', view === 'accepted');
+    document.getElementById('nav-drafts').classList.toggle('active', view === 'drafts');
+    document.getElementById('nav-testimonials').classList.toggle('active', view === 'testimonials');
+    document.getElementById('nav-notifications').classList.toggle('active', view === 'notifications');
+    
+    const pageTitle = document.getElementById('pageTitle');
+    const pageDesc = document.getElementById('pageDesc');
+    const listTitle = document.getElementById('listTitle');
+    const statsGrid = document.getElementById('statsGrid');
+    const badgePending = document.getElementById('badgePending');
+    const bookingsSection = document.getElementById('bookingsSection');
+    const testimonialsSection = document.getElementById('testimonialsSection');
+    const notificationsSection = document.getElementById('notificationsSection');
+    
+    if (view === 'notifications') {
+      pageTitle.textContent = 'Notifications';
+      pageDesc.textContent = 'Manage how you receive alerts.';
+      statsGrid.style.display = 'none';
+      bookingsSection.style.display = 'none';
+      testimonialsSection.style.display = 'none';
+      notificationsSection.style.display = 'block';
+      loadNotificationPrefs();
+    } else if (view === 'testimonials') {
+      pageTitle.textContent = 'Testimonials';
+      pageDesc.textContent = 'Manage client reviews and set your review limit.';
+      statsGrid.style.display = 'none';
+      bookingsSection.style.display = 'none';
+      notificationsSection.style.display = 'none';
+      testimonialsSection.style.display = 'block';
+      loadTestimonials();
+    } else if (view === 'drafts') {
+      pageTitle.textContent = 'Drafts';
+      pageDesc.textContent = 'Declined appointments saved for 2 weeks before permanent deletion.';
+      listTitle.textContent = 'Drafted Bookings';
+      statsGrid.style.display = 'none';
+      badgePending.style.display = 'none';
+      bookingsSection.style.display = 'block';
+      testimonialsSection.style.display = 'none';
+      notificationsSection.style.display = 'none';
+    } else if (view === 'accepted') {
+      pageTitle.textContent = 'Accepted';
+      pageDesc.textContent = 'Your confirmed appointments.';
+      listTitle.textContent = 'Accepted Bookings';
+      statsGrid.style.display = 'none';
+      badgePending.style.display = 'none';
+      bookingsSection.style.display = 'block';
+      testimonialsSection.style.display = 'none';
+      notificationsSection.style.display = 'none';
+    } else {
+      pageTitle.textContent = 'Dashboard';
+      pageDesc.textContent = 'Manage your bookings and studio.';
+      listTitle.textContent = 'Booking Requests';
+      statsGrid.style.display = 'grid';
+      badgePending.style.display = 'inline-block';
+      bookingsSection.style.display = 'block';
+      testimonialsSection.style.display = 'none';
+      notificationsSection.style.display = 'none';
+    }
+    
+    closeSidebar();
+    
+    if (view !== 'notifications' && view !== 'testimonials') {
+      renderBookings();
+    }
+  };
+
   async function loadBookings() {
     try {
       const res = await fetch('/api/get-bookings?artist=' + encodeURIComponent(userName));
       const data = await res.json();
       
-      if (!res.ok) throw new Error(data.error || 'Failed to load bookings');
-
-      const bookings = data.bookings || [];
-      
-      // Update stats
-      const pending = bookings.filter(b => b.status === 'pending').length;
-      const accepted = bookings.filter(b => b.status === 'accepted').length;
-      const declined = bookings.filter(b => b.status === 'declined').length;
-
-      document.getElementById('statPending').textContent = pending;
-      document.getElementById('statAccepted').textContent = accepted;
-      document.getElementById('statDeclined').textContent = declined;
-      document.getElementById('statTotal').textContent = bookings.length;
-      document.getElementById('newBadge').textContent = pending + ' New';
-
-      // Render bookings
-      const list = document.getElementById('bookingsList');
-      if (bookings.length === 0) {
-        list.innerHTML = '<div class="empty-state">No booking requests yet.</div>';
-        return;
+      if (!data.success) {
+        throw new Error('Failed to load bookings');
       }
-
-      list.innerHTML = bookings.map(b => `
-        <div class="booking-card">
-          <div class="booking-info">
-            <h4>${b.clientName || 'Unknown Client'}</h4>
-            <p>${b.service || 'Tattoo Service'} • ${b.date || 'TBD'}</p>
-          </div>
-          <div class="booking-status status-${b.status || 'pending'}">${b.status || 'pending'}</div>
-        </div>
-      `).join('');
-
-    } catch (err) {
-      console.error('Error loading bookings:', err);
-      document.getElementById('bookingsList').innerHTML = '<div class="empty-state">Error loading bookings.</div>';
+      
+      allBookings = data.bookings || [];
+      renderBookings();
+    } catch (error) {
+      const emptyState = document.getElementById('emptyState');
+      if (emptyState) {
+        emptyState.style.display = 'block';
+        emptyState.textContent = 'Failed to load bookings. Please refresh.';
+      }
     }
   }
 
+  function toggleDetails(bookingId) {
+    const details = document.getElementById('details-' + bookingId);
+    if (details) {
+      details.classList.toggle('show');
+    }
+  }
+
+  function renderBookings() {
+    const listContainer = document.getElementById('bookingList');
+    const emptyState = document.getElementById('emptyState');
+    
+    const oldCards = listContainer.querySelectorAll('.booking-card');
+    oldCards.forEach(function(card) {
+      card.remove();
+    });
+
+    let filteredBookings = [];
+    
+    if (currentView === 'drafts') {
+      filteredBookings = allBookings.filter(function(booking) {
+        const status = (booking.status || '').toString().trim().toLowerCase();
+        return status === 'declined';
+      });
+    } else if (currentView === 'accepted') {
+      filteredBookings = allBookings.filter(function(booking) {
+        const status = (booking.status || '').toString().trim().toLowerCase();
+        return status === 'accepted';
+      });
+    } else {
+      filteredBookings = allBookings.filter(function(booking) {
+        const status = (booking.status || '').toString().trim().toLowerCase();
+        return status === 'pending';
+      });
+    }
+
+    if (filteredBookings.length === 0) {
+      emptyState.style.display = 'block';
+      if (currentView === 'drafts') {
+        emptyState.textContent = 'No drafts yet. Declined bookings will appear here.';
+      } else if (currentView === 'accepted') {
+        emptyState.textContent = 'No accepted bookings yet.';
+      } else {
+        emptyState.textContent = 'No pending booking requests.';
+      }
+      return;
+    }
+
+    emptyState.style.display = 'none';
+
+    let pendingCount = 0, acceptedCount = 0, declinedCount = 0;
+    allBookings.forEach(function(booking) {
+      const status = (booking.status || '').toString().trim().toLowerCase();
+      if (status === 'pending') pendingCount++;
+      if (status === 'accepted') acceptedCount++;
+      if (status === 'declined') declinedCount++;
+    });
+
+    filteredBookings.forEach(function(booking) {
+      const status = (booking.status || '').toString().trim().toLowerCase();
+
+      const card = document.createElement('div');
+      card.className = 'booking-card';
+      
+      const dateObj = new Date(booking.date);
+      const dateStr = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      
+      const draftNotice = status === 'declined' 
+        ? '<div class="draft-notice">📝 Saved in Drafts for 2 weeks before permanent deletion</div>' 
+        : '';
+
+      let actionsHtml = '';
+      if (status === 'pending') {
+        actionsHtml = '<button class="btn btn-decline" onclick="updateBooking(\'' + booking._id + '\', \'declined\')">Decline</button>' +
+          '<button class="btn btn-accept" onclick="updateBooking(\'' + booking._id + '\', \'accepted\')">Accept</button>';
+      } else if (status === 'declined') {
+        actionsHtml = '<button class="btn btn-restore" onclick="updateBooking(\'' + booking._id + '\', \'pending\')">Restore</button>';
+      }
+
+      let imageTagsHtml = '';
+      if (booking.imageNames && booking.imageNames.length > 0) {
+        const tags = booking.imageNames.map(function(name) {
+          return '<span class="image-tag">📎 ' + name + '</span>';
+        }).join('');
+        imageTagsHtml = '<div class="image-list">' + tags + '</div>';
+      } else {
+        imageTagsHtml = '<div style="color: var(--muted); font-size: 12px;">No images uploaded</div>';
+      }
+
+      card.innerHTML = '<div class="booking-header">' +
+        '<div class="booking-info">' +
+          '<div class="booking-client">' + booking.clientName + ' <span style="font-weight:400; font-size:13px; color:var(--muted)">(' + booking.clientEmail + ')</span></div>' +
+          '<div class="booking-desc">' + booking.description + '</div>' +
+          '<div class="booking-meta">' +
+            '<span>📅 ' + dateStr + '</span>' +
+            '<span>📍 ' + booking.placement + '</span>' +
+            '<span style="text-transform: capitalize; font-weight: 600; color: ' + (status === 'pending' ? 'var(--accent)' : status === 'accepted' ? 'var(--success)' : 'var(--ink)') + '">● ' + booking.status + '</span>' +
+          '</div>' +
+          draftNotice +
+        '</div>' +
+        '<div class="booking-actions">' + actionsHtml + '</div>' +
+      '</div>' +
+      '<button class="expand-btn" onclick="toggleDetails(\'' + booking._id + '\')">▼ View Details</button>' +
+      '<div class="booking-details" id="details-' + booking._id + '">' +
+        '<div class="detail-row"><div class="detail-label">Client Name</div><div class="detail-value">' + booking.clientName + '</div></div>' +
+        '<div class="detail-row"><div class="detail-label">Email</div><div class="detail-value">' + booking.clientEmail + '</div></div>' +
+        '<div class="detail-row"><div class="detail-label">Preferred Date</div><div class="detail-value">' + dateStr + '</div></div>' +
+        '<div class="detail-row"><div class="detail-label">Placement</div><div class="detail-value">' + booking.placement + '</div></div>' +
+        '<div class="detail-row"><div class="detail-label">Tattoo Description</div><div class="detail-value">' + booking.description + '</div></div>' +
+        '<div class="detail-row"><div class="detail-label">Reference Images</div>' + imageTagsHtml + '</div>' +
+      '</div>';
+      listContainer.appendChild(card);
+    });
+
+    if (currentView === 'dashboard') {
+      document.getElementById('statPending').textContent = pendingCount;
+      document.getElementById('statAccepted').textContent = acceptedCount;
+      document.getElementById('statDeclined').textContent = declinedCount;
+      document.getElementById('statTotal').textContent = allBookings.length;
+      document.getElementById('badgePending').textContent = pendingCount + ' New';
+    }
+  }
+
+  window.updateBooking = async function(bookingId, newStatus) {
+    const msg = newStatus === 'declined' ? 'move this to Drafts?' : newStatus === 'accepted' ? 'accept this booking?' : 'restore this booking?';
+    if (!confirm('Are you sure you want to ' + msg)) return;
+
+    try {
+      const res = await fetch('/api/update-booking', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: bookingId, status: newStatus })
+      });
+      
+      const result = await res.json();
+      
+      if (!res.ok) {
+        throw new Error(result.error || 'Failed to update');
+      }
+      
+      await loadBookings();
+    } catch (error) {
+      alert('Error: ' + error.message);
+    }
+  };
+
+  async function loadTestimonials() {
+    try {
+      const res = await fetch('/api/get-testimonials?artist=' + encodeURIComponent(userName));
+      const data = await res.json();
+      
+      const list = document.getElementById('testimonialList');
+      const countBadge = document.getElementById('testimonialCount');
+      const limitInput = document.getElementById('maxTestimonialInput');
+      
+      if (data.success && data.testimonials && data.testimonials.length > 0) {
+        list.innerHTML = '';
+        countBadge.textContent = data.testimonials.length + ' Review' + (data.testimonials.length !== 1 ? 's' : '');
+        
+        data.testimonials.forEach(function(t) {
+          const stars = '★'.repeat(t.rating) + '☆'.repeat(5 - t.rating);
+          const date = new Date(t.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+          
+          const card = document.createElement('div');
+          card.className = 'testimonial-manage-card';
+          card.innerHTML = '<div class="testimonial-manage-header">' +
+            '<div style="flex:1;">' +
+              '<div class="testimonial-manage-stars">' + stars + '</div>' +
+              '<div class="testimonial-manage-text">"' + escapeHtml(t.text) + '"</div>' +
+              '<div class="testimonial-manage-author">— ' + escapeHtml(t.clientName) + '</div>' +
+              '<div class="testimonial-manage-date">' + date + '</div>' +
+            '</div>' +
+            '<button class="btn-delete-testimonial" onclick="deleteTestimonial(\'' + t._id + '\')">Delete</button>' +
+          '</div>';
+          list.appendChild(card);
+        });
+      } else {
+        list.innerHTML = '<div class="empty-state">No testimonials yet. Clients can submit reviews on your public page.</div>';
+        countBadge.textContent = '0 Reviews';
+      }
+
+      const profileRes = await fetch('/api/get-artist-profile?username=' + encodeURIComponent(userName));
+      const profileData = await profileRes.json();
+      if (profileData.success && profileData.profile) {
+        artistMaxTestimonials = profileData.profile.maxTestimonials || 5;
+        limitInput.value = artistMaxTestimonials;
+      }
+    } catch (error) {
+      console.error('Failed to load testimonials', error);
+    }
+  }
+
+  window.deleteTestimonial = async function(testimonialId) {
+    if (!confirm('Are you sure you want to delete this testimonial? This will free up a slot for a new review.')) return;
+    
+    try {
+      const res = await fetch('/api/delete-testimonial', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ testimonialId: testimonialId, username: userName })
+      });
+      
+      const result = await res.json();
+      
+      if (!res.ok) {
+        throw new Error(result.error || 'Failed to delete');
+      }
+      
+      await loadTestimonials();
+    } catch (error) {
+      alert('Error: ' + error.message);
+    }
+  };
+
+  window.saveTestimonialLimit = async function() {
+    const newLimit = parseInt(document.getElementById('maxTestimonialInput').value);
+    const btn = document.getElementById('saveLimitBtn');
+    const notice = document.getElementById('limitNotice');
+    
+    if (isNaN(newLimit) || newLimit < 1) {
+      alert('Please enter a valid number (minimum 1).');
+      return;
+    }
+    
+    btn.disabled = true;
+    btn.textContent = 'Saving...';
+    notice.classList.remove('show');
+    
+    try {
+      const res = await fetch('/api/save-artist-profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: userName, maxTestimonials: newLimit })
+      });
+      
+      const result = await res.json();
+      
+      if (!res.ok) {
+        throw new Error(result.error || 'Failed to save limit');
+      }
+      
+      artistMaxTestimonials = newLimit;
+      notice.classList.add('show');
+      btn.textContent = 'Saved!';
+      setTimeout(function() {
+        btn.disabled = false;
+        btn.textContent = 'Save Limit';
+        notice.classList.remove('show');
+      }, 2000);
+    } catch (error) {
+      alert('Error: ' + error.message);
+      btn.disabled = false;
+      btn.textContent = 'Save Limit';
+    }
+  };
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  // --- SHARE LINK LOGIC ---
+  function setupShareLink() {
+    const input = document.getElementById('shareUrlInput');
+    if (input && userName) {
+      const cleanUrl = window.location.origin + '/artist.html?artist=' + encodeURIComponent(userName);
+      input.value = cleanUrl;
+    }
+  }
+
+  window.copySiteLink = function() {
+    const input = document.getElementById('shareUrlInput');
+    const btn = document.getElementById('copyLinkBtn');
+    
+    input.select();
+    input.setSelectionRange(0, 99999);
+    
+    navigator.clipboard.writeText(input.value).then(() => {
+      const originalText = btn.textContent;
+      btn.textContent = '✅ Copied!';
+      btn.style.background = 'var(--success)';
+      
+      setTimeout(() => {
+        btn.textContent = originalText;
+        btn.style.background = 'var(--ink)';
+      }, 2000);
+    }).catch(err => {
+      alert('Failed to copy link');
+    });
+  };
+
+  setupShareLink();
   loadBookings();
 </script>
 

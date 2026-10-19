@@ -9,7 +9,7 @@ module.exports = async function handler(req, res) {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    return res.status(400).json({ error: 'Missing email or password' });
+    return res.status(400).json({ error: 'Missing required fields' });
   }
 
   try {
@@ -17,31 +17,42 @@ module.exports = async function handler(req, res) {
     const db = client.db('inkplatform');
     const users = db.collection('users');
 
-    // Find the user by email
-    const user = await users.findOne({ email });
-
+    // Strict, case-sensitive search. 
+    // It looks for an exact match of the email OR an exact match of the username.
+    const user = await users.findOne({
+      $or: [
+        { email: email },
+        { name: email } 
+      ]
+    });
+    
     if (!user) {
-      return res.status(401).json({ error: 'Invalid email or password' });
+      return res.status(400).json({ error: 'Invalid email/username or password' });
     }
 
-    // Check if the password matches
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(401).json({ error: 'Invalid email or password' });
-    }
-
-    // Check if email is verified
+    // NEW: Check if the user has verified their email
+    // If it is explicitly false, block them. 
+    // (Note: Users who signed up before this update won't have this field, so they can still log in).
     if (user.verified === false) {
-      return res.status(403).json({ error: 'Please verify your email before logging in.' });
+      return res.status(403).json({ 
+        error: 'Please verify your email address before logging in. Check your inbox for the verification link.' 
+      });
     }
 
-    // Send back the user data (including the name!)
+    const isPasswordCorrect = await bcrypt.compare(password, user.password);
+
+    if (!isPasswordCorrect) {
+      return res.status(400).json({ error: 'Invalid email/username or password' });
+    }
+
     return res.status(200).json({ 
       success: true, 
-      user: { 
-        name: user.name, 
-        email: user.email 
-      } 
+      message: 'Logged in successfully',
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email
+      }
     });
 
   } catch (error) {
