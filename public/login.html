@@ -130,7 +130,6 @@
   // --- GOOGLE SIGN-IN LOGIC ---
   let googleClient;
 
-  // Initialize Google Client when the script loads
   window.onload = function () {
     google.accounts.id.initialize({
       client_id: '941593687164-djt4kj57ql7hemhpf0sdru4vj8iu7s44.apps.googleusercontent.com',
@@ -139,7 +138,6 @@
     googleClient = google.accounts.id;
   };
 
-  // When user clicks the Google button, open the popup
   googleBtn.addEventListener('click', () => {
     errorMsg.style.display = 'none';
     if (googleClient) {
@@ -150,16 +148,14 @@
     }
   });
 
-  // Handle the response from Google
   async function handleGoogleResponse(response) {
-    // The response.credential is a JWT token containing the user's info
     const credential = response.credential;
     
     try {
-      const res = await fetch('/api/google-auth', {
+      const res = await fetch('/api/google', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ credential: credential })
+        body: JSON.stringify({ action: 'verify', credential: credential })
       });
       
       const result = await res.json();
@@ -168,13 +164,11 @@
         throw new Error(result.error || 'Google login failed');
       }
 
-      // If user exists, log them in
       if (result.user) {
         localStorage.setItem('ink_user_email', result.user.email);
         localStorage.setItem('ink_user_name', result.user.name);
         window.location.href = 'dashboard.html';
       } 
-      // If user is new, redirect to username selection
       else if (result.needsUsername) {
         localStorage.setItem('ink_google_email', result.email);
         window.location.href = 'choose-username.html';
