@@ -704,7 +704,7 @@
     closeSidebar();
     
     if (view !== 'notifications' && view !== 'testimonials') {
-      renderBookings();
+      loadBookings();
     }
   };
 
@@ -720,6 +720,7 @@
       allBookings = data.bookings || [];
       renderBookings();
     } catch (error) {
+      console.error('Load bookings error:', error);
       const emptyState = document.getElementById('emptyState');
       if (emptyState) {
         emptyState.style.display = 'block';
@@ -733,6 +734,22 @@
     if (details) {
       details.classList.toggle('show');
     }
+  }
+
+  function updateStats() {
+    let pendingCount = 0, acceptedCount = 0, declinedCount = 0;
+    allBookings.forEach(function(booking) {
+      const status = (booking.status || '').toString().trim().toLowerCase();
+      if (status === 'pending') pendingCount++;
+      if (status === 'accepted') acceptedCount++;
+      if (status === 'declined') declinedCount++;
+    });
+
+    document.getElementById('statPending').textContent = pendingCount;
+    document.getElementById('statAccepted').textContent = acceptedCount;
+    document.getElementById('statDeclined').textContent = declinedCount;
+    document.getElementById('statTotal').textContent = allBookings.length;
+    document.getElementById('badgePending').textContent = pendingCount + ' New';
   }
 
   function renderBookings() {
@@ -772,18 +789,12 @@
       } else {
         emptyState.textContent = 'No pending booking requests.';
       }
-      return;
+    } else {
+      emptyState.style.display = 'none';
     }
 
-    emptyState.style.display = 'none';
-
-    let pendingCount = 0, acceptedCount = 0, declinedCount = 0;
-    allBookings.forEach(function(booking) {
-      const status = (booking.status || '').toString().trim().toLowerCase();
-      if (status === 'pending') pendingCount++;
-      if (status === 'accepted') acceptedCount++;
-      if (status === 'declined') declinedCount++;
-    });
+    // Always update stats regardless of current view
+    updateStats();
 
     filteredBookings.forEach(function(booking) {
       const status = (booking.status || '').toString().trim().toLowerCase();
@@ -809,14 +820,13 @@
       let imageTagsHtml = '';
       if (booking.imageNames && booking.imageNames.length > 0) {
         const tags = booking.imageNames.map(function(name) {
-          return '<span class="image-tag"> ' + name + '</span>';
+          return '<span class="image-tag">📎 ' + name + '</span>';
         }).join('');
         imageTagsHtml = '<div class="image-list">' + tags + '</div>';
       } else {
         imageTagsHtml = '<div style="color: var(--muted); font-size: 12px;">No images uploaded</div>';
       }
 
-      // MINOR BADGE LOGIC
       const minorBadge = booking.isMinor 
         ? '<span style="background: #dc2626; color: #fff; font-size: 10px; font-weight: 800; padding: 2px 6px; border-radius: 4px; margin-left: 8px; letter-spacing: 0.5px;">⚠️ MINOR</span>' 
         : '';
@@ -826,7 +836,7 @@
           '<div class="booking-client">' + booking.clientName + ' <span style="font-weight:400; font-size:13px; color:var(--muted)">(' + booking.clientEmail + ')</span>' + minorBadge + '</div>' +
           '<div class="booking-desc">' + booking.description + '</div>' +
           '<div class="booking-meta">' +
-            '<span> ' + dateStr + '</span>' +
+            '<span>📅 ' + dateStr + '</span>' +
             '<span>📍 ' + booking.placement + '</span>' +
             '<span style="text-transform: capitalize; font-weight: 600; color: ' + (status === 'pending' ? 'var(--accent)' : status === 'accepted' ? 'var(--success)' : 'var(--ink)') + '">● ' + booking.status + '</span>' +
           '</div>' +
@@ -846,14 +856,6 @@
       '</div>';
       listContainer.appendChild(card);
     });
-
-    if (currentView === 'dashboard') {
-      document.getElementById('statPending').textContent = pendingCount;
-      document.getElementById('statAccepted').textContent = acceptedCount;
-      document.getElementById('statDeclined').textContent = declinedCount;
-      document.getElementById('statTotal').textContent = allBookings.length;
-      document.getElementById('badgePending').textContent = pendingCount + ' New';
-    }
   }
 
   window.updateBooking = async function(bookingId, newStatus) {
@@ -873,8 +875,10 @@
         throw new Error(result.error || 'Failed to update');
       }
       
+      // Force refresh of all bookings and stats
       await loadBookings();
     } catch (error) {
+      console.error('Update booking error:', error);
       alert('Error: ' + error.message);
     }
   };
@@ -995,7 +999,6 @@
     return div.innerHTML;
   }
 
-  // --- SHARE LINK LOGIC ---
   function setupShareLink() {
     const input = document.getElementById('shareUrlInput');
     if (input && userName) {
