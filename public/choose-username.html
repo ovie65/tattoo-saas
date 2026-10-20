@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Choose Username — INK</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/space-grotesk@5/index.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5/index.css" />
+<style>
+  :root { --bg: #ffffff; --ink: #0a0a0a; --muted: #6b6b6b; --line: #e5e5e5; --accent: #dc2626; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--ink); font-family: 'Inter', sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; -webkit-font-smoothing: antialiased; }
+  .container { max-width: 420px; width: 100%; }
+  .logo { font-family: 'Space Grotesk', sans-serif; font-size: 26px; font-weight: 800; letter-spacing: .25em; margin-bottom: 48px; text-align: center; }
+  .logo span { color: var(--accent); }
+  h1 { font-family: 'Space Grotesk', sans-serif; font-size: 30px; font-weight: 700; margin-bottom: 8px; text-align: center; letter-spacing: -.02em; }
+  .sub { text-align: center; color: var(--muted); font-size: 14px; margin-bottom: 36px; }
+  .field { margin-bottom: 16px; }
+  label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 8px; letter-spacing: .04em; text-transform: uppercase; color: var(--ink); }
+  .hint { font-size: 11px; color: var(--muted); margin-top: 6px; margin-bottom: 4px; line-height: 1.4; }
+  input { width: 100%; padding: 14px 16px; border: 1px solid var(--ink); border-radius: 10px; font-size: 14px; font-family: inherit; background: var(--bg); transition: border-color .2s, box-shadow .2s; }
+  input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(220,38,38,.1); }
+  .btn { width: 100%; padding: 14px; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; transition: all .2s; font-family: inherit; }
+  .btn-primary { background: var(--ink); color: #fff; }
+  .btn-primary:hover { background: #000; transform: translateY(-1px); }
+  .btn-primary:disabled { background: #ccc; cursor: not-allowed; transform: none; }
+  .error { background: rgba(220,38,38,.08); color: var(--accent); padding: 12px; border-radius: 10px; font-size: 13px; margin-bottom: 16px; text-align: center; display: none; border: 1px solid rgba(220,38,38,.2); }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="logo">INK<span>.</span></div>
+  <h1>Choose Your Username</h1>
+  <p class="sub">Welcome! Let's create your artist profile.</p>
+
+  <div class="error" id="errorMsg"></div>
+
+  <form id="usernameForm">
+    <div class="field">
+      <label for="username">Artist Ink Name</label>
+      <input type="text" id="username" name="username" required placeholder="e.g. inklord" autocomplete="username" />
+      <div class="hint">This will be your personal website address (e.g., yoursite.com/inklord). Use lowercase letters, numbers, underscores (_), or hyphens (-).</div>
+    </div>
+
+    <button type="submit" class="btn btn-primary" id="submitBtn">Continue to Dashboard</button>
+  </form>
+</div>
+
+<script>
+  const form = document.getElementById('usernameForm');
+  const btn = document.getElementById('submitBtn');
+  const errorMsg = document.getElementById('errorMsg');
+  const usernameInput = document.getElementById('username');
+
+  usernameInput.addEventListener('input', function(e) {
+    let val = this.value.toLowerCase();
+    val = val.replace(/[^a-z0-9_-]/g, '-');
+    val = val.replace(/-+/g, '-');
+    val = val.replace(/^-|-$/g, '');
+    this.value = val;
+  });
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    errorMsg.style.display = 'none';
+    btn.disabled = true;
+    btn.textContent = 'Creating account...';
+
+    const username = usernameInput.value.trim().toLowerCase();
+    const email = localStorage.getItem('ink_google_email');
+
+    if (!email) {
+      errorMsg.textContent = 'Session expired. Please try signing in with Google again.';
+      errorMsg.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'Continue to Dashboard';
+      return;
+    }
+
+    if (!/^[a-z0-9_-]+$/.test(username)) {
+      errorMsg.textContent = 'Username can only contain lowercase letters, numbers, underscores, and hyphens.';
+      errorMsg.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'Continue to Dashboard';
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/create-google-user', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, name: username })
+      });
+      
+      const result = await res.json();
+      
+      if (!res.ok) {
+        throw new Error(result.error || 'Failed to create account');
+      }
+
+      localStorage.setItem('ink_user_email', email);
+      localStorage.setItem('ink_user_name', username);
+      localStorage.removeItem('ink_google_email');
+      
+      window.location.href = 'dashboard.html';
+
+    } catch (err) {
+      errorMsg.textContent = err.message;
+      errorMsg.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'Continue to Dashboard';
+    }
+  });
+</script>
+
+</body>
+</html>

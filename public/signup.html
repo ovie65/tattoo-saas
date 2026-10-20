@@ -6,6 +6,8 @@
 <title>Sign Up — INK</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/space-grotesk@5/index.css" />
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5/index.css" />
+<!-- Google Identity Services Script -->
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
   :root {
     --bg: #ffffff;
@@ -237,13 +239,9 @@
   // Auto-format the Ink Name as they type
   nameInput.addEventListener('input', function(e) {
     let val = this.value.toLowerCase();
-    // Replace spaces and invalid characters with a hyphen
     val = val.replace(/[^a-z0-9_-]/g, '-');
-    // Remove multiple hyphens in a row
     val = val.replace(/-+/g, '-');
-    // Remove leading or trailing hyphens
     val = val.replace(/^-|-$/g, '');
-    
     this.value = val;
   });
 
@@ -274,7 +272,6 @@
       return;
     }
 
-    // Validate Ink Name format
     if (!/^[a-z0-9_-]+$/.test(data.name)) {
       errorMsg.textContent = 'Ink Name can only contain lowercase letters, numbers, underscores, and hyphens.';
       errorMsg.style.display = 'block';
@@ -296,7 +293,6 @@
         throw new Error(result.error || 'Something went wrong');
       }
 
-      // Hide the form and show the success message
       form.style.display = 'none';
       document.getElementById('divider').style.display = 'none';
       document.getElementById('googleBtn').style.display = 'none';
@@ -313,10 +309,57 @@
     }
   });
 
+  // --- GOOGLE SIGN-IN LOGIC ---
+  let googleClient;
+
+  window.onload = function () {
+    google.accounts.id.initialize({
+      client_id: '941593687164-djt4kj57ql7hemhpf0sdru4vj8iu7s44.apps.googleusercontent.com',
+      callback: handleGoogleResponse
+    });
+    googleClient = google.accounts.id;
+  };
+
   googleBtn.addEventListener('click', () => {
-    errorMsg.textContent = 'Google Sign-Up coming soon. Please use the form above.';
-    errorMsg.style.display = 'block';
+    errorMsg.style.display = 'none';
+    if (googleClient) {
+      googleClient.prompt();
+    } else {
+      errorMsg.textContent = 'Google is still loading. Please try again in a second.';
+      errorMsg.style.display = 'block';
+    }
   });
+
+  async function handleGoogleResponse(response) {
+    const credential = response.credential;
+    
+    try {
+      const res = await fetch('/api/google-auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ credential: credential })
+      });
+      
+      const result = await res.json();
+      
+      if (!res.ok) {
+        throw new Error(result.error || 'Google login failed');
+      }
+
+      if (result.user) {
+        localStorage.setItem('ink_user_email', result.user.email);
+        localStorage.setItem('ink_user_name', result.user.name);
+        window.location.href = 'dashboard.html';
+      } 
+      else if (result.needsUsername) {
+        localStorage.setItem('ink_google_email', result.email);
+        window.location.href = 'choose-username.html';
+      }
+    } catch (err) {
+      errorMsg.textContent = err.message;
+      errorMsg.style.display = 'block';
+    }
+  }
 </script>
 
 </body>

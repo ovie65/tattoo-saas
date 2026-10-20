@@ -6,6 +6,8 @@
 <title>Log In — INK</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/space-grotesk@5/index.css" />
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5/index.css" />
+<!-- Google Identity Services Script -->
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
   :root { --bg: #ffffff; --ink: #0a0a0a; --muted: #6b6b6b; --line: #e5e5e5; --accent: #dc2626; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -97,7 +99,6 @@
     btn.textContent = 'Logging in...';
 
     const data = {
-      // We send the exact string the user typed. No changing to lowercase here.
       email: sanitize(document.getElementById('email').value.trim()),
       password: document.getElementById('password').value
     };
@@ -126,10 +127,63 @@
     }
   });
 
+  // --- GOOGLE SIGN-IN LOGIC ---
+  let googleClient;
+
+  // Initialize Google Client when the script loads
+  window.onload = function () {
+    google.accounts.id.initialize({
+      client_id: '941593687164-djt4kj57ql7hemhpf0sdru4vj8iu7s44.apps.googleusercontent.com',
+      callback: handleGoogleResponse
+    });
+    googleClient = google.accounts.id;
+  };
+
+  // When user clicks the Google button, open the popup
   googleBtn.addEventListener('click', () => {
-    errorMsg.textContent = 'Google Log In coming soon. Please use the form above.';
-    errorMsg.style.display = 'block';
+    errorMsg.style.display = 'none';
+    if (googleClient) {
+      googleClient.prompt();
+    } else {
+      errorMsg.textContent = 'Google is still loading. Please try again in a second.';
+      errorMsg.style.display = 'block';
+    }
   });
+
+  // Handle the response from Google
+  async function handleGoogleResponse(response) {
+    // The response.credential is a JWT token containing the user's info
+    const credential = response.credential;
+    
+    try {
+      const res = await fetch('/api/google-auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ credential: credential })
+      });
+      
+      const result = await res.json();
+      
+      if (!res.ok) {
+        throw new Error(result.error || 'Google login failed');
+      }
+
+      // If user exists, log them in
+      if (result.user) {
+        localStorage.setItem('ink_user_email', result.user.email);
+        localStorage.setItem('ink_user_name', result.user.name);
+        window.location.href = 'dashboard.html';
+      } 
+      // If user is new, redirect to username selection
+      else if (result.needsUsername) {
+        localStorage.setItem('ink_google_email', result.email);
+        window.location.href = 'choose-username.html';
+      }
+    } catch (err) {
+      errorMsg.textContent = err.message;
+      errorMsg.style.display = 'block';
+    }
+  }
 </script>
 
 </body>
