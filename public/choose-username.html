@@ -39,7 +39,8 @@
   <form id="usernameForm">
     <div class="field">
       <label for="username">Artist Ink Name</label>
-      <input type="text" id="username" name="username" required placeholder="e.g. beastinkk" autocomplete="username" />
+      <!-- autocomplete="off" stops the browser from injecting bad names -->
+      <input type="text" id="username" name="username" required placeholder="e.g. beastinkk" autocomplete="off" />
       <div class="hint">This will be your personal website address. Use only lowercase letters, numbers, hyphens (-), or underscores (_). No spaces!</div>
     </div>
 
@@ -56,9 +57,9 @@
   // Automatically fix the username as they type
   usernameInput.addEventListener('input', function(e) {
     let val = this.value.toLowerCase();
-    val = val.replace(/[^a-z0-9_-]/g, '-'); // Change bad characters to hyphens
-    val = val.replace(/-+/g, '-'); // Remove double hyphens
-    val = val.replace(/^-|-$/g, ''); // Remove hyphens at the start or end
+    val = val.replace(/[^a-z0-9_-]/g, '-'); 
+    val = val.replace(/-+/g, '-'); 
+    val = val.replace(/^-|-$/g, ''); 
     this.value = val;
   });
 
