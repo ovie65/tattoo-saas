@@ -39,8 +39,8 @@
   <form id="usernameForm">
     <div class="field">
       <label for="username">Artist Ink Name</label>
-      <input type="text" id="username" name="username" required placeholder="e.g. inklord" autocomplete="username" />
-      <div class="hint">This will be your personal website address (e.g., yoursite.com/inklord). Use lowercase letters, numbers, underscores (_), or hyphens (-).</div>
+      <input type="text" id="username" name="username" required placeholder="e.g. beastinkk" autocomplete="username" />
+      <div class="hint">This will be your personal website address. Use only lowercase letters, numbers, hyphens (-), or underscores (_). No spaces!</div>
     </div>
 
     <button type="submit" class="btn btn-primary" id="submitBtn">Continue to Dashboard</button>
@@ -53,11 +53,12 @@
   const errorMsg = document.getElementById('errorMsg');
   const usernameInput = document.getElementById('username');
 
+  // Automatically fix the username as they type
   usernameInput.addEventListener('input', function(e) {
     let val = this.value.toLowerCase();
-    val = val.replace(/[^a-z0-9_-]/g, '-');
-    val = val.replace(/-+/g, '-');
-    val = val.replace(/^-|-$/g, '');
+    val = val.replace(/[^a-z0-9_-]/g, '-'); // Change bad characters to hyphens
+    val = val.replace(/-+/g, '-'); // Remove double hyphens
+    val = val.replace(/^-|-$/g, ''); // Remove hyphens at the start or end
     this.value = val;
   });
 
@@ -79,7 +80,7 @@
     }
 
     if (!/^[a-z0-9_-]+$/.test(username)) {
-      errorMsg.textContent = 'Username can only contain lowercase letters, numbers, underscores, and hyphens.';
+      errorMsg.textContent = 'Username can only contain lowercase letters, numbers, hyphens, and underscores.';
       errorMsg.style.display = 'block';
       btn.disabled = false;
       btn.textContent = 'Continue to Dashboard';
@@ -87,10 +88,10 @@
     }
 
     try {
-      const res = await fetch('/api/create-google-user', {
+      const res = await fetch('/api/google', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, name: username })
+        body: JSON.stringify({ action: 'create', email, name: username })
       });
       
       const result = await res.json();
