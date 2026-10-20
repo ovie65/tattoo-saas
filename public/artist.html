@@ -465,7 +465,7 @@
 
   async function loadTestimonials() {
     try {
-      const res = await fetch('/api/get-testimonials?artist=' + encodeURIComponent(artistName));
+      const res = await fetch('/api/testimonials?artist=' + encodeURIComponent(artistName));
       const data = await res.json();
       const grid = document.getElementById('testimonialGrid');
       
@@ -516,7 +516,7 @@
     notice.className = 't-notice';
 
     try {
-      const res = await fetch('/api/save-testimonial', {
+      const res = await fetch('/api/testimonials', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ artistName, clientName: name, rating, text })

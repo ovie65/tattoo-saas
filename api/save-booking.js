@@ -6,11 +6,17 @@ module.exports = async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { artistName, clientName, clientEmail, placement, date, description } = req.body;
+  const { artistName, clientName, clientEmail, age, placement, date, description } = req.body;
 
   // Check if all required fields are present
   if (!artistName || !clientName || !clientEmail || !placement || !date || !description) {
     return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  // Validate age if provided
+  const clientAge = age ? parseInt(age) : null;
+  if (clientAge !== null && (isNaN(clientAge) || clientAge < 1 || clientAge > 120)) {
+    return res.status(400).json({ error: 'Please enter a valid age' });
   }
 
   // Simple sanitization to prevent XSS (strips HTML tags)
@@ -26,6 +32,8 @@ module.exports = async function handler(req, res) {
       artistName: sanitize(artistName),
       clientName: sanitize(clientName),
       clientEmail: sanitize(clientEmail),
+      age: clientAge,
+      isMinor: clientAge !== null && clientAge < 18, // This is the magic flag!
       placement: sanitize(placement),
       date: sanitize(date),
       description: sanitize(description),

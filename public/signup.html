@@ -191,6 +191,12 @@
 
   <form id="signupForm">
     <div class="field">
+      <label for="age">Age</label>
+      <input type="number" id="age" name="age" required placeholder="e.g. 21" min="1" max="120" />
+      <div class="hint">️ You must be 18 years or older to use INK. Minors are strictly prohibited.</div>
+    </div>
+
+    <div class="field">
       <label for="name">Artist Ink Name</label>
       <input type="text" id="name" name="name" required placeholder="e.g. inklord" autocomplete="username" />
       <div class="hint">Input your artist ink name (e.g. inklord) as this will serve as your personal website address. Use lowercase letters, numbers, underscores (_), or hyphens (-). NOTE: spaces in between are automatically converted to (- hyphens).</div>
@@ -236,7 +242,6 @@
   const googleBtn = document.getElementById('googleBtn');
   const nameInput = document.getElementById('name');
 
-  // Auto-format the Ink Name as they type
   nameInput.addEventListener('input', function(e) {
     let val = this.value.toLowerCase();
     val = val.replace(/[^a-z0-9_-]/g, '-');
@@ -257,6 +262,17 @@
     successMsg.style.display = 'none';
     btn.disabled = true;
     btn.textContent = 'Creating...';
+
+    const age = parseInt(document.getElementById('age').value);
+
+    // AGE CHECK
+    if (isNaN(age) || age < 18) {
+      errorMsg.textContent = '⛔ You must be at least 18 years old to create an account.';
+      errorMsg.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'Create Account';
+      return;
+    }
 
     const data = {
       name: sanitize(document.getElementById('name').value.trim().toLowerCase()),
@@ -334,10 +350,10 @@
     const credential = response.credential;
     
     try {
-      const res = await fetch('/api/google-auth', {
+      const res = await fetch('/api/google', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ credential: credential })
+        body: JSON.stringify({ action: 'verify', credential: credential })
       });
       
       const result = await res.json();

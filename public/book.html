@@ -61,6 +61,13 @@
     text-transform: uppercase;
     color: var(--ink);
   }
+  .hint {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 6px;
+    margin-bottom: 4px;
+    line-height: 1.4;
+  }
   input, textarea, select {
     width: 100%;
     padding: 14px 16px;
@@ -163,6 +170,11 @@
 
     <div class="row">
       <div class="field">
+        <label for="age">Your Age</label>
+        <input type="number" id="age" required placeholder="e.g. 21" min="1" max="120" />
+        <div class="hint">If you are under 18, parental consent will be required at the studio.</div>
+      </div>
+      <div class="field">
         <label for="placement">Placement</label>
         <select id="placement" required>
           <option value="">Select area...</option>
@@ -173,10 +185,11 @@
           <option value="Other">Other</option>
         </select>
       </div>
-      <div class="field">
-        <label for="date">Preferred Date</label>
-        <input type="date" id="date" required />
-      </div>
+    </div>
+
+    <div class="field">
+      <label for="date">Preferred Date</label>
+      <input type="date" id="date" required />
     </div>
 
     <div class="field">
@@ -209,7 +222,6 @@
   const fileInput = document.getElementById('images');
   const fileList = document.getElementById('fileList');
 
-  // 1. Block past dates in the calendar (Fixed timezone bug)
   const today = new Date();
   const yyyy = today.getFullYear();
   const mm = String(today.getMonth() + 1).padStart(2, '0');
@@ -218,18 +230,15 @@
   
   dateInput.setAttribute('min', todayStr);
 
-  // Get artist name from URL
   const params = new URLSearchParams(window.location.search);
   const artistName = params.get('artist') || 'INK Artist';
   artistDisplay.textContent = artistName;
 
-  // Fix the back button to go to artist page, not the main landing page
   const backLink = document.getElementById('backToArtist');
   if (backLink) {
     backLink.href = 'artist.html?artist=' + encodeURIComponent(artistName);
   }
 
-  // 2. Show file names when user selects images
   fileInput.addEventListener('change', (e) => {
     const files = Array.from(e.target.files);
     if (files.length > 0) {
@@ -250,11 +259,17 @@
     errorMsg.style.display = 'none';
     successMsg.style.display = 'none';
 
-    // 3. Double-check that the date is not in the past
     const selectedDate = new Date(dateInput.value);
     const todayDate = new Date(todayStr);
     if (selectedDate < todayDate) {
       errorMsg.textContent = 'Please select a date that is today or in the future.';
+      errorMsg.style.display = 'block';
+      return;
+    }
+
+    const age = parseInt(document.getElementById('age').value);
+    if (isNaN(age) || age < 1 || age > 120) {
+      errorMsg.textContent = 'Please enter a valid age.';
       errorMsg.style.display = 'block';
       return;
     }
@@ -266,6 +281,7 @@
       artistName: artistName,
       clientName: sanitize(document.getElementById('clientName').value.trim()),
       clientEmail: sanitize(document.getElementById('clientEmail').value.trim()),
+      age: age,
       placement: sanitize(document.getElementById('placement').value),
       date: dateInput.value,
       description: sanitize(document.getElementById('description').value.trim()),
