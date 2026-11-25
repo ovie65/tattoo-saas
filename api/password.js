@@ -3,7 +3,7 @@ const { Resend } = require('resend');
 const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 
-const resend = new Resend('re_Jr7DsEXL_GjPAriZQ8NmfnTMeXn6hYN');
+const resend = new Resend('re_Jr7DsEXL_GjPAriZQ8NmfnTMeXn6hYNLg');
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
