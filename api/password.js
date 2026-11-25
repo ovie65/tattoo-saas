@@ -3,6 +3,7 @@ const { Resend } = require('resend');
 const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 
+// Securely grab the API key from Vercel Environment Variables
 const resend = new Resend(process.env.RESEND_API_KEY_PASSWORD);
 
 module.exports = async function handler(req, res) {
